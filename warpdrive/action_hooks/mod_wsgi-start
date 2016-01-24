@@ -1,0 +1,158 @@
+#!/bin/sh
+
+set -x
+
+# Now run the the actual application under Apache/mod_wsgi. This is run
+# in the foreground, replacing this process and adopting process ID 1 so
+# that signals are received properly and Apache will shutdown properly
+# when the container is being stopped. It will log to stdout/stderr.
+#
+# In running the mod_wsgi-express command, we collect select override
+# arguments from the environment. We also allow extra server arguments
+# in the file '.warpdrive/server_args'.
+
+WARPDRIVE_SERVER_ARGS="--log-to-terminal --startup-log --port 8080"
+
+if [ x"$MOD_WSGI_PROCESSES" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --processes '$MOD_WSGI_PROCESSES'"
+fi
+
+if [ x"$MOD_WSGI_THREADS" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --threads '$MOD_WSGI_THREADS'"
+fi
+
+if [ x"$MOD_WSGI_MAX_CLIENTS" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --max-clients '$MOD_WSGI_MAX_CLIENTS'"
+fi
+
+if [ x"$MOD_WSGI_INITIAL_WORKERS" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --initial-workers '$MOD_WSGI_INITIAL_WORKERS'"
+fi
+
+if [ x"$MOD_WSGI_MINIMUM_SPARE_WORKERS" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --minimum-spare-workers '$MOD_WSGI_MINIMUM_SPARE_WORKERS'"
+fi
+
+if [ x"$MOD_WSGI_MAXIMUM_SPARE_WORKERS" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --maximum-spare-workers '$MOD_WSGI_MAXIMUM_SPARE_WORKERS'"
+fi
+
+if [ x"$MOD_WSGI_LIMIT_REQUEST_BODY" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --limit-request-body '$MOD_WSGI_LIMIT_REQUEST_BODY'"
+fi
+
+if [ x"$MOD_WSGI_MAXIMUM_REQUESTS" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --maximum-requests '$MOD_WSGI_MAXIMUM_REQUESTS'"
+fi
+
+if [ x"$MOD_WSGI_INACTIVITY_TIMEOUT" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --inactivity-timeout '$MOD_WSGI_INACTIVITY_TIMEOUT'"
+fi
+
+if [ x"$MOD_WSGI_REQUEST_TIMEOUT" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --request-timeout '$MOD_WSGI_REQUEST_TIMEOUT'"
+fi
+
+if [ x"$MOD_WSGI_CONNECT_TIMEOUT" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --connect-timeout '$MOD_WSGI_CONNECT_TIMEOUT'"
+fi
+
+if [ x"$MOD_WSGI_SOCKET_TIMEOUT" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --socket-timeout '$MOD_WSGI_SOCKET_TIMEOUT'"
+fi
+
+if [ x"$MOD_WSGI_QUEUE_TIMEOUT" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --queue-timeout '$MOD_WSGI_QUEUE_TIMEOUT'"
+fi
+
+if [ x"$MOD_WSGI_HEADER_TIMEOUT" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --header-timeout '$MOD_WSGI_HEADER_TIMEOUT'"
+fi
+
+if [ x"$MOD_WSGI_HEADER_MAX_TIMEOUT" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --header-max-timeout '$MOD_WSGI_HEADER_MAX_TIMEOUT'"
+fi
+
+if [ x"$MOD_WSGI_HEADER_MIN_RATE" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --header-min-rate '$MOD_WSGI_HEADER_MIN_RATE'"
+fi
+
+if [ x"$MOD_WSGI_BODY_TIMEOUT" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --body-timeout '$MOD_WSGI_BODY_TIMEOUT'"
+fi
+
+if [ x"$MOD_WSGI_BODY_MAX_TIMEOUT" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --body-max-timeout '$MOD_WSGI_BODY_MAX_TIMEOUT'"
+fi
+
+if [ x"$MOD_WSGI_BODY_MIN_RATE" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --body-min-rate '$MOD_WSGI_BODY_MIN_RATE'"
+fi
+
+if [ x"$MOD_WSGI_SERVER_BACKLOG" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --server-backlog '$MOD_WSGI_SERVER_BACKLOG'"
+fi
+
+if [ x"$MOD_WSGI_DAEMON_BACKLOG" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --daemon-backlog '$MOD_WSGI_DAEMON_BACKLOG'"
+fi
+
+if [ x"$MOD_WSGI_SERVER_MPM" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --server-mpm '$MOD_WSGI_SERVER_MPM'"
+fi
+
+if [ x"$MOD_WSGI_LOG_LEVEL" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --log-level '$MOD_WSGI_LOG_LEVEL'"
+fi
+
+if [ x"$MOD_WSGI_RELOAD_ON_CHANGES" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --reload-on-changes"
+fi
+
+if [ x"$MOD_WSGI_ENABLE_DEBUGGER" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --debug-mode --enable-debugger"
+fi
+
+if [ x"$MOD_WSGI_WORKING_DIRECTORY" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --working-directory '$MOD_WSGI_WORKING_DIRECTORY'"
+fi
+
+if [ x"$MOD_WSGI_APPLICATION_TYPE" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --application-type '$MOD_WSGI_APPLICATION_TYPE'"
+fi
+
+if [ x"$MOD_WSGI_ENTRY_POINT" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --entry-point '$MOD_WSGI_ENTRY_POINT'"
+fi
+
+if [ x"$NEW_RELIC_LICENSE_KEY" != x"" -o \
+        x"$NEW_RELIC_CONFIG_FILE" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --with-newrelic"
+fi
+
+if [ -f .warpdrive/server_args ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS `cat .warpdrive/server_args`"
+
+    # Expand any environment variable references in options.
+
+    WARPDRIVE_TMPFILE=/tmp/server_args.$$
+
+    cat > $WARPDRIVE_TMPFILE << EOF
+#!/bin/sh
+cat << !
+$WARPDRIVE_SERVER_ARGS
+!
+EOF
+
+    chmod +x $WARPDRIVE_TMPFILE
+
+    WARPDRIVE_SERVER_ARGS=`$WARPDRIVE_TMPFILE`
+
+    rm -f $WARPDRIVE_TMPFILE
+fi
+
+if [ $$ = 1 ]; then
+    WARPDRIVE_TINI="tini --"
+fi
+
+exec $WARPDRIVE_TINI mod_wsgi-express start-server $WARPDRIVE_SERVER_ARGS "$@"

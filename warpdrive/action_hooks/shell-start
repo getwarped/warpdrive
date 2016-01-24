@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -x
+
+WARPDRIVE_PROGRAM=$1
+
+WARPDRIVE_SERVER_ARGS=""
+
+if [ -f .warpdrive/server_args ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS `cat .warpdrive/server_args`"
+
+    # Expand any environment variable references in options.
+
+    WARPDRIVE_TMPFILE=/tmp/server_args.$$
+
+    cat > $WARPDRIVE_TMPFILE << EOF
+#!/bin/sh
+cat << !
+$WARPDRIVE_SERVER_ARGS
+!
+EOF
+
+    chmod +x $WARPDRIVE_TMPFILE
+
+    WARPDRIVE_SERVER_ARGS=`$WARPDRIVE_TMPFILE`
+
+    rm -f $WARPDRIVE_TMPFILE
+fi
+
+if [ $$ = 1 ]; then
+    WARPDRIVE_TINI="tini --"
+fi
+
+exec $WARPDRIVE_TINI $WARPDRIVE_PROGRAM $WARPDRIVE_SERVER_ARGS

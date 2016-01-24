@@ -31,180 +31,86 @@ if [ -x .warpdrive/action_hooks/deploy ]; then
     .warpdrive/action_hooks/deploy
 fi
 
-# Now run the the actual application under Apache/mod_wsgi. This is run
-# in the foreground, replacing this process and adopting process ID 1 so
-# that signals are received properly and Apache will shutdown properly
-# when the container is being stopped. It will log to stdout/stderr.
+# Determine whether we have been told that we are running a specific web
+# application server type. If we haven't, we will try and automatically
+# determine how the server should be started and what WSGI server to use.
+
+if [ -f .warpdrive/server_type ]; then
+    WARPDRIVE_SERVER_TYPE="`cat .warpdrive/server_type`"
+else
+    WARPDRIVE_SERVER_TYPE="auto"
+fi
+
+# If automatic, we are going to try a number of different strategies.
+# First up we are going to check whether there exists an executable
+# 'app.sh' program in the top level directory of the application. If
+# there is, we switch to 'shell' server type.
+
+if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -a -x app.sh ]; then
+    WARPDRIVE_SERVER_TYPE="shell"
+    WARPDRIVE_SERVER_ARGS="app.sh"
+fi
+
+# Now check whether there exists an 'app.py' script file in the top
+# level directory. If there is, we switch to 'python' server type.
+
+if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -a -f app.py ]; then
+    WARPDRIVE_SERVER_TYPE="python"
+    WARPDRIVE_SERVER_ARGS="app.py"
+fi
+
+# Now check whether there exists a 'paste.ini' file. If there is, switch
+# to 'mod_wsgi' server type.
+
+if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -a -f paste.ini ]; then
+    WARPDRIVE_SERVER_TYPE="mod_wsgi"
+    WARPDRIVE_SERVER_ARGS="--application-type paste --entry-point paste.ini"
+fi
+
+# Now check whether there exists a 'wsgi.py' file in the top level
+# directory. If there is, we switch to 'mod_wsgi' server type.
 #
-# In running the mod_wsgi-express command, we collect select override
-# arguments from the environment. We also allow extra server arguments
-# in the file '.warpdrive/server_args', plus allow the whole command to be
-# overridden using '.warpdrive/action_hooks/start'.
+# We also check whether there is a 'wsgi/static' directory for
+# compatibility with OpenShift 2. If there is, this will be mapped as
+# being a directory of static files under '/static' sub URL.
 
-SERVER_ARGS="--log-to-terminal --startup-log --port 8080"
+if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -a -f wsgi.py ]; then
+    WARPDRIVE_SERVER_TYPE="mod_wsgi"
+    WARPDRIVE_SERVER_ARGS="--application-type script --entry-point wsgi.py"
 
-if [ x"$MOD_WSGI_PROCESSES" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --processes $MOD_WSGI_PROCESSES"
-fi
-
-if [ x"$MOD_WSGI_THREADS" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --threads $MOD_WSGI_THREADS"
-fi
-
-if [ x"$MOD_WSGI_MAX_CLIENTS" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --max-clients $MOD_WSGI_MAX_CLIENTS"
-fi
-
-if [ x"$MOD_WSGI_INITIAL_WORKERS" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --initial-workers $MOD_WSGI_INITIAL_WORKERS"
-fi
-
-if [ x"$MOD_WSGI_MINIMUM_SPARE_WORKERS" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --minimum-spare-workers $MOD_WSGI_MINIMUM_SPARE_WORKERS"
-fi
-
-if [ x"$MOD_WSGI_MAXIMUM_SPARE_WORKERS" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --maximum-spare-workers $MOD_WSGI_MAXIMUM_SPARE_WORKERS"
-fi
-
-if [ x"$MOD_WSGI_LIMIT_REQUEST_BODY" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --limit-request-body $MOD_WSGI_LIMIT_REQUEST_BODY"
-fi
-
-if [ x"$MOD_WSGI_MAXIMUM_REQUESTS" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --maximum-requests $MOD_WSGI_MAXIMUM_REQUESTS"
-fi
-
-if [ x"$MOD_WSGI_INACTIVITY_TIMEOUT" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --inactivity-timeout $MOD_WSGI_INACTIVITY_TIMEOUT"
-fi
-
-if [ x"$MOD_WSGI_REQUEST_TIMEOUT" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --request-timeout $MOD_WSGI_REQUEST_TIMEOUT"
-fi
-
-if [ x"$MOD_WSGI_CONNECT_TIMEOUT" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --connect-timeout $MOD_WSGI_CONNECT_TIMEOUT"
-fi
-
-if [ x"$MOD_WSGI_SOCKET_TIMEOUT" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --socket-timeout $MOD_WSGI_SOCKET_TIMEOUT"
-fi
-
-if [ x"$MOD_WSGI_QUEUE_TIMEOUT" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --queue-timeout $MOD_WSGI_QUEUE_TIMEOUT"
-fi
-
-if [ x"$MOD_WSGI_HEADER_TIMEOUT" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --header-timeout $MOD_WSGI_HEADER_TIMEOUT"
-fi
-
-if [ x"$MOD_WSGI_HEADER_MAX_TIMEOUT" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --header-max-timeout $MOD_WSGI_HEADER_MAX_TIMEOUT"
-fi
-
-if [ x"$MOD_WSGI_HEADER_MIN_RATE" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --header-min-rate $MOD_WSGI_HEADER_MIN_RATE"
-fi
-
-if [ x"$MOD_WSGI_BODY_TIMEOUT" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --body-timeout $MOD_WSGI_BODY_TIMEOUT"
-fi
-
-if [ x"$MOD_WSGI_BODY_MAX_TIMEOUT" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --body-max-timeout $MOD_WSGI_BODY_MAX_TIMEOUT"
-fi
-
-if [ x"$MOD_WSGI_BODY_MIN_RATE" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --body-min-rate $MOD_WSGI_BODY_MIN_RATE"
-fi
-
-if [ x"$MOD_WSGI_SERVER_BACKLOG" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --server-backlog $MOD_WSGI_SERVER_BACKLOG"
-fi
-
-if [ x"$MOD_WSGI_DAEMON_BACKLOG" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --daemon-backlog $MOD_WSGI_DAEMON_BACKLOG"
-fi
-
-if [ x"$MOD_WSGI_SERVER_MPM" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --server-mpm $MOD_WSGI_SERVER_MPM"
-fi
-
-if [ x"$MOD_WSGI_LOG_LEVEL" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --log-level $MOD_WSGI_LOG_LEVEL"
-fi
-
-if [ x"$MOD_WSGI_RELOAD_ON_CHANGES" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --reload-on-changes"
-fi
-
-if [ x"$MOD_WSGI_ENABLE_DEBUGGER" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --debug-mode --enable-debugger"
-fi
-
-if [ x"$MOD_WSGI_WORKING_DIRECTORY" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --working-directory $MOD_WSGI_WORKING_DIRECTORY"
-fi
-
-if [ x"$MOD_WSGI_APPLICATION_TYPE" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --application-type $MOD_WSGI_APPLICATION_TYPE"
-fi
-
-if [ x"$MOD_WSGI_ENTRY_POINT" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --entry-point $MOD_WSGI_ENTRY_POINT"
-fi
-
-if [ x"$NEW_RELIC_LICENSE_KEY" != x"" -o \
-        x"$NEW_RELIC_CONFIG_FILE" != x"" ]; then
-    SERVER_ARGS="$SERVER_ARGS --with-newrelic"
-fi
-
-if [ -f .warpdrive/server_args ]; then
-    SERVER_ARGS="$SERVER_ARGS `cat .warpdrive/server_args`"
-
-    # Expand any environment variable references in options.
-
-    TMPFILE=/tmp/server_args.$$
-
-    cat > $TMPFILE << EOF
-#!/bin/sh
-cat << !
-$SERVER_ARGS
-!
-EOF
-
-    chmod +x $TMPFILE
-
-    SERVER_ARGS=`$TMPFILE`
-
-    rm -f $TMPFILE
-fi
-
-if [ $$ = 1 ]; then
-    TINI="tini --"
-fi
-
-if [ -f .warpdrive/action_hooks/start ]; then
-    if [ ! -x .warpdrive/action_hooks/start ]; then
-        echo "WARNING: Script .warpdrive/action_hooks/start not executable."
+    if [ -d wsgi/static ]; then
+        WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --url-alias /static wsgi/static"
     fi
 fi
 
-if [ -x .warpdrive/action_hooks/start ]; then
-    echo " -----> Running .warpdrive/action_hooks/start"
-    exec $TINI .warpdrive/action_hooks/start ${SERVER_ARGS} "$@"
-fi
+# Now check whether there exists a 'wsgi/application' file. This was an
+# older convention used by OpenShift 2. If there is, switch to
+# 'mod_wsgi' server type.
+#
+# We also check whether there is a 'wsgi/static' directory for
+# compatibility with OpenShift 2. If there is, this will be mapped as
+# being a directory of static files under '/static' sub URL.
 
-if [ -f /home/warpdrive/action_hooks/start ]; then
-    if [ ! -x /home/warpdrive/action_hooks/start ]; then
-        echo "WARNING: Script /home/warpdrive/action_hooks/start not executable."
+if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -a -f wsgi/application ]; then
+    WARPDRIVE_SERVER_TYPE="mod_wsgi"
+    WARPDRIVE_SERVER_ARGS="--application-type script wsgi/application"
+
+    if [ -d wsgi/static ]; then
+        WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --url-alias /static wsgi/static"
     fi
 fi
 
-if [ -x /home/warpdrive/action_hooks/start ]; then
-    echo " -----> Running /home/warpdrive/action_hooks/start"
-    exec $TINI /home/warpdrive/action_hooks/start ${SERVER_ARGS} "$@"
-fi
+# Now check whether there exists a 'manage.py' file in the top level
+# directory. This can indicate we are running Django. Validate that it
+# is probably Django and then use 'manage.py' to determine the WSGI
+# application entry point, static files location and mount point. Switch
+# to 'mod_wsgi' server type.
 
-exec $TINI mod_wsgi-express start-server ${SERVER_ARGS} "$@"
+...
+
+# Finally, execute the startup script for the final server type.
+
+WARPDRIVE_START=`which $0`
+WARPDRIVE_ACTION_HOOKS=`dirname $WARPDRIVE_START`/../action_hooks
+
+exec $WARPDRIVE_ACTION_HOOKS/$WARPDRIVE_SERVER_TYPE-start
