@@ -97,6 +97,28 @@ if [ -f requirements.txt ]; then
         --src=.warpdrive/tmp -r requirements.txt
 fi
 
+# Determine whether we have been told that we are running a specific web
+# application server type. If we haven't, we will try and automatically
+# determine how the server should be started and what WSGI server to use.
+
+if [ -f .warpdrive/server_type ]; then
+    WARPDRIVE_SERVER_TYPE="`cat .warpdrive/server_type`"
+else
+    WARPDRIVE_SERVER_TYPE="auto"
+fi
+
+# If we are automatically detect the server type and we find a Django
+# application, trigger collection of static files if possible.
+
+if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -a -f manage.py ]; then
+    if grep -q DJANGO_SETTINGS_MODULE manage.py; then
+        if python manage.py diffsettings | egrep -e '^STATIC_ROOT'; then
+            echo " -----> Collecting static files for Django"
+            python manage.py collectstatic
+        fi
+    fi
+fi
+
 # Run any user supplied script to run after installing any application
 # dependencies. This is to allow any application specific setup scripts
 # to be run, such as 'collectstatic' for a Django web application. It is

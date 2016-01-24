@@ -110,7 +110,61 @@ fi
 # application entry point, static files location and mount point. Switch
 # to 'mod_wsgi' server type.
 
-# ...
+if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -a -f manage.py ]; then
+    if grep -q DJANGO_SETTINGS_MODULE manage.py; then
+        WARPDRIVE_TMPMODULE="django_settings_$$"
+        WARPDRIVE_TMPSCRIPT="/tmp/server_vars_$$.py"
+
+        python manage.py diffsettings > /tmp/$WARPDRIVE_TMPMODULE.py
+
+        cat > $WARPDRIVE_TMPSCRIPT << !
+from __future__ import print_function
+import sys
+sys.path.insert(0, '/tmp')
+
+try:
+    import $WARPDRIVE_TMPMODULE as settings
+    wsgi_application = getattr(settings, 'WSGI_APPLICATION')
+    static_url = getattr(settings, 'STATIC_URL', '/static/')
+    static_root = getattr(settings, 'STATIC_ROOT', None)
+    entry_point = '.'.join(wsgi_application.split('.')[:2])
+    callable_name = wsgi_application.split('.')[-1]
+except Exception:
+    pass
+else:
+    options = [
+        '--application-type module',
+        '--entry-point %s' % entry_point,
+        '--callable-name %s' % callable_name]
+
+    if static_root:
+        if static_url.endswith('/') and not static_root.endswith('/'):
+            static_root = static_root + '/'
+        options.append('--static-url %s %s' % (static_url, static_root))
+
+    print(' '.join(options), end='')
+!
+
+        WARPDRIVE_TMPOPTIONS=`python $WARPDRIVE_TMPSCRIPT`
+
+        if [ x"$WARPDRIVE_TMPOPTIONS" != x"" ]; then
+            WARPDRIVE_SERVER_TYPE="mod_wsgi"
+            WARPDRIVE_SERVER_ARGS="$WARPDRIVE_TMPOPTIONS"
+        fi
+
+        rm /tmp/$WARPDRIVE_TMPMODULE.py
+        rm $WARPDRIVE_TMPSCRIPT
+    fi
+fi
+
+# If was doing auto detection and couldn't match any possible way to
+# host the Python web application, switch to 'mod_wsgi' server type and
+# show the default splash page.
+
+if [ "$WARPDRIVE_SERVER_TYPE" = "auto" ]; then
+    WARPDRIVE_SERVER_TYPE="mod_wsgi"
+    WARPDRIVE_SERVER_ARGS=""
+fi
 
 # Finally, execute the startup script for the final server type.
 
