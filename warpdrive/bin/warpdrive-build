@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
+    set -x
+fi
+
 # This is the script that prepares the Python application to be run. It
 # would normally be triggered from a derived docker image explicitly,
 # as a deferred ONBUILD action, or from an S2I builder.

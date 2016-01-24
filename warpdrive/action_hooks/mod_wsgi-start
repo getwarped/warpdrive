@@ -1,6 +1,8 @@
 #!/bin/sh
 
-set -x
+if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
+    set -x
+fi
 
 # Now run the the actual application under Apache/mod_wsgi. This is run
 # in the foreground, replacing this process and adopting process ID 1 so
@@ -154,5 +156,7 @@ fi
 if [ $$ = 1 ]; then
     WARPDRIVE_TINI="tini --"
 fi
+
+echo " -----> Executing: $WARPDRIVE_TINI mod_wsgi-express start-server $WARPDRIVE_SERVER_ARGS $@" 
 
 exec $WARPDRIVE_TINI mod_wsgi-express start-server $WARPDRIVE_SERVER_ARGS "$@"

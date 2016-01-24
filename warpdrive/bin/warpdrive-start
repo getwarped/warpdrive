@@ -1,6 +1,8 @@
 #!/bin/bash
 
-set -x
+if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
+    set -x
+fi
 
 # This script will run 'mod_wsgi-express start-server', adding in some
 # additional initial arguments to send logging to the terminal.
