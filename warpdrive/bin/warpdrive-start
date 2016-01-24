@@ -5,9 +5,12 @@
 
 # Setup the environment if not already done.
 
-if [ x"$WARPDRIVE_PHASE" = x"" ]; then
+if [ x"$WARPDRIVE_SCRIPT" = x"" ]; then
     . `which warpdrive-vars`
 fi
+
+WARPDRIVE_SCRIPT=start
+export WARPDRIVE_SCRIPT
 
 # Run any user supplied script to be run prior to starting the
 # application in the actual container. The script must be executable in

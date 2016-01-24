@@ -126,5 +126,5 @@ done
 # Finally set an environment variable as marker to indicate that the
 # environment has been set up.
 
-WARPDRIVE_PHASE=environ
-export WARPDRIVE_PHASE
+WARPDRIVE_SCRIPT=vars
+export WARPDRIVE_SCRIPT

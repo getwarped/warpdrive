@@ -4,9 +4,12 @@
 
 # Setup the environment if not already done.
 
-if [ x"$WARPDRIVE_PHASE" = x"" ]; then
+if [ x"$WARPDRIVE_SCRIPT" = x"" ]; then
     . `which warpdrive-vars`
 fi
+
+WARPDRIVE_SCRIPT=shell
+export WARPDRIVE_SCRIPT
 
 # Now finally run bash.
 
