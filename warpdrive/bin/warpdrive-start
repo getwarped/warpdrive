@@ -128,14 +128,14 @@ try:
     static_url = getattr(settings, 'STATIC_URL', '/static/')
     static_root = getattr(settings, 'STATIC_ROOT', None)
     entry_point = '.'.join(wsgi_application.split('.')[:2])
-    callable_name = wsgi_application.split('.')[-1]
+    callable_object = wsgi_application.split('.')[-1]
 except Exception:
     pass
 else:
     options = [
         '--application-type module',
         '--entry-point %s' % entry_point,
-        '--callable-name %s' % callable_name]
+        '--callable-object %s' % callable_object]
 
     if static_root:
         if static_url.endswith('/') and not static_root.endswith('/'):
