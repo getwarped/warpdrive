@@ -112,9 +112,9 @@ fi
 
 if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -a -f manage.py ]; then
     if grep -q DJANGO_SETTINGS_MODULE manage.py; then
-        if python manage.py diffsettings | egrep -e '^STATIC_ROOT'; then
+        if python manage.py diffsettings | egrep -qe '^STATIC_ROOT'; then
             echo " -----> Collecting static files for Django"
-            python manage.py collectstatic
+            python manage.py collectstatic --noinput
         fi
     fi
 fi
