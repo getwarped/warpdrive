@@ -1,0 +1,130 @@
+#!/bin/bash
+
+# This script sets up the environment for the application or shell.
+
+# Mark what runtime this is.
+
+WARPDRIVE_RUNTIME=docker
+export WARPDRIVE_RUNTIME
+
+# Set up the home directory for the application.
+
+WARPDRIVE_HOMEDIR=/app
+export WARPDRIVE_HOMEDIR
+
+# Set up the data directory for the application.
+
+WARPDRIVE_DATADIR=/data
+export WARPDRIVE_DATADIR
+
+# Set up the system directory where we keep runtime files.
+
+WARPDRIVE_TEMPDIR=/home/warpdrive
+export WARPDRIVE_TEMPDIR
+
+# Set up the user_vars directory where environment variable updates
+# can be done.
+
+WARPDRIVE_ENVDIR=/home/warpdrive/user_vars
+export WARPDRIVE_ENVDIR
+
+# Override the HOME directory for the user in case it isn't set to
+# sensible value.
+
+HOME=/home/warpdrive
+export HOME
+
+# Make sure we are in the correct working directory for the application.
+
+cd $WARPDRIVE_HOMEDIR
+
+# Set the umask to be '002' so that any files/directories created from
+# this point are group writable. This does rely on any applications or
+# installation scripts honouring the umask setting.
+
+umask 002
+
+# Override uid and gid lookup to cope with being randomly assigned IDs
+# using the -u option to 'docker run'.
+
+WARPDRIVE_USER_ID=$(id -u)
+
+NSS_WRAPPER_PASSWD=$WARPDRIVE_TEMPDIR/passwd
+NSS_WRAPPER_GROUP=/etc/group
+
+if [ x"$WARPDRIVE_USER_ID" != x"0" -a x"$WARPDRIVE_USER_ID" != x"1001" ]; then
+    export NSS_WRAPPER_PASSWD
+    export NSS_WRAPPER_GROUP
+
+    cat /etc/passwd | sed -e 's/^warpdrive:/builder:/' > $NSS_WRAPPER_PASSWD
+
+    echo "warpdrive:x:$WARPDRIVE_USER_ID:0:Warp Drive,,,:/home/warpdrive:/bin/bash" >> $NSS_WRAPPER_PASSWD
+
+    LD_PRELOAD=/usr/local/nss_wrapper/lib64/libnss_wrapper.so
+    export LD_PRELOAD
+fi
+
+# Copy environment variable configuration to the system directory used
+# for runtime files. This is done so that the '.warpdrive/deploy-env' can
+# safely add or remove files without modifying the original source code
+# directory. This is necessary as the original source code directory
+# may not be writable, or could be a mounted directory and we do not
+# want to modify any original outside of Docker.
+
+mkdir -p $WARPDRIVE_ENVDIR
+
+if [ -d .warpdrive/user_vars ]; then
+    for name in `ls .warpdrive/user_vars/*`; do
+        cp $name $WARPDRIVE_ENVDIR
+    done
+fi
+
+# Docker will have set any environment variables defined in the image or
+# on the command line when the container has been run. Here we are going
+# to look for any statically defined environment variables provided by
+# the user as part of the actual application. These will have been
+# placed in the '.warpdrive/user_vars' directory. The name of the file
+# corresponds to the name of the environment variable and the contents
+# of the file the value to set the environment variable to. Each of the
+# environment variables is set and exported.
+
+envvars=
+
+for name in `ls $WARPDRIVE_ENVDIR`; do
+    export $name=`cat $WARPDRIVE_ENVDIR/$name`
+    envvars="$envvars $name"
+done
+
+# Run any user supplied script to be run to set, modify or delete the
+# environment variables.
+
+if [ -f .warpdrive/action_hooks/deploy-env ]; then
+    if [ ! -x .warpdrive/action_hooks/deploy-env ]; then
+        echo "WARNING: Script .warpdrive/action_hooks/deploy-env not executable."
+    fi
+fi
+
+if [ -x .warpdrive/action_hooks/deploy-env ]; then
+    echo " -----> Running .warpdrive/action_hooks/deploy-env"
+    .warpdrive/action_hooks/deploy-env
+fi
+
+# Go back and reset all the environment variables based on additions or
+# changes. Unset any for which the environment variable file no longer
+# exists, albeit in practice that is probably unlikely.
+
+for name in `ls $WARPDRIVE_ENVDIR`; do
+    export $name=`cat $WARPDRIVE_ENVDIR/$name`
+done
+
+for name in $envvars; do
+    if [ ! -f $WARPDRIVE_ENVDIR/$name ]; then
+        unset $name
+    fi
+done
+
+# Finally set an environment variable as marker to indicate that the
+# environment has been set up.
+
+WARPDRIVE_PHASE=environ
+export WARPDRIVE_PHASE

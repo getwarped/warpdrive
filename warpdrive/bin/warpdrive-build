@@ -1,0 +1,123 @@
+#!/bin/bash
+
+# This is the script that prepares the Python application to be run. It
+# would normally be triggered from a derived docker image explicitly,
+# as a deferred ONBUILD action, or from an S2I builder.
+#
+# The main purpose of the script is to run 'pip install' on any user
+# supplied 'requirements.txt' file. In addition to that though, it will
+# also run any user provided scripts for performing actions before or
+# after the installation of any application dependencies. These user
+# scripts enable the ability to install additional system packages, or
+# run any application specific startup commands for preparing an
+# application, such as for running 'collectstatic' on a Django web
+# application.
+
+# Ensure that any failure within this script or a user provided script
+# causes this script to fail immediately. This eliminates the need to
+# check individual statuses for anything which is run and prematurely
+# exit. Note that the feature of bash to exit in this way isn't
+# foolproof. Ensure that you heed any advice in:
+#
+#   http://mywiki.wooledge.org/BashFAQ/105
+#   http://fvue.nl/wiki/Bash:_Error_handling
+#
+# and use best practices to ensure that failures are always detected.
+# Any user supplied scripts should also use this failure mode.
+
+set -eo pipefail
+
+# Mark what runtime this is.
+
+WARPDRIVE_RUNTIME=docker
+export WARPDRIVE_RUNTIME
+
+# Set up the home directory for the application.
+
+WARPDRIVE_HOMEDIR=/app
+export WARPDRIVE_HOMEDIR
+
+# Set up the data directory for the application.
+
+WARPDRIVE_DATADIR=/data
+export WARPDRIVE_DATADIR
+
+# Set up the system directory where we keep runtime files.
+
+WARPDRIVE_TEMPDIR=/home/warpdrive
+export WARPDRIVE_TEMPDIR
+
+# Make sure we are in the correct working directory for the application.
+
+cd $WARPDRIVE_HOMEDIR
+
+# Set the umask to be '002' so that any files/directories created from
+# this point are group writable. This does rely on any applications or
+# installation scripts honouring the umask setting.
+
+umask 002
+
+# Check for the existence of the '.warpdrive/user_vars' directory for
+# storage of user defined environment variables. These can be created by
+# the user from any hook script. The name of the file corresponds to the
+# name of the environment variable and the contents of the file the
+# value to set the environment variable to.
+
+# Run any user supplied script to be run prior to installing application
+# dependencies. This is to allow additional system packages to be
+# installed that may be required by any Python modules which are being
+# installed. The script must be executable in order to be run. It is not
+# possible for this script to change the permissions so it is executable
+# and then run it, due to some docker bug which results in the text file
+# being busy. For more details see:
+#
+#   https://github.com/docker/docker/issues/9547
+
+if [ -f .warpdrive/action_hooks/pre-build ]; then
+    if [ ! -x .warpdrive/action_hooks/pre-build ]; then
+        echo "WARNING: Script .warpdrive/action_hooks/pre-build not executable."
+    fi
+fi
+
+if [ -x .warpdrive/action_hooks/pre-build ]; then
+    echo " -----> Running .warpdrive/action_hooks/pre-build"
+    .warpdrive/action_hooks/pre-build
+fi
+
+# Check to see if a 'wheelhouse' directory has been provided from which
+# 'pip' can source required packages for immediate installation rather
+# than having to download then from PyPi.
+
+if [ -d .warpdrive/wheelhouse ]; then
+    echo " -----> Detected wheelhouse for pip"
+    PIP_FIND_LINKS=.warpdrive/wheelhouse
+    export PIP_FIND_LINKS
+fi
+
+# Now run 'pip' to install any required Python packages based on the
+# contents of the 'requirements.txt' file.
+
+if [ -f requirements.txt ]; then
+    echo " -----> Installing dependencies with pip"
+    pip install --no-cache-dir -U --exists-action=w \
+        --src=.warpdrive/tmp -r requirements.txt
+fi
+
+# Run any user supplied script to run after installing any application
+# dependencies. This is to allow any application specific setup scripts
+# to be run, such as 'collectstatic' for a Django web application. It is
+# not possible for this script to change the permissions so it is
+# executable and then run it, due to some docker bug which results in
+# the text file being busy. For more details see:
+#
+#   https://github.com/docker/docker/issues/9547
+
+if [ -x .warpdrive/action_hooks/build ]; then
+    echo " -----> Running .warpdrive/action_hooks/build"
+    .warpdrive/action_hooks/build
+fi
+
+# Clean up any temporary files, including the results of checking out
+# any source code repositories when doing a 'pip install' from a VCS.
+
+rm -rf .warpdrive/tmp

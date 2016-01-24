@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# This script will execute the command passed as arguments.
+
+# Setup the environment if not already done.
+
+if [ x"$WARPDRIVE_PHASE" = x"" ]; then
+    . `which warpdrive-vars`
+fi
+
+# Finally set an environment variable as marker to indicate that the
+# environment has been set up.
+
+WARPDRIVE_PHASE=exec
+export WARPDRIVE_PHASE
+
+# Now execute the command passed as arguments. If running as process ID
+# 1, we want to do that as a sub process to the 'tini' process, which
+# will perform reaping of zombie processes for us.
+
+if [ $$ = 1 ]; then
+    TINI="tini --"
+fi
+
+exec $TINI "$@"

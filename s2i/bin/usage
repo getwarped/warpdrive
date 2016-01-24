@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -eo pipefail
+
+PROGRAM=`basename $0`
+
+PYTHON_VERSION_MN=`echo $PYTHON_VERSION | sed -e 's/\.[^.]*$//'`
+BUILDER_NAME="warp0-python$PYTHON_VERSION_MN-debian8"
+
+cat <<EOF
+This is a S2I builder for creating Docker images for Python web applications.
+
+To use the builder, first install S2I from:
+
+    https://github.com/openshift/source-to-image
+
+You can then create a Docker image from a GIT repository by running:
+
+    s2i build git://<source code> $BUILDER_NAME <application image>
+
+The resulting image can then be run as:
+
+    docker run -p 8080:8080 <application image>
+
+The S2I builder is also compatible with the builtin support of OpenShift 3
+for deploying applications using S2I.
+EOF

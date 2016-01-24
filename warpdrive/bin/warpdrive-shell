@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# This script will run an interactive bash shell.
+
+# Setup the environment if not already done.
+
+if [ x"$WARPDRIVE_PHASE" = x"" ]; then
+    . `which warpdrive-vars`
+fi
+
+# Now finally run bash.
+
+exec bash

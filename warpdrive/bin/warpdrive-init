@@ -1,0 +1,169 @@
+#!/bin/bash
+
+# Record everything that is run from this script so appears in logs.
+
+set -x
+
+# Ensure that any failure within this script causes this script to fail
+# immediately. This eliminates the need to check individual statuses for
+# anything which is run and prematurely exit. Note that the feature of
+# bash to exit in this way isn't foolproof. Ensure that you heed any
+# advice in:
+#
+#   http://mywiki.wooledge.org/BashFAQ/105
+#   http://fvue.nl/wiki/Bash:_Error_handling
+#
+# and use best practices to ensure that failures are always detected.
+# Any user supplied scripts should also use this failure mode.
+
+set -eo pipefail
+
+# Set the umask to be '002' so that any files/directories created from
+# this point are group writable. This does rely on any applications or
+# installation scripts honouring the umask setting, which unfortunately
+# not all do.
+
+umask 002
+
+# Set up the directory where Python and Apache installations will be put.
+
+INSTALL_ROOT=/usr/local
+export INSTALL_ROOT
+
+BUILD_ROOT=/tmp/build
+export BUILD_ROOT
+
+mkdir -p $INSTALL_ROOT
+mkdir -p $BUILD_ROOT
+
+# Validate that package version details are set in the Dockerfile.
+
+test ! -z "$PYTHON_VERSION" || exit 1
+test ! -z "$MOD_WSGI_VERSION" || exit 1
+
+# Download source code for packages and unpack them.
+
+curl -SL -o $BUILD_ROOT/python.tar.gz https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz
+
+mkdir $BUILD_ROOT/python
+
+tar -xC $BUILD_ROOT/python --strip-components=1 -f $BUILD_ROOT/python.tar.gz
+
+# To be safe, force the C compiler to be used to be the 64 bit compiler.
+
+CC=x86_64-linux-gnu-gcc
+export CC
+
+# Build Python from source code. Configure options used in part mirror
+# what is used by Debian itself when it builds its own Python packages.
+# We first install with a shared Python library, and then install the
+# static library and statically linked 'python' executable.
+
+cd $BUILD_ROOT/python
+
+CONFIG_ARGS="--prefix=$INSTALL_ROOT/python \
+    --enable-ipv6 --with-dbmliborder=bdb:gdbm --with-system-expat \
+    --with-system-ffi --with-fpectl"
+
+case "$PYTHON_VERSION" in
+    2.*)
+        CONFIG_ARGS="$CONFIG_ARGS --enable-unicode=ucs4"
+        ;;
+    3.[012].*)
+        CONFIG_ARGS="$CONFIG_ARGS --with-wide-unicode"
+        ;;
+esac
+
+./configure $CONFIG_ARGS --enable-shared
+
+LD_RUN_PATH=$INSTALL_ROOT/python/lib
+export LD_RUN_PATH
+
+make
+make install
+make distclean
+
+./configure $CONFIG_ARGS
+
+make
+make altbininstall
+
+unset LD_RUN_PATH
+
+cd $INSTALL_ROOT/python/bin
+
+case "$PYTHON_VERSION" in
+    3.*)
+        ln -s python3 python
+        ;;
+esac
+
+# Set PATH to include bin directories for Python and Apache.
+
+PATH=$INSTALL_ROOT/python/bin:$PATH
+export PATH
+
+# Install additional common Python packages we want installed. This
+# includes installing mod_wsgi-express as a fallback in case someone
+# expects it to be available as part of the base image.
+
+curl -SL 'https://bootstrap.pypa.io/get-pip.py' | python
+
+if [ ! -f $INSTALL_ROOT/python/bin/pip ]; then
+    if [ -f $INSTALL_ROOT/python/bin/pip3 ]; then
+        ln -s pip3 $INSTALL_ROOT/python/bin/pip
+    fi
+fi
+
+pip install --no-cache-dir -U mod_wsgi==$MOD_WSGI_VERSION
+
+# Prune unwanted files from Python and Apache installations.
+
+find $INSTALL_ROOT/python/lib \
+    \( -type d -and -name test -or -name tests \) -or \
+    \( -type f -and -name '*.pyc' -or -name '*.pyo' \) | \
+    xargs rm -rf
+
+# Fixup group ownership and directory/file permissions for installation
+# area so group writable by 'root'.
+
+chgrp -R root $INSTALL_ROOT
+
+find $INSTALL_ROOT -type d -exec chmod g+ws {} \;
+
+find $INSTALL_ROOT -perm 2755 -exec chmod g+w {} \;
+find $INSTALL_ROOT -perm 0644 -exec chmod g+w {} \;
+
+# Clean up the temporary build area.
+
+rm -rf $BUILD_ROOT
+
+# Create a special user account under which any application should be
+# run. This has group of 'root' with gid of '0' as it appears to be
+# safest bet to allow file system permisions for everything to work.
+
+adduser --disabled-password --gecos "Warp Drive" --uid 1001 --gid 0 \
+    --home /home/warpdrive warpdrive
+
+# Ensure home directory for 'warpdrive' user is world writable but also
+# has the sticky bit so only 'root' or the owner can unlink any files.
+# Needs to be world writable as we cannot be certain what uid the
+# application will run as.
+
+chmod 1777 /home/warpdrive
+
+# Create empty directory to be used as application directory. Ensure it
+# is world writable but also has the sticky bit so only root or the
+# owner can unlink any files. Needs to be world writable as we cannot be
+# certain what uid application will run as.
+
+mkdir -p /app
+chmod 1777 /app
+
+# Create empty directory to be used as the data directory. Ensure it is
+# world writable but also has the sticky bit so only root or the owner
+# can unlink any files. Needs to be world writable as we cannot be
+# certain what uid application will run as.
+
+mkdir -p /data
+chmod 1777 /data
