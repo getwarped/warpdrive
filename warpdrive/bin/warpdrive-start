@@ -97,7 +97,7 @@ fi
 
 if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -a -f wsgi/application ]; then
     WARPDRIVE_SERVER_TYPE="mod_wsgi"
-    WARPDRIVE_SERVER_ARGS="--application-type script wsgi/application"
+    WARPDRIVE_SERVER_ARGS="--application-type script --entry-point wsgi/application"
 
     if [ -d wsgi/static ]; then
         WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --url-alias /static wsgi/static"
