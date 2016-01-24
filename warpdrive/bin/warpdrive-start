@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 # This script will run 'mod_wsgi-express start-server', adding in some
 # additional initial arguments to send logging to the terminal.
 
@@ -106,11 +108,11 @@ fi
 # application entry point, static files location and mount point. Switch
 # to 'mod_wsgi' server type.
 
-...
+# ...
 
 # Finally, execute the startup script for the final server type.
 
 WARPDRIVE_START=`which $0`
 WARPDRIVE_ACTION_HOOKS=`dirname $WARPDRIVE_START`/../action_hooks
 
-exec $WARPDRIVE_ACTION_HOOKS/$WARPDRIVE_SERVER_TYPE-start
+exec $WARPDRIVE_ACTION_HOOKS/$WARPDRIVE_SERVER_TYPE-start $WARPDRIVE_SERVER_ARGS
