@@ -139,7 +139,8 @@ else:
 
     if static_root:
         if static_url.endswith('/') and not static_root.endswith('/'):
-            static_root = static_root + '/'
+            #static_root = static_root + '/'
+            static_url = static_url[:-1]
         options.append('--url-alias %s %s' % (static_url, static_root))
 
     print(' '.join(options), end='')
