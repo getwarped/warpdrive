@@ -39,36 +39,65 @@ fi
 # application server type. If we haven't, we will try and automatically
 # determine how the server should be started and what WSGI server to use.
 
-if [ -f .warpdrive/server_type ]; then
-    WARPDRIVE_SERVER_TYPE="`cat .warpdrive/server_type`"
-else
-    WARPDRIVE_SERVER_TYPE="auto"
+if [ x"$WARPDRIVE_SERVER_TYPE" = x"" ]; then
+    if [ -f .warpdrive/server_type ]; then
+        WARPDRIVE_SERVER_TYPE="`cat .warpdrive/server_type`"
+    else
+        WARPDRIVE_SERVER_TYPE="auto"
+    fi
 fi
 
-# If automatic, we are going to try a number of different strategies.
-# First up we are going to check whether there exists an executable
-# 'app.sh' program in the top level directory of the application. If
-# there is, we switch to 'shell' server type.
+# Setup default names of files to check for different server types.
 
-if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -a -x app.sh ]; then
+WARPDRIVE_SHELL_FILE="${WARPDRIVE_SHELL_FILE:-app.sh}"
+WARPDRIVE_PYTHON_FILE="${WARPDRIVE_PYTHON_FILE:-app.py}"
+WARPDRIVE_PASTE_FILE="${WARPDRIVE_PASTE_FILE:-paste.ini}"
+WARPDRIVE_WSGI_FILE="${WARPDRIVE_WSGI_FILE:-wsgi.py}"
+
+# Now check whether server type of 'shell' is selected.
+
+if [ "$WARPDRIVE_SERVER_TYPE" = "shell" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SHELL_FILE"
+fi
+
+# Now check whether server of 'python' is selected.
+
+if [ "$WARPDRIVE_SERVER_TYPE" = "python" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_PYTHON_FILE"
+fi
+
+# Now check whether server of 'paste' is selected. We are going to
+# switch to type 'mod_wsgi' in this case and configure it appropriately.
+
+if [ "$WARPDRIVE_SERVER_TYPE" = "paste" ]; then
+    WARPDRIVE_SERVER_TYPE="mod_wsgi"
+    WARPDRIVE_SERVER_ARGS="--application-type paste --entry-point $WARPDRIVE_PASTE_FILE"
+fi
+
+# If instead we are in automatic mode, we are going to try a number of
+# different strategies. First up we are going to check whether there
+# exists an executable 'app.sh' program in the top level directory of
+# the application. If there is, we switch to 'shell' server type.
+
+if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -a -x $WARPDRIVE_SHELL_FILE ]; then
     WARPDRIVE_SERVER_TYPE="shell"
-    WARPDRIVE_SERVER_ARGS="app.sh"
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SHELL_FILE"
 fi
 
 # Now check whether there exists an 'app.py' script file in the top
 # level directory. If there is, we switch to 'python' server type.
 
-if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -a -f app.py ]; then
+if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -a -f $WARPDRIVE_PYTHON_FILE ]; then
     WARPDRIVE_SERVER_TYPE="python"
-    WARPDRIVE_SERVER_ARGS="app.py"
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_PYTHON_FILE"
 fi
 
 # Now check whether there exists a 'paste.ini' file. If there is, switch
 # to 'mod_wsgi' server type.
 
-if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -a -f paste.ini ]; then
+if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -a -f $WARPDRIVE_PASTE_FILE ]; then
     WARPDRIVE_SERVER_TYPE="mod_wsgi"
-    WARPDRIVE_SERVER_ARGS="--application-type paste --entry-point paste.ini"
+    WARPDRIVE_SERVER_ARGS="--application-type paste --entry-point $WARPDRIVE_PASTE_FILE"
 fi
 
 # Now check whether there exists a 'wsgi.py' file in the top level
@@ -78,9 +107,9 @@ fi
 # compatibility with OpenShift 2. If there is, this will be mapped as
 # being a directory of static files under '/static' sub URL.
 
-if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -a -f wsgi.py ]; then
+if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -a -f $WARPDRIVE_WSGI_FILE ]; then
     WARPDRIVE_SERVER_TYPE="mod_wsgi"
-    WARPDRIVE_SERVER_ARGS="--application-type script --entry-point wsgi.py"
+    WARPDRIVE_SERVER_ARGS="--application-type script --entry-point $WARPDRIVE_WSGI_FILE"
 
     if [ -d wsgi/static ]; then
         WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --url-alias /static wsgi/static"
