@@ -90,10 +90,10 @@ else:
     print(' '.join(options), end='')
 !
 
+    python $WARPDRIVE_TMPSCRIPT
+
     rm /tmp/$WARPDRIVE_TMPMODULE.py
     rm $WARPDRIVE_TMPSCRIPT
-
-    python $WARPDRIVE_TMPSCRIPT
 }
 
 # Now check whether server type of 'shell' is selected.
