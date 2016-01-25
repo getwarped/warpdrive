@@ -47,6 +47,8 @@ if [ x"$WARPDRIVE_SERVER_TYPE" = x"" ]; then
     fi
 fi
 
+echo " -----> Configuring for server type of $WARPDRIVE_SERVER_TYPE"
+
 # Setup default names of files to check for different server types.
 
 WARPDRIVE_SHELL_FILE="${WARPDRIVE_SHELL_FILE:-app.sh}"
@@ -230,5 +232,7 @@ fi
 
 WARPDRIVE_START=`which $0`
 WARPDRIVE_ACTION_HOOKS=`dirname $WARPDRIVE_START`/../action_hooks
+
+echo " -----> Running server script start-$WARPDRIVE_SERVER_TYPE"
 
 exec $WARPDRIVE_ACTION_HOOKS/start-$WARPDRIVE_SERVER_TYPE $WARPDRIVE_SERVER_ARGS
