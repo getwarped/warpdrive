@@ -104,6 +104,17 @@ if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -a -f wsgi/application ]; then
     fi
 fi
 
+# Now check whether there exists a 'setup.py' file in the top level
+# directory. This means we should have an application package installed.
+# In this was we will switch to 'mod_wsgi' server type and use the name
+# of the application package as the module containing the WSGI
+# application entry point.
+
+if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -a -f setup.py ]; then
+    WARPDRIVE_SERVER_TYPE="mod_wsgi"
+    WARPDRIVE_SERVER_ARGS="--application-type module --entry-point $(python setup.py --name)"
+fi
+
 # Now check whether there exists a 'manage.py' file in the top level
 # directory. This can indicate we are running Django. Validate that it
 # is probably Django and then use 'manage.py' to determine the WSGI

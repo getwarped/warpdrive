@@ -97,6 +97,16 @@ if [ -f requirements.txt ]; then
         --src=.warpdrive/tmp -r requirements.txt
 fi
 
+# We also install any application package if a 'setup.py' file is
+# present. This is installed in 'develop' mode so is linked into Python
+# installation. This allows for live source code updates in the
+# container still.
+
+if [ -f setup.py ]; then
+    echo "---> Installing application from setup.py"
+    python setup.py develop
+fi
+
 # Determine whether we have been told that we are running a specific web
 # application server type. If we haven't, we will try and automatically
 # determine how the server should be started and what WSGI server to use.
