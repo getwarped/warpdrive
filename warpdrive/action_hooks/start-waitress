@@ -1,0 +1,36 @@
+#!/bin/bash
+
+if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
+    set -x
+fi
+
+WARPDRIVE_SERVER_ARGS="--port 8080"
+
+if [ -f .warpdrive/server_args ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS `cat .warpdrive/server_args`"
+
+    # Expand any environment variable references in options.
+
+    WARPDRIVE_TMPFILE=/tmp/server_args.$$
+
+    cat > $WARPDRIVE_TMPFILE << EOF
+#!/bin/sh
+cat << !
+$WARPDRIVE_SERVER_ARGS
+!
+EOF
+
+    chmod +x $WARPDRIVE_TMPFILE
+
+    WARPDRIVE_SERVER_ARGS=`$WARPDRIVE_TMPFILE`
+
+    rm -f $WARPDRIVE_TMPFILE
+fi
+
+if [ $$ = 1 ]; then
+    WARPDRIVE_TINI="tini --"
+fi
+
+echo " -----> Executing: $WARPDRIVE_TINI waitress-serve $WARPDRIVE_SERVER_ARGS"
+
+exec $WARPDRIVE_TINI waitress-serve $WARPDRIVE_SERVER_ARGS
