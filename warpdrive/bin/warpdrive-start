@@ -16,6 +16,10 @@ fi
 WARPDRIVE_SCRIPT=start
 export WARPDRIVE_SCRIPT
 
+# Make sure we are in the correct working directory for the application.
+
+cd $WARPDRIVE_HOMEDIR
+
 # Run any user supplied script to be run prior to starting the
 # application in the actual container. The script must be executable in
 # order to be run. It is not possible for this script to change the
