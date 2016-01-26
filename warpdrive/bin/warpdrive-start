@@ -39,12 +39,10 @@ fi
 # application server type. If we haven't, we will try and automatically
 # determine how the server should be started and what WSGI server to use.
 
-if [ x"$WARPDRIVE_SERVER_TYPE" = x"" ]; then
-    if [ -f .warpdrive/server_type ]; then
-        WARPDRIVE_SERVER_TYPE="`cat .warpdrive/server_type`"
-    else
-        WARPDRIVE_SERVER_TYPE="auto"
-    fi
+if [ -f .warpdrive/server_type ]; then
+    WARPDRIVE_SERVER_TYPE="`cat .warpdrive/server_type`"
+else
+    WARPDRIVE_SERVER_TYPE="auto"
 fi
 
 echo " -----> Configuring for server type of $WARPDRIVE_SERVER_TYPE"
