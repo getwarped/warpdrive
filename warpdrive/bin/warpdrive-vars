@@ -2,6 +2,12 @@
 
 # This script sets up the environment for the application or shell.
 
+# Bail out if this script has already been run.
+
+if [ x"$WARPDRIVE_SCRIPT" != x"" ]; then
+    return
+fi
+
 # Mark what runtime this is.
 
 WARPDRIVE_RUNTIME=docker
@@ -25,8 +31,7 @@ export WARPDRIVE_TEMPDIR
 # Set up the user_vars directory where environment variable updates
 # can be done.
 
-WARPDRIVE_ENVDIR=/home/warpdrive/user_vars
-export WARPDRIVE_ENVDIR
+WARPDRIVE_ENVDIR=/home/warpdrive/user_vars.$$
 
 # Override the HOME directory for the user in case it isn't set to
 # sensible value.
@@ -56,9 +61,11 @@ if [ x"$WARPDRIVE_USER_ID" != x"0" -a x"$WARPDRIVE_USER_ID" != x"1001" ]; then
     export NSS_WRAPPER_PASSWD
     export NSS_WRAPPER_GROUP
 
-    cat /etc/passwd | sed -e 's/^warpdrive:/builder:/' > $NSS_WRAPPER_PASSWD
+    if [ ! -f $NSS_WRAPPER_PASSWD ]; then
+        cat /etc/passwd | sed -e 's/^warpdrive:/builder:/' > $NSS_WRAPPER_PASSWD
 
-    echo "warpdrive:x:$WARPDRIVE_USER_ID:0:Warp Drive,,,:/home/warpdrive:/bin/bash" >> $NSS_WRAPPER_PASSWD
+        echo "warpdrive:x:$WARPDRIVE_USER_ID:0:Warp Drive,,,:/home/warpdrive:/bin/bash" >> $NSS_WRAPPER_PASSWD
+    fi
 
     LD_PRELOAD=/usr/local/nss_wrapper/lib64/libnss_wrapper.so
     export LD_PRELOAD
@@ -73,8 +80,8 @@ fi
 
 mkdir -p $WARPDRIVE_ENVDIR
 
-if [ -d .warpdrive/user_vars ]; then
-    for name in `ls .warpdrive/user_vars/*`; do
+if [ -d $WARPDRIVE_HOMEDIR/.warpdrive/user_vars ]; then
+    for name in `ls $WARPDRIVE_HOMEDIR/.warpdrive/user_vars/*`; do
         cp $name $WARPDRIVE_ENVDIR
     done
 fi
@@ -98,15 +105,15 @@ done
 # Run any user supplied script to be run to set, modify or delete the
 # environment variables.
 
-if [ -f .warpdrive/action_hooks/deploy-env ]; then
-    if [ ! -x .warpdrive/action_hooks/deploy-env ]; then
-        echo "WARNING: Script .warpdrive/action_hooks/deploy-env not executable."
+if [ -f $WARPDRIVE_HOMEDIR/.warpdrive/action_hooks/deploy-env ]; then
+    if [ ! -x $WARPDRIVE_HOMEDIR/.warpdrive/action_hooks/deploy-env ]; then
+        echo "WARNING: Script $WARPDRIVE_HOMEDIR/.warpdrive/action_hooks/deploy-env not executable."
     fi
 fi
 
-if [ -x .warpdrive/action_hooks/deploy-env ]; then
-    echo " -----> Running .warpdrive/action_hooks/deploy-env"
-    .warpdrive/action_hooks/deploy-env
+if [ -x $WARPDRIVE_HOMEDIR/.warpdrive/action_hooks/deploy-env ]; then
+    echo " -----> Running $WARPDRIVE_HOMEDIR/.warpdrive/action_hooks/deploy-env"
+    $WARPDRIVE_HOMEDIR/.warpdrive/action_hooks/deploy-env
 fi
 
 # Go back and reset all the environment variables based on additions or
@@ -122,6 +129,15 @@ for name in $envvars; do
         unset $name
     fi
 done
+
+# Clean up the environment variables directory if this is not PID '1'.
+# We leave the environment for PID '1' for debugging purposes.
+
+if [ $$ != 1 ]; then
+    rm -rf $WARPDRIVE_ENVDIR
+else
+    export WARPDRIVE_ENVDIR
+fi
 
 # Finally set an environment variable as marker to indicate that the
 # environment has been set up.
