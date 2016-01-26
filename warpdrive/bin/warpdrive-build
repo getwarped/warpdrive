@@ -120,7 +120,7 @@ fi
 # If we are automatically detect the server type and we find a Django
 # application, trigger collection of static files if possible.
 
-if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -o "$WARPDRIVE_SERVER_TYPE" = "django"]; then
+if [ ("$WARPDRIVE_SERVER_TYPE" = "auto") -o ("$WARPDRIVE_SERVER_TYPE" = "django") ]; then
     if [ -f manage.py ]; then
         if grep -q DJANGO_SETTINGS_MODULE manage.py; then
             if python manage.py diffsettings | egrep -qe '^STATIC_ROOT'; then
