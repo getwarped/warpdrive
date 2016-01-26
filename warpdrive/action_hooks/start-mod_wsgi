@@ -157,6 +157,6 @@ if [ $$ = 1 ]; then
     WARPDRIVE_TINI="tini --"
 fi
 
-echo " -----> Exeucting server command '$WARPDRIVE_TINI mod_wsgi-express start-server $WARPDRIVE_SERVER_ARGS $@'" 
+echo " -----> Executing server command '$WARPDRIVE_TINI mod_wsgi-express start-server $WARPDRIVE_SERVER_ARGS $@'" 
 
 exec $WARPDRIVE_TINI mod_wsgi-express start-server $WARPDRIVE_SERVER_ARGS "$@"
