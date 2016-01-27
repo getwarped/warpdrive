@@ -8,11 +8,6 @@ if [ x"$WARPDRIVE_SCRIPT" != x"" ]; then
     return
 fi
 
-# Mark what runtime this is.
-
-WARPDRIVE_RUNTIME=docker
-export WARPDRIVE_RUNTIME
-
 # Set up the home directory for the application.
 
 WARPDRIVE_HOMEDIR=/app
