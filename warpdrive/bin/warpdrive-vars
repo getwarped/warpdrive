@@ -34,12 +34,6 @@ WARPDRIVE_ENVDIR=/home/warpdrive/user_vars.$$
 HOME=/home/warpdrive
 export HOME
 
-# Set the umask to be '002' so that any files/directories created from
-# this point are group writable. This does rely on any applications or
-# installation scripts honouring the umask setting.
-
-umask 002
-
 # Override uid and gid lookup to cope with being randomly assigned IDs
 # using the -u option to 'docker run'.
 

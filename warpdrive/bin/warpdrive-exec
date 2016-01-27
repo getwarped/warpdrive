@@ -2,6 +2,12 @@
 
 # This script will execute the command passed as arguments.
 
+# Set the umask to be '002' so that any files/directories created from
+# this point are group writable. This does rely on any applications or
+# installation scripts honouring the umask setting.
+
+umask 002
+
 # Setup the environment if not already done.
 
 if [ x"$WARPDRIVE_SCRIPT" = x"" ]; then
