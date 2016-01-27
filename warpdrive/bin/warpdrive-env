@@ -87,18 +87,11 @@ if [ -x $WARPDRIVE_HOMEDIR/.warpdrive/action_hooks/deploy-env ]; then
     $WARPDRIVE_HOMEDIR/.warpdrive/action_hooks/deploy-env
 fi
 
-# Go back and reset all the environment variables based on additions or
-# changes. Unset any for which the environment variable file no longer
-# exists, albeit in practice that is probably unlikely.
+# Go back and output the final values of the user supplied environment
+# variables.
 
 for name in `ls $WARPDRIVE_ENVDIR`; do
     echo "export $name=\"`cat $WARPDRIVE_ENVDIR/$name`\""
-done
-
-for name in $envvars; do
-    if [ ! -f $WARPDRIVE_ENVDIR/$name ]; then
-        echo "unset $name"
-    fi
 done
 
 # Clean up the environment variables directory.
