@@ -4,19 +4,31 @@
 
 # Home directory for the application.
 
-echo "export WARPDRIVE_HOMEDIR=/app"
+WARPDRIVE_HOMEDIR=/app
+export WARPDRIVE_HOMEDIR
+
+echo "export WARPDRIVE_HOMEDIR=$WARPDRIVE_HOMEDIR"
 
 # Data directory for the application.
 
-echo "export WARPDRIVE_DATADIR=/data"
+WARPDRIVE_DATADIR=/data
+export WARPDRIVE_DATADIR
+
+echo "export WARPDRIVE_DATADIR=$WARPDRIVE_DATADIR"
 
 # System directory where we keep runtime files.
 
-echo "export WARPDRIVE_TEMPDIR=/home/warpdrive"
+WARPDRIVE_TEMPDIR=/home/warpdrive
+export WARPDRIVE_TEMPDIR
+
+echo "export WARPDRIVE_TEMPDIR=$WARPDRIVE_TEMPDIR"
 
 # HOME directory for the user, in case it isn't set to a sensible value.
 
-echo "export HOME=/home/warpdrive"
+HOME=/home/warpdrive
+export HOME
+
+echo "export HOME=$HOME"
 
 # Override uid and gid lookup to cope with being randomly assigned IDs
 # using the -u option to 'docker run'.
