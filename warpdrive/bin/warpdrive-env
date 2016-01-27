@@ -36,7 +36,7 @@ if [ x"$WARPDRIVE_USER_ID" != x"0" -a x"$WARPDRIVE_USER_ID" != x"1001" ]; then
     echo "export NSS_WRAPPER_PASSWD=$NSS_WRAPPER_PASSWD"
     echo "export NSS_WRAPPER_GROUP=$NSS_WRAPPER_GROUP"
 
-    echo "export LD_PRELOAD=usr/local/nss_wrapper/lib64/libnss_wrapper.so"
+    echo "export LD_PRELOAD=/usr/local/nss_wrapper/lib64/libnss_wrapper.so"
 fi
 
 # Copy environment variable configuration to the system directory used
@@ -47,6 +47,7 @@ fi
 # want to modify any original outside of Docker.
 
 WARPDRIVE_ENVDIR=/home/warpdrive/user_vars.$$
+export WARPDRIVE_ENVDIR
 
 mkdir -p $WARPDRIVE_ENVDIR
 
@@ -68,7 +69,7 @@ fi
 envvars=
 
 for name in `ls $WARPDRIVE_ENVDIR`; do
-    echo "export $name=`cat $WARPDRIVE_ENVDIR/$name`"
+    export $name="`cat $WARPDRIVE_ENVDIR/$name`"
     envvars="$envvars $name"
 done
 
@@ -77,12 +78,12 @@ done
 
 if [ -f $WARPDRIVE_HOMEDIR/.warpdrive/action_hooks/deploy-env ]; then
     if [ ! -x $WARPDRIVE_HOMEDIR/.warpdrive/action_hooks/deploy-env ]; then
-        echo "WARNING: Script $WARPDRIVE_HOMEDIR/.warpdrive/action_hooks/deploy-env not executable."
+        echo "# WARNING: Script $WARPDRIVE_HOMEDIR/.warpdrive/action_hooks/deploy-env not executable."
     fi
 fi
 
 if [ -x $WARPDRIVE_HOMEDIR/.warpdrive/action_hooks/deploy-env ]; then
-    echo " -----> Running $WARPDRIVE_HOMEDIR/.warpdrive/action_hooks/deploy-env"
+    echo "# INFO: Running script $WARPDRIVE_HOMEDIR/.warpdrive/action_hooks/deploy-env"
     $WARPDRIVE_HOMEDIR/.warpdrive/action_hooks/deploy-env
 fi
 
@@ -91,7 +92,7 @@ fi
 # exists, albeit in practice that is probably unlikely.
 
 for name in `ls $WARPDRIVE_ENVDIR`; do
-    echo "export $name=`cat $WARPDRIVE_ENVDIR/$name`"
+    echo "export $name=\"`cat $WARPDRIVE_ENVDIR/$name`\""
 done
 
 for name in $envvars; do
@@ -107,4 +108,4 @@ rm -rf $WARPDRIVE_ENVDIR
 # Output how environment variables should be incorporated.
 
 echo '# Run this command to configure your shell:'
-echo '# eval $(warpdrive env)'
+echo '# eval "$(warpdrive env)"'
