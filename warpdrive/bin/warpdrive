@@ -1,0 +1,7 @@
+#!/bin/bash
+
+ACTION=$1
+
+shift
+
+exec warpdrive-$ACTION "$@"
