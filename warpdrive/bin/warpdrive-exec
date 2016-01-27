@@ -11,7 +11,7 @@ umask 002
 # Setup the environment if not already done.
 
 if [ x"$WARPDRIVE_SCRIPT" = x"" ]; then
-    . `which warpdrive-vars`
+    eval "$(warpdrive env)"
 fi
 
 WARPDRIVE_SCRIPT=exec
