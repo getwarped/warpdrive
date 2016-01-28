@@ -64,6 +64,17 @@ WARPDRIVE_PYTHON_FILE="${WARPDRIVE_PYTHON_FILE:-app.py}"
 WARPDRIVE_PASTE_FILE="${WARPDRIVE_PASTE_FILE:-paste.ini}"
 WARPDRIVE_WSGI_FILE="${WARPDRIVE_WSGI_FILE:-wsgi.py}"
 
+# Ensure that path to a shell script file uses absolute path else we
+# will not be able to execute it later as isn't going to be in PATH.
+
+case "$WARPDRIVE_SHELL_FILE" in
+    /*)
+        ;;
+    *)
+        WARPDRIVE_SHELL_FILE="$WARPDRIVE_HOMEDIR/$WARPDRIVE_SHELL_FILE"
+        ;;
+esac
+
 # Utility functions for deducing server args for various cases.
 
 function django_server_args() {
