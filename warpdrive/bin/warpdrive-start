@@ -92,7 +92,8 @@ try:
     import $WARPDRIVE_TMPMODULE as settings
     wsgi_application = getattr(settings, 'WSGI_APPLICATION')
     static_url = getattr(settings, 'STATIC_URL', '/static/')
-    static_root = getattr(settings, 'STATIC_ROOT', None)
+    static_root = getattr(settings, 'STATIC_ROOT',
+            '$WARPDRIVE_HOMEDIR/django_static_root')
     entry_point = '.'.join(wsgi_application.split('.')[:2])
     callable_object = wsgi_application.split('.')[-1]
 except Exception:
@@ -103,18 +104,17 @@ else:
         '--entry-point %s' % entry_point,
         '--callable-object %s' % callable_object]
 
-    if static_root:
-        if static_url.endswith('/') and not static_root.endswith('/'):
-            static_root = static_root + '/'
-        options.append('--url-alias %s %s' % (static_url, static_root))
+    if static_url.endswith('/') and not static_root.endswith('/'):
+        static_root = static_root + '/'
+    options.append('--url-alias %s %s' % (static_url, static_root))
 
     print(' '.join(options), end='')
 !
 
     python $WARPDRIVE_TMPSCRIPT
 
-    rm /tmp/$WARPDRIVE_TMPMODULE.py
-    rm $WARPDRIVE_TMPSCRIPT
+    rm /tmp/$WARPDRIVE_TMPMODULE.py*
+    rm $WARPDRIVE_TMPSCRIPT*
 }
 
 # Now check whether server type of 'shell' is selected.

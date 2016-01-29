@@ -115,13 +115,51 @@ fi
 # If we are automatically detect the server type and we find a Django
 # application, trigger collection of static files if possible.
 
+function django_settings_module() {
+    WARPDRIVE_TMPMODULE="project_settings_$$"
+    WARPDRIVE_TMPSCRIPT="/tmp/settings_module_$$.py"
+
+    python manage.py diffsettings > /tmp/$WARPDRIVE_TMPMODULE.py
+
+    cat > $WARPDRIVE_TMPSCRIPT << !
+from __future__ import print_function
+import sys
+sys.path.insert(0, '/tmp')
+
+import $WARPDRIVE_TMPMODULE as settings
+
+print(settings.SETTINGS_MODULE)
+!
+
+    python $WARPDRIVE_TMPSCRIPT
+
+    rm /tmp/$WARPDRIVE_TMPMODULE.py*
+    rm $WARPDRIVE_TMPSCRIPT*
+}
+
+function django_collectstatic() {
+    WARPDRIVE_PROJECT_SETTINGS="$(django_settings_module)"
+
+    WARPDRIVE_TMPMODULE="project_settings_$$"
+
+    cat > $WARPDRIVE_HOMEDIR/$WARPDRIVE_TMPMODULE.py << !
+from $WARPDRIVE_PROJECT_SETTINGS import *
+if 'STATIC_ROOT' not in globals():
+    STATIC_ROOT = '$WARPDRIVE_HOMEDIR/django_static_root'
+!
+
+    PYTHONPATH=$WARPDRIVE_HOMEDIR:$PYTHONPATH \
+      DJANGO_SETTINGS_MODULE=$WARPDRIVE_TMPMODULE \
+      python manage.py collectstatic --noinput
+
+    rm $WARPDRIVE_HOMEDIR/$WARPDRIVE_TMPMODULE.py*
+}
+
 if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -o "$WARPDRIVE_SERVER_TYPE" = "django" ]; then
     if [ -f manage.py ]; then
         if grep -q DJANGO_SETTINGS_MODULE manage.py; then
-            if python manage.py diffsettings | egrep -qe '^STATIC_ROOT'; then
-                echo " -----> Collecting static files for Django"
-                python manage.py collectstatic --noinput
-            fi
+            echo " -----> Collecting static files for Django"
+            django_collectstatic
         fi
     fi
 fi
