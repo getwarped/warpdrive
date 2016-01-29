@@ -6,6 +6,6 @@ set -eo pipefail
 # this using exec so that process ID '1' is inherited if we were started
 # up as process ID '1' in the Docker container.
 
-echo "---> Executing the start up script ..."
+echo "---> Executing the start up script"
 
 exec warpdrive-start

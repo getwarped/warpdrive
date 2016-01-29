@@ -7,7 +7,7 @@ set -eo pipefail
 # already exists and we need to ensure that file system ownership
 # permissions as may be dictated by the target directory are inherited.
 
-echo "---> Installing application source ..."
+echo "---> Installing application source"
 
 cp -Rf /tmp/src/. /app
 
@@ -16,7 +16,7 @@ rm -rf /tmp/src
 # Trigger warpdrive to install any required Python packages and run
 # and hook scripts supplied by an application for the build.
 
-echo "---> Building application from source ..."
+echo "---> Building application from source"
 
 warpdrive-build
 
@@ -33,6 +33,6 @@ warpdrive-build
 # status even though permissions of remaining files are updated as we
 # require.
 
-echo "---> Fix permissions on application source ..."
+echo "---> Fix permissions on application source"
 
 chmod -Rf g+w /app || true
