@@ -93,7 +93,7 @@ try:
     wsgi_application = getattr(settings, 'WSGI_APPLICATION')
     static_url = getattr(settings, 'STATIC_URL', '/static/')
     static_root = getattr(settings, 'STATIC_ROOT',
-            '$WARPDRIVE_HOMEDIR/django_static_root')
+            '$WARPDRIVE_TEMPDIR/django_static_root')
     entry_point = '.'.join(wsgi_application.split('.')[:2])
     callable_object = wsgi_application.split('.')[-1]
 except Exception:

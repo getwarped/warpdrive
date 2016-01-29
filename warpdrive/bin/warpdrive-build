@@ -142,17 +142,17 @@ function django_collectstatic() {
 
     WARPDRIVE_TMPMODULE="project_settings_$$"
 
-    cat > $WARPDRIVE_HOMEDIR/$WARPDRIVE_TMPMODULE.py << !
+    cat > $WARPDRIVE_TEMPDIR/$WARPDRIVE_TMPMODULE.py << !
 from $WARPDRIVE_PROJECT_SETTINGS import *
 if 'STATIC_ROOT' not in globals():
-    STATIC_ROOT = '$WARPDRIVE_HOMEDIR/django_static_root'
+    STATIC_ROOT = '$WARPDRIVE_TEMPDIR/django_static_root'
 !
 
-    PYTHONPATH=$WARPDRIVE_HOMEDIR:$PYTHONPATH \
+    PYTHONPATH=$WARPDRIVE_TEMPDIR:$PYTHONPATH \
       DJANGO_SETTINGS_MODULE=$WARPDRIVE_TMPMODULE \
       python manage.py collectstatic --noinput
 
-    rm $WARPDRIVE_HOMEDIR/$WARPDRIVE_TMPMODULE.py*
+    rm $WARPDRIVE_TEMPDIR/$WARPDRIVE_TMPMODULE.py*
 }
 
 if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -o "$WARPDRIVE_SERVER_TYPE" = "django" ]; then
