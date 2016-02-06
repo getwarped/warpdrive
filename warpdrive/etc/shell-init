@@ -1,0 +1,3 @@
+unset BASH_ENV PROMPT_COMMAND ENV
+
+eval $(warpdrive env)
