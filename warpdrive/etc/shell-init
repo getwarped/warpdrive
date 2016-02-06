@@ -1,3 +1,5 @@
 unset BASH_ENV PROMPT_COMMAND ENV
 
 eval $(warpdrive env)
+
+export PS1="\h:\w\$"
