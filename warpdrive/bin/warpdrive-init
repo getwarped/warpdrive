@@ -124,14 +124,14 @@ find $WARPDRIVE_ROOT_DIR/python/lib \
     xargs rm -rf
 
 # Fixup group ownership and directory/file permissions for installation
-# area so group writable by 'root'. This is done even for files which are
-# not writable so that using rsync to copy files into the container will
-# srill be able to work.
+# area so group writable by 'root'.
 
 chgrp -R root $WARPDRIVE_ROOT_DIR
 
-find $WARPDRIVE_ROOT_DIR -exec chmod g+w {} \;
-find $WARPDRIVE_ROOT_DIR -type d -exec chmod g+s {} \;
+find $WARPDRIVE_ROOT_DIR -type d -exec chmod g+ws {} \;
+
+find $WARPDRIVE_ROOT_DIR -perm 2755 -exec chmod g+w {} \;
+find $WARPDRIVE_ROOT_DIR -perm 0644 -exec chmod g+w {} \;
 
 # Clean up the temporary build area.
 
