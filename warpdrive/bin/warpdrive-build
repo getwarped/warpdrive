@@ -36,11 +36,6 @@ set -eo pipefail
 WARPDRIVE_HOMEDIR=/app
 export WARPDRIVE_HOMEDIR
 
-# Set up the data directory for the application.
-
-WARPDRIVE_DATADIR=/data
-export WARPDRIVE_DATADIR
-
 # Set up the system directory where we keep runtime files.
 
 WARPDRIVE_TEMPDIR=/home/warpdrive

@@ -9,13 +9,6 @@ export WARPDRIVE_HOMEDIR
 
 echo "export WARPDRIVE_HOMEDIR=$WARPDRIVE_HOMEDIR"
 
-# Data directory for the application.
-
-WARPDRIVE_DATADIR=/data
-export WARPDRIVE_DATADIR
-
-echo "export WARPDRIVE_DATADIR=$WARPDRIVE_DATADIR"
-
 # System directory where we keep runtime files.
 
 WARPDRIVE_TEMPDIR=/home/warpdrive
