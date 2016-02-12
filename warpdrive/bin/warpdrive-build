@@ -33,17 +33,17 @@ set -eo pipefail
 
 # Set up the home directory for the application.
 
-WARPDRIVE_HOMEDIR=/app
-export WARPDRIVE_HOMEDIR
+WARPDRIVE_APPL_DIR=${WARPDRIVE_APPL_DIR:-/app}
+export WARPDRIVE_APPL_DIR
 
 # Set up the system directory where we keep runtime files.
 
-WARPDRIVE_TEMPDIR=/home/warpdrive
-export WARPDRIVE_TEMPDIR
+WARPDRIVE_HOME_DIR=${WARPDRIVE_HOME_DIR:-/home/warpdrive}
+export WARPDRIVE_HOME_DIR
 
 # Make sure we are in the correct working directory for the application.
 
-cd $WARPDRIVE_HOMEDIR
+cd $WARPDRIVE_APPL_DIR
 
 # Set the umask to be '002' so that any files/directories created from
 # this point are group writable. This does rely on any applications or
@@ -67,24 +67,26 @@ umask 002
 #
 #   https://github.com/docker/docker/issues/9547
 
-if [ -f .warpdrive/action_hooks/pre-build ]; then
-    if [ ! -x .warpdrive/action_hooks/pre-build ]; then
-        echo "WARNING: Script .warpdrive/action_hooks/pre-build not executable."
+if [ -f ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build ]; then
+    if [ ! -x ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build ]; then
+        echo "WARNING: Script ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build not executable."
     fi
 fi
 
-if [ -x .warpdrive/action_hooks/pre-build ]; then
-    echo " -----> Running .warpdrive/action_hooks/pre-build"
-    .warpdrive/action_hooks/pre-build
+if [ -x ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build ]; then
+    echo " -----> Running ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build"
+    ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build
 fi
 
 # Now run 'pip' to install any required Python packages based on the
 # contents of the 'requirements.txt' file.
 
+WARPDRIVE_BUILD_DIR=${WARPDRIVE_BUILD_DIR:-/tmp/warpdrive-build.$$}
+
 if [ -f requirements.txt ]; then
     echo " -----> Installing dependencies with pip"
     pip install --no-cache-dir --exists-action=w \
-        --src=.warpdrive/tmp -r requirements.txt
+        --src=$WARPDRIVE_BUILD_DIR -r requirements.txt
 fi
 
 # We also install any application package if a 'setup.py' file is
@@ -101,8 +103,8 @@ fi
 # application server type. If we haven't, we will try and automatically
 # determine how the server should be started and what WSGI server to use.
 
-if [ -f .warpdrive/server_type ]; then
-    WARPDRIVE_SERVER_TYPE="`cat .warpdrive/server_type`"
+if [ -f ${WARPDRIVE_APPL_DIR}/.warpdrive/server_type ]; then
+    WARPDRIVE_SERVER_TYPE="`cat ${WARPDRIVE_APPL_DIR}/.warpdrive/server_type`"
 else
     WARPDRIVE_SERVER_TYPE="auto"
 fi
@@ -111,43 +113,43 @@ fi
 # application, trigger collection of static files if possible.
 
 function django_settings_module() {
-    WARPDRIVE_TMPMODULE="project_settings_$$"
-    WARPDRIVE_TMPSCRIPT="/tmp/settings_module_$$.py"
+    WARPDRIVE_TMP_MODULE="project_settings_$$"
+    WARPDRIVE_TMP_SCRIPT="/tmp/settings_module_$$.py"
 
-    python manage.py diffsettings > /tmp/$WARPDRIVE_TMPMODULE.py
+    python manage.py diffsettings > /tmp/$WARPDRIVE_TMP_MODULE.py
 
-    cat > $WARPDRIVE_TMPSCRIPT << !
+    cat > $WARPDRIVE_TMP_SCRIPT << !
 from __future__ import print_function
 import sys
 sys.path.insert(0, '/tmp')
 
-import $WARPDRIVE_TMPMODULE as settings
+import $WARPDRIVE_TMP_MODULE as settings
 
 print(settings.SETTINGS_MODULE)
 !
 
-    python $WARPDRIVE_TMPSCRIPT
+    python $WARPDRIVE_TMP_SCRIPT
 
-    rm /tmp/$WARPDRIVE_TMPMODULE.py*
-    rm $WARPDRIVE_TMPSCRIPT*
+    rm /tmp/$WARPDRIVE_TMP_MODULE.py*
+    rm $WARPDRIVE_TMP_SCRIPT*
 }
 
 function django_collectstatic() {
     WARPDRIVE_PROJECT_SETTINGS="$(django_settings_module)"
 
-    WARPDRIVE_TMPMODULE="project_settings_$$"
+    WARPDRIVE_TMP_MODULE="project_settings_$$"
 
-    cat > $WARPDRIVE_TEMPDIR/$WARPDRIVE_TMPMODULE.py << !
+    cat > $WARPDRIVE_HOME_DIR/$WARPDRIVE_TMP_MODULE.py << !
 from $WARPDRIVE_PROJECT_SETTINGS import *
 if 'STATIC_ROOT' not in globals():
-    STATIC_ROOT = '$WARPDRIVE_TEMPDIR/django_static_root'
+    STATIC_ROOT = '$WARPDRIVE_HOME_DIR/django_static_root'
 !
 
-    PYTHONPATH=$WARPDRIVE_TEMPDIR:$PYTHONPATH \
-      DJANGO_SETTINGS_MODULE=$WARPDRIVE_TMPMODULE \
+    PYTHONPATH=$WARPDRIVE_HOME_DIR:$PYTHONPATH \
+      DJANGO_SETTINGS_MODULE=$WARPDRIVE_TMP_MODULE \
       python manage.py collectstatic --noinput
 
-    rm $WARPDRIVE_TEMPDIR/$WARPDRIVE_TMPMODULE.py*
+    rm $WARPDRIVE_HOME_DIR/$WARPDRIVE_TMP_MODULE.py*
 }
 
 if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -o "$WARPDRIVE_SERVER_TYPE" = "django" ]; then
@@ -168,12 +170,12 @@ fi
 #
 #   https://github.com/docker/docker/issues/9547
 
-if [ -x .warpdrive/action_hooks/build ]; then
-    echo " -----> Running .warpdrive/action_hooks/build"
-    .warpdrive/action_hooks/build
+if [ -x ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/build ]; then
+    echo " -----> Running ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/build"
+    ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/build
 fi
 
 # Clean up any temporary files, including the results of checking out
 # any source code repositories when doing a 'pip install' from a VCS.
 
-rm -rf .warpdrive/tmp
+rm -rf $WARPDRIVE_BUILD_DIR

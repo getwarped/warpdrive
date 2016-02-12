@@ -10,12 +10,12 @@ umask 002
 
 # Setup the environment if not already done.
 
-if [ x"$WARPDRIVE_SCRIPT" = x"" ]; then
+if [ x"$WARPDRIVE_ACTION" = x"" ]; then
     eval "$(warpdrive env)"
 fi
 
-WARPDRIVE_SCRIPT=exec
-export WARPDRIVE_SCRIPT
+WARPDRIVE_ACTION=exec
+export WARPDRIVE_ACTION
 
 # Now execute the command passed as arguments. If running as process ID
 # 1, we want to do that as a sub process to the 'tini' process, which

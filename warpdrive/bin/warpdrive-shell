@@ -10,12 +10,12 @@ umask 002
 
 # Setup the environment if not already done.
 
-if [ x"$WARPDRIVE_SCRIPT" = x"" ]; then
+if [ x"$WARPDRIVE_ACTION" = x"" ]; then
     eval "$(warpdrive env)"
 fi
 
-WARPDRIVE_SCRIPT=shell
-export WARPDRIVE_SCRIPT
+WARPDRIVE_ACTION=shell
+export WARPDRIVE_ACTION
 
 # Now finally run bash.
 

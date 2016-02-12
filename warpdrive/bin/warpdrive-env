@@ -4,17 +4,17 @@
 
 # Home directory for the application.
 
-WARPDRIVE_HOMEDIR=/app
-export WARPDRIVE_HOMEDIR
+WARPDRIVE_APPL_DIR=${WARPDRIVE_APPL_DIR:-/opt/warpdrive}
+export WARPDRIVE_APPL_DIR
 
-echo "export WARPDRIVE_HOMEDIR=$WARPDRIVE_HOMEDIR"
+echo "export WARPDRIVE_APPL_DIR=$WARPDRIVE_APPL_DIR"
 
 # System directory where we keep runtime files.
 
-WARPDRIVE_TEMPDIR=/home/warpdrive
-export WARPDRIVE_TEMPDIR
+WARPDRIVE_HOME_DIR=${WARPDRIVE_HOME_DIR:=/home/warpdrive}
+export WARPDRIVE_HOME_DIR
 
-echo "export WARPDRIVE_TEMPDIR=$WARPDRIVE_TEMPDIR"
+echo "export WARPDRIVE_HOME_DIR=$WARPDRIVE_HOME_DIR"
 
 # HOME directory for the user, in case it isn't set to a sensible value.
 
@@ -28,7 +28,7 @@ echo "export HOME=$HOME"
 
 WARPDRIVE_USER_ID=$(id -u)
 
-NSS_WRAPPER_PASSWD=$WARPDRIVE_TEMPDIR/passwd
+NSS_WRAPPER_PASSWD=$WARPDRIVE_HOME_DIR/passwd
 NSS_WRAPPER_GROUP=/etc/group
 
 if [ x"$WARPDRIVE_USER_ID" != x"0" -a x"$WARPDRIVE_USER_ID" != x"1001" ]; then
@@ -51,14 +51,14 @@ fi
 # may not be writable, or could be a mounted directory and we do not
 # want to modify any original outside of Docker.
 
-WARPDRIVE_ENVDIR=/home/warpdrive/user_vars.$$
-export WARPDRIVE_ENVDIR
+WARPDRIVE_USER_VARS=/home/warpdrive/user_vars.$$
+export WARPDRIVE_USER_VARS
 
-mkdir -p $WARPDRIVE_ENVDIR
+mkdir -p $WARPDRIVE_USER_VARS
 
-if [ -d $WARPDRIVE_HOMEDIR/.warpdrive/user_vars ]; then
-    for name in `ls $WARPDRIVE_HOMEDIR/.warpdrive/user_vars/*`; do
-        cp $name $WARPDRIVE_ENVDIR
+if [ -d $WARPDRIVE_APPL_DIR/.warpdrive/user_vars ]; then
+    for name in `ls $WARPDRIVE_APPL_DIR/.warpdrive/user_vars/*`; do
+        cp $name $WARPDRIVE_USER_VARS
     done
 fi
 
@@ -73,35 +73,35 @@ fi
 
 envvars=
 
-for name in `ls $WARPDRIVE_ENVDIR`; do
-    export $name="`cat $WARPDRIVE_ENVDIR/$name`"
+for name in `ls $WARPDRIVE_USER_VARS`; do
+    export $name="`cat $WARPDRIVE_USER_VARS/$name`"
     envvars="$envvars $name"
 done
 
 # Run any user supplied script to be run to set, modify or delete the
 # environment variables.
 
-if [ -f $WARPDRIVE_HOMEDIR/.warpdrive/action_hooks/deploy-env ]; then
-    if [ ! -x $WARPDRIVE_HOMEDIR/.warpdrive/action_hooks/deploy-env ]; then
-        echo "# WARNING: Script $WARPDRIVE_HOMEDIR/.warpdrive/action_hooks/deploy-env not executable."
+if [ -f $WARPDRIVE_APPL_DIR/.warpdrive/action_hooks/deploy-env ]; then
+    if [ ! -x $WARPDRIVE_APPL_DIR/.warpdrive/action_hooks/deploy-env ]; then
+        echo "# WARNING: Script $WARPDRIVE_APPL_DIR/.warpdrive/action_hooks/deploy-env not executable."
     fi
 fi
 
-if [ -x $WARPDRIVE_HOMEDIR/.warpdrive/action_hooks/deploy-env ]; then
-    echo "# INFO: Running script $WARPDRIVE_HOMEDIR/.warpdrive/action_hooks/deploy-env"
-    $WARPDRIVE_HOMEDIR/.warpdrive/action_hooks/deploy-env
+if [ -x $WARPDRIVE_APPL_DIR/.warpdrive/action_hooks/deploy-env ]; then
+    echo "# INFO: Running script $WARPDRIVE_APPL_DIR/.warpdrive/action_hooks/deploy-env"
+    $WARPDRIVE_APPL_DIR/.warpdrive/action_hooks/deploy-env
 fi
 
 # Go back and output the final values of the user supplied environment
 # variables.
 
-for name in `ls $WARPDRIVE_ENVDIR`; do
-    echo "export $name=\"`cat $WARPDRIVE_ENVDIR/$name`\""
+for name in `ls $WARPDRIVE_USER_VARS`; do
+    echo "export $name=\"`cat $WARPDRIVE_USER_VARS/$name`\""
 done
 
 # Clean up the environment variables directory.
 
-rm -rf $WARPDRIVE_ENVDIR
+rm -rf $WARPDRIVE_USER_VARS
 
 # Output how environment variables should be incorporated.
 

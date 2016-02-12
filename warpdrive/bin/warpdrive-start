@@ -15,16 +15,16 @@ umask 002
 
 # Setup the environment if not already done.
 
-if [ x"$WARPDRIVE_SCRIPT" = x"" ]; then
+if [ x"$WARPDRIVE_ACTION" = x"" ]; then
     eval "$(warpdrive env)"
 fi
 
-WARPDRIVE_SCRIPT=start
-export WARPDRIVE_SCRIPT
+WARPDRIVE_ACTION=start
+export WARPDRIVE_ACTION
 
 # Make sure we are in the correct working directory for the application.
 
-cd $WARPDRIVE_HOMEDIR
+cd $WARPDRIVE_APPL_DIR
 
 # Run any user supplied script to be run prior to starting the
 # application in the actual container. The script must be executable in
@@ -71,29 +71,29 @@ case "$WARPDRIVE_SHELL_FILE" in
     /*)
         ;;
     *)
-        WARPDRIVE_SHELL_FILE="$WARPDRIVE_HOMEDIR/$WARPDRIVE_SHELL_FILE"
+        WARPDRIVE_SHELL_FILE="$WARPDRIVE_APPL_DIR/$WARPDRIVE_SHELL_FILE"
         ;;
 esac
 
 # Utility functions for deducing server args for various cases.
 
 function django_server_args() {
-    WARPDRIVE_TMPMODULE="django_settings_$$"
-    WARPDRIVE_TMPSCRIPT="/tmp/server_vars_$$.py"
+    WARPDRIVE_TMP_MODULE="django_settings_$$"
+    WARPDRIVE_TMP_SCRIPT="/tmp/server_vars_$$.py"
 
-    python manage.py diffsettings > /tmp/$WARPDRIVE_TMPMODULE.py
+    python manage.py diffsettings > /tmp/$WARPDRIVE_TMP_MODULE.py
 
-    cat > $WARPDRIVE_TMPSCRIPT << !
+    cat > $WARPDRIVE_TMP_SCRIPT << !
 from __future__ import print_function
 import sys
 sys.path.insert(0, '/tmp')
 
 try:
-    import $WARPDRIVE_TMPMODULE as settings
+    import $WARPDRIVE_TMP_MODULE as settings
     wsgi_application = getattr(settings, 'WSGI_APPLICATION')
     static_url = getattr(settings, 'STATIC_URL', '/static/')
     static_root = getattr(settings, 'STATIC_ROOT',
-            '$WARPDRIVE_TEMPDIR/django_static_root')
+            '$WARPDRIVE_HOME_DIR/django_static_root')
     entry_point = '.'.join(wsgi_application.split('.')[:2])
     callable_object = wsgi_application.split('.')[-1]
 except Exception:
@@ -111,10 +111,10 @@ else:
     print(' '.join(options), end='')
 !
 
-    python $WARPDRIVE_TMPSCRIPT
+    python $WARPDRIVE_TMP_SCRIPT
 
-    rm /tmp/$WARPDRIVE_TMPMODULE.py*
-    rm $WARPDRIVE_TMPSCRIPT*
+    rm /tmp/$WARPDRIVE_TMP_MODULE.py*
+    rm $WARPDRIVE_TMP_SCRIPT*
 }
 
 # Now check whether server type of 'shell' is selected.
@@ -142,11 +142,11 @@ fi
 
 if [ "$WARPDRIVE_SERVER_TYPE" = "django" -a -f manage.py ]; then
     if grep -q DJANGO_SETTINGS_MODULE manage.py; then
-        WARPDRIVE_TMPOPTIONS=$(django_server_args)
+        WARPDRIVE_TMP_OPTIONS=$(django_server_args)
 
-        if [ x"$WARPDRIVE_TMPOPTIONS" != x"" ]; then
+        if [ x"$WARPDRIVE_TMP_OPTIONS" != x"" ]; then
             WARPDRIVE_SERVER_TYPE="mod_wsgi"
-            WARPDRIVE_SERVER_ARGS="$WARPDRIVE_TMPOPTIONS"
+            WARPDRIVE_SERVER_ARGS="$WARPDRIVE_TMP_OPTIONS"
         fi
     fi
 fi
@@ -229,11 +229,11 @@ fi
 
 if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -a -f manage.py ]; then
     if grep -q DJANGO_SETTINGS_MODULE manage.py; then
-        WARPDRIVE_TMPOPTIONS=$(django_server_args)
+        WARPDRIVE_TMP_OPTIONS=$(django_server_args)
 
-        if [ x"$WARPDRIVE_TMPOPTIONS" != x"" ]; then
+        if [ x"$WARPDRIVE_TMP_OPTIONS" != x"" ]; then
             WARPDRIVE_SERVER_TYPE="mod_wsgi"
-            WARPDRIVE_SERVER_ARGS="$WARPDRIVE_TMPOPTIONS"
+            WARPDRIVE_SERVER_ARGS="$WARPDRIVE_TMP_OPTIONS"
         fi
     fi
 fi

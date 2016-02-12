@@ -13,20 +13,20 @@ if [ -f .warpdrive/server_args ]; then
 
     # Expand any environment variable references in options.
 
-    WARPDRIVE_TMPFILE=/tmp/server_args.$$
+    WARPDRIVE_TMP_FILE=/tmp/server_args.$$
 
-    cat > $WARPDRIVE_TMPFILE << EOF
+    cat > $WARPDRIVE_TMP_FILE << EOF
 #!/bin/sh
 cat << !
 $WARPDRIVE_SERVER_ARGS
 !
 EOF
 
-    chmod +x $WARPDRIVE_TMPFILE
+    chmod +x $WARPDRIVE_TMP_FILE
 
-    WARPDRIVE_SERVER_ARGS=`$WARPDRIVE_TMPFILE`
+    WARPDRIVE_SERVER_ARGS=`$WARPDRIVE_TMP_FILE`
 
-    rm -f $WARPDRIVE_TMPFILE
+    rm -f $WARPDRIVE_TMP_FILE
 fi
 
 if [ $$ = 1 ]; then

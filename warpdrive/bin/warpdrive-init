@@ -25,16 +25,11 @@ set -eo pipefail
 
 umask 002
 
-# Set up the directory where Python and Apache installations will be put.
+# Create directory where additional packags will be installed.
 
-INSTALL_ROOT=/usr/local
-export INSTALL_ROOT
+WARPDRIVE_ROOT_DIR=${WARPDRIVE_ROOT_DIR:-/usr/local}
 
-BUILD_ROOT=/tmp/build
-export BUILD_ROOT
-
-mkdir -p $INSTALL_ROOT
-mkdir -p $BUILD_ROOT
+mkdir -p $WARPDRIVE_ROOT_DIR
 
 # Validate that package version details are set in the Dockerfile.
 
@@ -43,11 +38,15 @@ test ! -z "$MOD_WSGI_VERSION" || exit 1
 
 # Download source code for packages and unpack them.
 
-curl -SL -o $BUILD_ROOT/python.tar.gz https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz
+WARPDRIVE_BUILD_DIR=${WARPDRIVE_BUILD_DIR:-/tmp/warpdrive-init.$$}
 
-mkdir $BUILD_ROOT/python
+mkdir -p $WARPDRIVE_BUILD_DIR
 
-tar -xC $BUILD_ROOT/python --strip-components=1 -f $BUILD_ROOT/python.tar.gz
+curl -SL -o $WARPDRIVE_BUILD_DIR/python.tar.gz https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz
+
+mkdir $WARPDRIVE_BUILD_DIR/python
+
+tar -xC $WARPDRIVE_BUILD_DIR/python --strip-components=1 -f $WARPDRIVE_BUILD_DIR/python.tar.gz
 
 # To be safe, force the C compiler to be used to be the 64 bit compiler.
 
@@ -59,9 +58,9 @@ export CC
 # We first install with a shared Python library, and then install the
 # static library and statically linked 'python' executable.
 
-cd $BUILD_ROOT/python
+cd $WARPDRIVE_BUILD_DIR/python
 
-CONFIG_ARGS="--prefix=$INSTALL_ROOT/python \
+CONFIG_ARGS="--prefix=$WARPDRIVE_ROOT_DIR/python \
     --enable-ipv6 --with-dbmliborder=bdb:gdbm --with-system-expat \
     --with-system-ffi --with-fpectl"
 
@@ -76,7 +75,7 @@ esac
 
 ./configure $CONFIG_ARGS --enable-shared
 
-LD_RUN_PATH=$INSTALL_ROOT/python/lib
+LD_RUN_PATH=$WARPDRIVE_ROOT_DIR/python/lib
 export LD_RUN_PATH
 
 make
@@ -90,7 +89,7 @@ make altbininstall
 
 unset LD_RUN_PATH
 
-cd $INSTALL_ROOT/python/bin
+cd $WARPDRIVE_ROOT_DIR/python/bin
 
 case "$PYTHON_VERSION" in
     3.*)
@@ -100,7 +99,7 @@ esac
 
 # Set PATH to include bin directories for Python and Apache.
 
-PATH=$INSTALL_ROOT/python/bin:$PATH
+PATH=$WARPDRIVE_ROOT_DIR/python/bin:$PATH
 export PATH
 
 # Install additional common Python packages we want installed. This
@@ -109,9 +108,9 @@ export PATH
 
 curl -SL 'https://bootstrap.pypa.io/get-pip.py' | python
 
-if [ ! -f $INSTALL_ROOT/python/bin/pip ]; then
-    if [ -f $INSTALL_ROOT/python/bin/pip3 ]; then
-        ln -s pip3 $INSTALL_ROOT/python/bin/pip
+if [ ! -f $WARPDRIVE_ROOT_DIR/python/bin/pip ]; then
+    if [ -f $WARPDRIVE_ROOT_DIR/python/bin/pip3 ]; then
+        ln -s pip3 $WARPDRIVE_ROOT_DIR/python/bin/pip
     fi
 fi
 
@@ -119,43 +118,47 @@ pip install --no-cache-dir -U mod_wsgi==$MOD_WSGI_VERSION
 
 # Prune unwanted files from Python and Apache installations.
 
-find $INSTALL_ROOT/python/lib \
+find $WARPDRIVE_ROOT_DIR/python/lib \
     \( -type d -and -name test -or -name tests \) -or \
     \( -type f -and -name '*.pyc' -or -name '*.pyo' \) | \
     xargs rm -rf
 
 # Fixup group ownership and directory/file permissions for installation
-# area so group writable by 'root'.
+# area so group writable by 'root'. This is done even for files which are
+# not writable so that using rsync to copy files into the container will
+# srill be able to work.
 
-chgrp -R root $INSTALL_ROOT
+chgrp -R root $WARPDRIVE_ROOT_DIR
 
-find $INSTALL_ROOT -type d -exec chmod g+ws {} \;
-
-find $INSTALL_ROOT -perm 2755 -exec chmod g+w {} \;
-find $INSTALL_ROOT -perm 0644 -exec chmod g+w {} \;
+find $WARPDRIVE_ROOT_DIR -exec chmod g+w {} \;
+find $WARPDRIVE_ROOT_DIR -type d -exec chmod g+s {} \;
 
 # Clean up the temporary build area.
 
-rm -rf $BUILD_ROOT
+rm -rf $WARPDRIVE_BUILD_DIR
 
 # Create a special user account under which any application should be
 # run. This has group of 'root' with gid of '0' as it appears to be
 # safest bet to allow file system permisions for everything to work.
 
+WARPDRIVE_HOME_DIR=${WARPDRIVE_HOME_DIR:-/home/warpdrive}
+
 adduser --disabled-password --gecos "Warp Drive" --uid 1001 --gid 0 \
-    --home /home/warpdrive warpdrive
+    --home ${WARPDRIVE_HOME_DIR} warpdrive
 
 # Ensure home directory for 'warpdrive' user is world writable but also
 # has the sticky bit so only 'root' or the owner can unlink any files.
 # Needs to be world writable as we cannot be certain what uid the
 # application will run as.
 
-chmod 1777 /home/warpdrive
+chmod 1777 ${WARPDRIVE_HOME_DIR}
 
 # Create empty directory to be used as application directory. Ensure it
 # is world writable but also has the sticky bit so only root or the
 # owner can unlink any files. Needs to be world writable as we cannot be
 # certain what uid application will run as.
 
-mkdir -p /app
-chmod 1777 /app
+WARPDRIVE_APPL_DIR=${WARPDRIVE_APPL_DIR:-/opt/warpdrive}
+
+mkdir -p ${WARPDRIVE_APPL_DIR}
+chmod 1777 ${WARPDRIVE_APPL_DIR}
