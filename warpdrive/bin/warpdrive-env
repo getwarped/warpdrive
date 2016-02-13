@@ -2,23 +2,25 @@
 
 # This script outputs the environment for the application or shell.
 
-# Home directory for the application.
+# Directory for the application.
 
 WARPDRIVE_APPL_DIR=${WARPDRIVE_APPL_DIR:-/opt/warpdrive}
 export WARPDRIVE_APPL_DIR
 
 echo "export WARPDRIVE_APPL_DIR=$WARPDRIVE_APPL_DIR"
 
-# System directory where we keep runtime files.
+# Home directory for the user and where any additional generated files
+# will be placed.
 
 WARPDRIVE_HOME_DIR=${WARPDRIVE_HOME_DIR:=/home/warpdrive}
 export WARPDRIVE_HOME_DIR
 
 echo "export WARPDRIVE_HOME_DIR=$WARPDRIVE_HOME_DIR"
 
-# HOME directory for the user, in case it isn't set to a sensible value.
+# Override HOME directory for the user, in case it isn't set to a
+# sensible value.
 
-HOME=/home/warpdrive
+HOME=$WARPDRIVE_HOME_DIR
 export HOME
 
 echo "export HOME=$HOME"
@@ -35,7 +37,7 @@ if [ x"$WARPDRIVE_USER_ID" != x"0" -a x"$WARPDRIVE_USER_ID" != x"1001" ]; then
     if [ ! -f $NSS_WRAPPER_PASSWD ]; then
         cat /etc/passwd | sed -e 's/^warpdrive:/builder:/' > $NSS_WRAPPER_PASSWD
 
-        echo "warpdrive:x:$WARPDRIVE_USER_ID:0:Warp Drive,,,:/home/warpdrive:/bin/bash" >> $NSS_WRAPPER_PASSWD
+        echo "warpdrive:x:$WARPDRIVE_USER_ID:0:Warp Drive,,,:$WARPDRIVE_HOME_DIR:/bin/bash" >> $NSS_WRAPPER_PASSWD
     fi
 
     echo "export NSS_WRAPPER_PASSWD=$NSS_WRAPPER_PASSWD"
@@ -51,7 +53,7 @@ fi
 # may not be writable, or could be a mounted directory and we do not
 # want to modify any original outside of Docker.
 
-WARPDRIVE_USER_VARS=/home/warpdrive/user_vars.$$
+WARPDRIVE_USER_VARS=$WARPDRIVE_HOME_DIR/user_vars.$$
 export WARPDRIVE_USER_VARS
 
 mkdir -p $WARPDRIVE_USER_VARS
