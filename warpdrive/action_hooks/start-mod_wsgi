@@ -140,7 +140,7 @@ if [ -d .warpdrive/server_args ]; then
     WARPDRIVE_SERVER_ARGS_FILE=".warpdrive/server_args/mod_wsgi"
 else
     WARPDRIVE_SERVER_ARGS_FILE=".warpdrive/server_args"
-then
+fi
 
 if [ -f $WARPDRIVE_SERVER_ARGS_FILE ]; then
     WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS `cat $WARPDRIVE_SERVER_ARGS_FILE`"
