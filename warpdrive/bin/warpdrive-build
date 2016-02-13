@@ -33,7 +33,7 @@ set -eo pipefail
 
 # Set up the home directory for the application.
 
-WARPDRIVE_APPL_DIR=${WARPDRIVE_APPL_DIR:-/app}
+WARPDRIVE_APPL_DIR=${WARPDRIVE_APPL_DIR:-/opt/warpdrive}
 export WARPDRIVE_APPL_DIR
 
 # Set up the system directory where we keep runtime files.
