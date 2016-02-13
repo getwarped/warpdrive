@@ -4,7 +4,7 @@ if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
     set -x
 fi
 
-WARPDRIVE_SERVER_ARGS="--log-file - --bind 0.0.0.0:8080"
+WARPDRIVE_SERVER_ARGS="--log-file - --bind 0.0.0.0:WARPDRIVE_SERVER_PORT"
 
 if [ -d .warpdrive/server_args ];
     WARPDRIVE_SERVER_ARGS_FILE=".warpdrive/server_args/gunicorn"

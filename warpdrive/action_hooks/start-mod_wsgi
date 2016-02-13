@@ -13,7 +13,7 @@ fi
 # arguments from the environment. We also allow extra server arguments
 # in the file '.warpdrive/server_args'.
 
-WARPDRIVE_SERVER_ARGS="--log-to-terminal --startup-log --port 8080"
+WARPDRIVE_SERVER_ARGS="--log-to-terminal --startup-log --port WARPDRIVE_SERVER_PORT"
 
 if [ x"$MOD_WSGI_PROCESSES" != x"" ]; then
     WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --processes $MOD_WSGI_PROCESSES"
