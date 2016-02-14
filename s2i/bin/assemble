@@ -9,7 +9,7 @@ set -eo pipefail
 
 echo "---> Installing application source"
 
-cp -Rf /tmp/src/. /app
+cp -Rf /tmp/src/. /opt/warpdrive
 
 rm -rf /tmp/src
 
@@ -35,4 +35,4 @@ warpdrive-build
 
 echo "---> Fix permissions on application source"
 
-chmod -Rf g+w /app || true
+chmod -Rf g+w /opt/warpdrive || true
