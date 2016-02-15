@@ -1,4 +1,4 @@
-# warpdrive-python
+# warpdrive
 
 The ``warpdrive`` project provide the scripts for implementing a build and
 deployment system for Python web applications using Docker. The scripts can
@@ -21,4 +21,4 @@ S2I support built in, such as OpenShift.
 For examples of Docker images which incorporate the ``warpdrive`` scripts
 see:
 
-  * [warp0-python-debian8](https://github.com/GrahamDumpleton/warp0-python-debian8)
+  * [warp0-debian8-python](https://github.com/GrahamDumpleton/warp0-debian8-python)
