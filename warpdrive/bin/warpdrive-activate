@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# Has warpdrive been run before? If it hasn't, then create directory
+# where our virtual Python environments will live.
+
+WARPDRIVE_VIRTUALENVS=${WARPDRIVE_VIRTUALENVS:-$HOME/.warpdrive}
+
+test ! -d $WARPDRIVE_VIRTUALENVS && mkdir $WARPDRIVE_VIRTUALENVS
+
+# What is the name of the supplied Python virtualenv environment to
+# be activated. Does it already exist? If it doesn't exist then we
+# need to create it and initialise it with base packages.
+
+if [ "$#" = "0" ]; then
+    WARPDRIVE_VENV_NAME="default"
+else
+    WARPDRIVE_VENV_NAME="$1"
+fi
+
+WARPDRIVE_VENV_DIR="$WARPDRIVE_VIRTUALENVS/warpdrive+$WARPDRIVE_VENV_NAME"
+
+create_environment() {
+    virtualenv $WARPDRIVE_VENV_DIR
+
+    source $WARPDRIVE_VENV_DIR/bin/activate
+
+    if [ x"$WARPDRIVE_PACKAGE_URL" == x"" ]; then
+        pip install warpdrive==$WARPDRIVE_VERSION
+    else
+        pip install $WARPDRIVE_PACKAGE_URL
+    fi
+
+    mkdir $WARPDRIVE_VENV_DIR/home
+}
+
+if [ ! -d $WARPDRIVE_VENV_DIR ];
+then
+    create_environment > $WARPDRIVE_VIRTUALENVS/warpdrive-activate.log
+fi
+
+WARPDRIVE_ACTIVATE="$WARPDRIVE_VENV_DIR/bin/activate"
+WARPDRIVE_HOME_DIR="$WARPDRIVE_VENV_DIR/home"
+WARPDRIVE_APPL_DIR=`pwd`
+
+echo "export WARPDRIVE_VENV_NAME=$WARPDRIVE_VENV_NAME"
+echo "export WARPDRIVE_HOME_DIR=$WARPDRIVE_HOME_DIR"
+echo "export WARPDRIVE_APPL_DIR=$WARPDRIVE_APPL_DIR"
+
+echo "source $WARPDRIVE_ACTIVATE"
+echo "# Run this command to configure your shell:"
+echo "# eval \"\$(warpdrive activate $WARPDRIVE_VENV_NAME)\""

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+PYTHON_VERSION=`python -V 2>&1 | sed -e 's/Python //' -e 's/\.[0-9]*$//' -e 's/\.//'`
+
+exec s2i build $WARPDRIVE_APPL_DIR grahamdumpleton/warp0-debian8-python$PYTHON_VERSION warpdrive-$WARPDRIVE_ENVIRONMENT
