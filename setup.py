@@ -13,12 +13,12 @@ def _files(prefix):
     return result
 
 setup(name = 'warpdrive',
-      version = '0.14.0',
+      version = '0.14.2',
       description = 'Launcher for Python web applications.',
       author = 'Graham Dumpleton',
       author_email = 'Graham.Dumpleton@gmail.com',
       license = 'BSD',
-      url = 'https://github.com/GrahamDumpleton/warpdrive-python',
+      url = 'https://github.com/GrahamDumpleton/warpdrive',
       packages = ['warpdrive', 'warpdrive.bin', 'warpdrive.etc',
                   'warpdrive.action_hooks'],
       package_dir = {'warpdrive': 'warpdrive'},
