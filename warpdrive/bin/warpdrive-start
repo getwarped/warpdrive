@@ -137,6 +137,14 @@ if [ "$WARPDRIVE_SERVER_TYPE" = "paste" ]; then
     WARPDRIVE_SERVER_ARGS="--application-type paste --entry-point $WARPDRIVE_PASTE_FILE"
 fi
 
+# Now check whether server of 'wsgi' is selected. We are going to
+# switch to type 'mod_wsgi' in this case and configure it appropriately.
+
+if [ "$WARPDRIVE_SERVER_TYPE" = "wsgi" -a -f $WARPDRIVE_WSGI_FILE ]; then
+    WARPDRIVE_SERVER_TYPE="mod_wsgi"
+    WARPDRIVE_SERVER_ARGS="--application-type script --entry-point $WARPDRIVE_WSGI_FILE"
+fi
+
 # Now check whether server of 'django' is selected. We are going to
 # switch to type 'mod_wsgi' in this case and configure it appropriately.
 

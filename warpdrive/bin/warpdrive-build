@@ -109,6 +109,18 @@ else
     WARPDRIVE_SERVER_TYPE="auto"
 fi
 
+# See whether mod_wsgi is actually installed and if it isn't and we may
+# require it, then install it. It should already be installed if using
+# the Docker base images.
+
+if ! (python -c "import mod_wsgi" &>/dev/null); then
+    case $WARPDRIVE_SERVER_TYPE in
+        auto|paste|wsgi|django|mod_wsgi)
+            pip install mod_wsgi
+            ;;
+    esac
+fi
+
 # If we are automatically detect the server type and we find a Django
 # application, trigger collection of static files if possible.
 
