@@ -4,7 +4,7 @@ if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
     set -x
 fi
 
-WARPDRIVE_SERVER_ARGS="--port $WARPDRIVE_SERVER_PORT"
+WARPDRIVE_SERVER_ARGS="--port $WARPDRIVE_HTTP_PORT"
 
 if [ -d .warpdrive/server_args ]; then
     WARPDRIVE_SERVER_ARGS_FILE=".warpdrive/server_args/waitress"
