@@ -1,0 +1,43 @@
+#!/bin/bash
+
+if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
+    set -x
+fi
+
+# Set the umask to be '002' so that any files/directories created from
+# this point are group writable. This does rely on any applications or
+# installation scripts honouring the umask setting.
+
+umask 002
+
+# Setup the environment if not already done.
+
+if [ x"$WARPDRIVE_ACTION" = x"" ]; then
+    eval "$(warpdrive env)"
+fi
+
+WARPDRIVE_ACTION=post-deploy
+export WARPDRIVE_ACTION
+
+# Make sure we are in the correct working directory for the application.
+
+cd $WARPDRIVE_APPL_DIR
+
+# Run any user supplied script to be run prior to starting the
+# application in the actual container. The script must be executable in
+# order to be run. It is not possible for this script to change the
+# permissions so it is executable and then run it, due to some docker
+# bug which results in the text file being busy. For more details see:
+#
+#   https://github.com/docker/docker/issues/9547
+
+if [ -f .warpdrive/action_hooks/post-deploy ]; then
+    if [ ! -x .warpdrive/action_hooks/post-deploy ]; then
+        echo "WARNING: Script .warpdrive/action_hooks/post-deploy not executable."
+    fi
+fi
+
+if [ -x .warpdrive/action_hooks/post-deploy ]; then
+    echo " -----> Running .warpdrive/action_hooks/post-deploy"
+    .warpdrive/action_hooks/post-deploy
+fi
