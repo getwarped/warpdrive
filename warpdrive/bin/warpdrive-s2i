@@ -2,4 +2,10 @@
 
 PYTHON_VERSION=`python -V 2>&1 | sed -e 's/Python //' -e 's/\.[0-9]*$//' -e 's/\.//'`
 
-exec s2i build $WARPDRIVE_APPL_DIR grahamdumpleton/warp0-debian8-python$PYTHON_VERSION warpdrive-$WARPDRIVE_VENV_NAME
+if [ "$#" = "0" ]; then
+    WARPDRIVE_IMAGE_NAME=warpdrive-$WARPDRIVE_VENV_NAME
+else
+    WARPDRIVE_IMAGE_NAME="$1"
+fi
+
+exec s2i build $WARPDRIVE_APPL_DIR grahamdumpleton/warp0-debian8-python$PYTHON_VERSION $WARPDRIVE_IMAGE_NAME
