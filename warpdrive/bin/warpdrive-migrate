@@ -1,0 +1,65 @@
+#!/bin/bash
+
+if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
+    set -x
+fi
+
+# Set the umask to be '002' so that any files/directories created from
+# this point are group writable. This does rely on any applications or
+# installation scripts honouring the umask setting.
+
+umask 002
+
+# Setup the environment if not already done.
+
+if [ x"$WARPDRIVE_ACTION" = x"" ]; then
+    eval "$(warpdrive env)"
+fi
+
+WARPDRIVE_ACTION=migrate
+export WARPDRIVE_ACTION
+
+# Make sure we are in the correct working directory for the application.
+
+cd $WARPDRIVE_APPL_DIR
+
+# Determine whether we have been told that we are running a specific web
+# application server type. If we haven't, we will try and automatically
+# determine how the server should be started and what WSGI server to use.
+
+if [ -f ${WARPDRIVE_APPL_DIR}/.warpdrive/server_type ]; then
+    WARPDRIVE_SERVER_TYPE="`cat ${WARPDRIVE_APPL_DIR}/.warpdrive/server_type`"
+else
+    WARPDRIVE_SERVER_TYPE="auto"
+fi
+
+# If we are automatically detect the server type and we find a Django
+# application, trigger database migration.
+
+if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -o "$WARPDRIVE_SERVER_TYPE" = "django" ]; then
+    if [ -f manage.py ]; then
+        if grep -q DJANGO_SETTINGS_MODULE manage.py; then
+            echo " -----> Running Django database migration"
+            python manage.py migrate
+        fi
+    fi
+fi
+
+# Run any user supplied script to be run prior to starting the
+# application in the actual container. The script must be executable in
+# order to be run. It is not possible for this script to change the
+# permissions so it is executable and then run it, due to some docker
+# bug which results in the text file being busy. For more details see:
+#
+#   https://github.com/docker/docker/issues/9547
+
+if [ -f .warpdrive/action_hooks/migrate ]; then
+    if [ ! -x .warpdrive/action_hooks/migrate ]; then
+        echo "WARNING: Script .warpdrive/action_hooks/migrate not executable."
+    fi
+fi
+
+if [ -x .warpdrive/action_hooks/migrate ]; then
+    echo " -----> Running .warpdrive/action_hooks/migrate"
+    .warpdrive/action_hooks/migrate
+fi
