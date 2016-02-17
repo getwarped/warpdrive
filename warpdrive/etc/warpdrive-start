@@ -258,8 +258,8 @@ fi
 # Finally, execute the startup script for the final server type.
 
 WARPDRIVE_START=`which $0`
-WARPDRIVE_ACTION_HOOKS=`dirname $WARPDRIVE_START`/../action_hooks
+WARPDRIVE_SCRIPTS=`dirname $WARPDRIVE_START`/../etc
 
 echo " -----> Running server script start-$WARPDRIVE_SERVER_TYPE"
 
-exec $WARPDRIVE_ACTION_HOOKS/start-$WARPDRIVE_SERVER_TYPE $WARPDRIVE_SERVER_ARGS
+exec $WARPDRIVE_SCRIPTS/start-$WARPDRIVE_SERVER_TYPE $WARPDRIVE_SERVER_ARGS

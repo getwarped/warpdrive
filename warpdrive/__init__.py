@@ -5,8 +5,8 @@ version = '0.14.6'
 import os
 import sys
 
-rootdir = os.path.dirname(__file__)
-bindir = os.path.join(rootdir, 'bin')
+root = os.path.dirname(__file__)
+scripts = os.path.join(root, 'etc')
 
 def main(*args):
     args = sys.argv
@@ -17,9 +17,7 @@ def main(*args):
     args = args[2:]
 
     program = 'warpdrive-%s' % action
-    executable = os.path.join(bindir, program)
-
-    print(program, executable)
+    executable = os.path.join(scripts, program)
 
     os.environ['WARPDRIVE_VERSION'] = version
 

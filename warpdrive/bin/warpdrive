@@ -4,4 +4,7 @@ ACTION=$1
 
 shift
 
-exec warpdrive-$ACTION "$@"
+WARPDRIVE_START=`which $0`
+WARPDRIVE_SCRIPTS=`dirname $WARPDRIVE_START`/../etc
+
+exec $WARPDRIVE_SCRIPTS/warpdrive-$ACTION "$@"

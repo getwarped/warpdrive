@@ -1,3 +1,2 @@
-include warpdrive/action_hooks/*
 include warpdrive/bin/*
 include warpdrive/etc/*
