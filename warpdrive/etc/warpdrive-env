@@ -34,23 +34,29 @@ echo "export WARPDRIVE_HTTP_PORT=$WARPDRIVE_HTTP_PORT"
 
 # Override uid and gid lookup to cope with being randomly assigned IDs
 # using the -u option to 'docker run'.
+#
+# For now we base whether we can run this or not on the existence of
+# libnss_wrapper.so file. This really needs to simple be gated on whether
+# running inside of Docker which is where it needs to be done.
 
 WARPDRIVE_USER_ID=$(id -u)
 
 NSS_WRAPPER_PASSWD=$WARPDRIVE_HOME_DIR/passwd
 NSS_WRAPPER_GROUP=/etc/group
 
-if [ x"$WARPDRIVE_USER_ID" != x"0" -a x"$WARPDRIVE_USER_ID" != x"1001" ]; then
-    if [ ! -f $NSS_WRAPPER_PASSWD ]; then
-        cat /etc/passwd | sed -e 's/^warpdrive:/builder:/' > $NSS_WRAPPER_PASSWD
+if [ -f /usr/local/nss_wrapper/lib64/libnss_wrapper.so ]; then
+    if [ x"$WARPDRIVE_USER_ID" != x"0" -a x"$WARPDRIVE_USER_ID" != x"1001" ]; then
+        if [ ! -f $NSS_WRAPPER_PASSWD ]; then
+            cat /etc/passwd | sed -e 's/^warpdrive:/builder:/' > $NSS_WRAPPER_PASSWD
 
-        echo "warpdrive:x:$WARPDRIVE_USER_ID:0:Warp Drive,,,:$WARPDRIVE_HOME_DIR:/bin/bash" >> $NSS_WRAPPER_PASSWD
+            echo "warpdrive:x:$WARPDRIVE_USER_ID:0:Warp Drive,,,:$WARPDRIVE_HOME_DIR:/bin/bash" >> $NSS_WRAPPER_PASSWD
+        fi
+
+        echo "export NSS_WRAPPER_PASSWD=$NSS_WRAPPER_PASSWD"
+        echo "export NSS_WRAPPER_GROUP=$NSS_WRAPPER_GROUP"
+
+        echo "export LD_PRELOAD=/usr/local/nss_wrapper/lib64/libnss_wrapper.so"
     fi
-
-    echo "export NSS_WRAPPER_PASSWD=$NSS_WRAPPER_PASSWD"
-    echo "export NSS_WRAPPER_GROUP=$NSS_WRAPPER_GROUP"
-
-    echo "export LD_PRELOAD=/usr/local/nss_wrapper/lib64/libnss_wrapper.so"
 fi
 
 # Copy environment variable configuration to the system directory used
