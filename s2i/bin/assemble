@@ -18,7 +18,7 @@ rm -rf /tmp/src
 
 echo "---> Building application from source"
 
-warpdrive-build
+warpdrive build
 
 # Need to make everything group writable so that 'oc rsync' will work
 # when deploying the image to OpenShift and trying to do live updates in

@@ -8,4 +8,4 @@ set -eo pipefail
 
 echo "---> Executing the start up script"
 
-exec warpdrive-start
+exec warpdrive start
