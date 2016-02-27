@@ -83,9 +83,15 @@ fi
 
 WARPDRIVE_BUILD_DIR=${WARPDRIVE_BUILD_DIR:-/tmp/warpdrive-build.$$}
 
+WARPDRIVE_PIP_OPTIONS=
+
+if [ -d ${WARPDRIVE_APPL_DIR}/.warpdrive/wheelhouse ]; then
+    WARPDRIVE_PIP_OPTIONS="--find-links file://${WARPDRIVE_APPL_DIR}/.warpdrive/wheelhouse"
+fi
+
 if [ -f requirements.txt ]; then
     echo " -----> Installing dependencies with pip"
-    pip install --no-cache-dir --exists-action=w \
+    pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir --exists-action=w \
         --src=$WARPDRIVE_BUILD_DIR -r requirements.txt
 fi
 
