@@ -115,16 +115,63 @@ else
     WARPDRIVE_SERVER_TYPE="auto"
 fi
 
-# See whether mod_wsgi is actually installed and if it isn't and we may
-# require it, then install it. It should already be installed if using
-# the Docker base images.
+WARPDRIVE_WSGI_SERVER=${WARPDRIVE_WSGI_SERVER:-mod_wsgi}
 
-if ! (python -c "import mod_wsgi" &>/dev/null); then
-    case $WARPDRIVE_SERVER_TYPE in
-        auto|paste|wsgi|django|mod_wsgi)
-            pip install mod_wsgi
-            ;;
-    esac
+case $WARPDRIVE_SERVER_TYPE in
+    auto+gunicorn|gunicorn)
+        WARPDRIVE_SERVER_TYPE=auto
+        WARPDRIVE_WSGI_SERVER=gunicorn
+        ;;
+    auto+mod_wsgi|mod_wsgi)
+        WARPDRIVE_SERVER_TYPE=auto
+        WARPDRIVE_WSGI_SERVER=mod_wsgi
+        ;;
+    auto+uwsgi|uwsgi)
+        WARPDRIVE_SERVER_TYPE=auto
+        WARPDRIVE_WSGI_SERVER=uwsgi
+        ;;
+    auto+waitress|waitress)
+        WARPDRIVE_SERVER_TYPE=auto
+        WARPDRIVE_WSGI_SERVER=waitress
+        ;;
+esac
+
+# See whether WSGI server is actually installed and if it isn't and we
+# may require it, then install it. It should already be installed for
+# mod_wsgi if using the Docker base images.
+
+if [ "$WARPDRIVE_WSGI_SERVER" = "gunicorn" ]; then
+    if ! (python -c "import gunicorn" &>/dev/null); then
+        pip install gunicorn
+    fi
+    if [ "$WARPDRIVE_SERVER_TYPE" = "auto" ]; then
+        if ! (python -c "import whitenoise" &>/dev/null); then
+            pip install whitenoise
+        fi
+    fi
+fi
+
+if [ "$WARPDRIVE_WSGI_SERVER" = "mod_wsgi" ]; then
+    if ! (python -c "import mod_wsgi" &>/dev/null); then
+        pip install mod_wsgi
+    fi
+fi
+
+if [ "$WARPDRIVE_WSGI_SERVER" = "uwsgi" ]; then
+    if ! (which uwsgi &>/dev/null); then
+        pip install uwsgi
+    fi
+fi
+
+if [ "$WARPDRIVE_WSGI_SERVER" = "waitress" ]; then
+    if ! (python -c "import waitress" &>/dev/null); then
+        pip install waitress
+    fi
+    if [ "$WARPDRIVE_SERVER_TYPE" = "auto" ]; then
+        if ! (python -c "import whitenoise" &>/dev/null); then
+            pip install whitenoise
+        fi
+    fi
 fi
 
 # If we are automatically detect the server type and we find a Django
@@ -160,8 +207,10 @@ function django_collectstatic() {
     cat > $WARPDRIVE_HOME_DIR/$WARPDRIVE_TMP_MODULE.py << !
 from $WARPDRIVE_PROJECT_SETTINGS import *
 if 'STATIC_ROOT' not in globals():
-    STATIC_ROOT = '$WARPDRIVE_HOME_DIR/django_static_root'
+    STATIC_ROOT = '$WARPDRIVE_HOME_DIR/django/static'
 !
+
+    mkdir -p $WARPDRIVE_HOME_DIR/django
 
     PYTHONPATH=$WARPDRIVE_HOME_DIR:$PYTHONPATH \
       DJANGO_SETTINGS_MODULE=$WARPDRIVE_TMP_MODULE \

@@ -5,6 +5,9 @@ if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
 fi
 
 WARPDRIVE_SERVER_ARGS="--master --http-socket :$WARPDRIVE_HTTP_PORT"
+WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --enable-threads"
+WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --threads=5"
+WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --thunder-lock"
 
 if [ -d .warpdrive/server_args ]; then
     WARPDRIVE_SERVER_ARGS_FILE=".warpdrive/server_args/uwsgi"
@@ -37,6 +40,6 @@ if [ $$ = 1 ]; then
     WARPDRIVE_TINI="tini --"
 fi
 
-echo " -----> Executing server command '$WARPDRIVE_TINI uwsgi $WARPDRIVE_SERVER_ARGS'"
+echo " -----> Executing server command '$WARPDRIVE_TINI uwsgi $WARPDRIVE_SERVER_ARGS $@'"
 
-exec $WARPDRIVE_TINI uwsgi $WARPDRIVE_SERVER_ARGS
+exec $WARPDRIVE_TINI uwsgi $WARPDRIVE_SERVER_ARGS "$@"
