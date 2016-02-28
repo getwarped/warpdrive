@@ -31,6 +31,15 @@ fi
 
 set -eo pipefail
 
+# Specify the build system and target. The build target is mainly for
+# pre build action hooks.
+
+WARPDRIVE_BUILD_SYSTEM=${WARPDRIVE_BUILD_SYSTEM:-local}
+WARPDRIVE_BUILD_TARGET=application
+
+export WARPDRIVE_BUILD_SYSTEM
+export WARPDRIVE_BUILD_TARGET
+
 # Set up the home directory for the application.
 
 WARPDRIVE_APPL_DIR=${WARPDRIVE_APPL_DIR:-/opt/warpdrive}

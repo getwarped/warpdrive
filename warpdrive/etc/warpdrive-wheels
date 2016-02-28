@@ -1,0 +1,84 @@
+#!/bin/bash
+
+if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
+    set -x
+fi
+
+# This is the script used to generate a set of Python wheels for any
+# nominated packages.
+
+# Ensure that any failure within this script or a user provided script
+# causes this script to fail immediately. This eliminates the need to
+# check individual statuses for anything which is run and prematurely
+# exit. Note that the feature of bash to exit in this way isn't
+# foolproof. Ensure that you heed any advice in:
+#
+#   http://mywiki.wooledge.org/BashFAQ/105
+#   http://fvue.nl/wiki/Bash:_Error_handling
+#
+# and use best practices to ensure that failures are always detected.
+# Any user supplied scripts should also use this failure mode.
+
+set -eo pipefail
+
+# Set up the home directory for the application.
+
+WARPDRIVE_APPL_DIR=${WARPDRIVE_APPL_DIR:-/opt/warpdrive}
+export WARPDRIVE_APPL_DIR
+
+# Set up the system directory where we keep runtime files.
+
+WARPDRIVE_HOME_DIR=${WARPDRIVE_HOME_DIR:-/home/warpdrive}
+export WARPDRIVE_HOME_DIR
+
+# Make sure we are in the correct working directory for the application.
+
+cd $WARPDRIVE_APPL_DIR
+
+# Check for the existence of the '.warpdrive/user_vars' directory for
+# storage of user defined environment variables. These can be created by
+# the user from any hook script. The name of the file corresponds to the
+# name of the environment variable and the contents of the file the
+# value to set the environment variable to.
+
+# Run any user supplied script to be run prior to installing application
+# dependencies. This is to allow additional system packages to be
+# installed that may be required by any Python modules which are being
+# installed. The script must be executable in order to be run. It is not
+# possible for this script to change the permissions so it is executable
+# and then run it, due to some docker bug which results in the text file
+# being busy. For more details see:
+#
+#   https://github.com/docker/docker/issues/9547
+
+if [ -f ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build ]; then
+    if [ ! -x ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build ]; then
+        echo "WARNING: Script ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build not executable."
+    fi
+fi
+
+if [ -x ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build ]; then
+    echo " -----> Running ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build"
+    ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build
+fi
+
+# Create and populate the wheelhouse directory.
+
+WARPDRIVE_PIP_WHEELS=${WARPDRIVE_PIP_WHEELS:-requirements.txt}
+
+WARPDRIVE_WHEEL_DIR=${WARPDRIVE_WHEEL_DIR:-.warpdrive/wheelhouse}
+WARPDRIVE_BUILD_DIR=${WARPDRIVE_BUILD_DIR:-/tmp/warpdrive-wheelhouse.$$}
+
+mkdir -p $WARPDRIVE_WHEEL_DIR
+
+for filename in $WARPDRIVE_PIP_WHEELS; do
+    if [ -f $filename ]; then
+        pip wheel --wheel-dir $WARPDRIVE_WHEEL_DIR \
+            --exists-action=w --src=$WARPDRIVE_BUILD_DIR -r $filename
+    fi
+done
+
+# Clean up any temporary files, including the results of checking out
+# any source code repositories when doing a 'pip install' from a VCS.
+
+rm -rf $WARPDRIVE_BUILD_DIR

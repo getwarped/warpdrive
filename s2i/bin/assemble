@@ -13,12 +13,27 @@ cp -Rf /tmp/src/. /opt/warpdrive
 
 rm -rf /tmp/src
 
-# Trigger warpdrive to install any required Python packages and run
-# and hook scripts supplied by an application for the build.
+# Trigger warpdrive to install any required Python packages and run any
+# hook scripts supplied by an application for the build. Exactly what is
+# run will depend on the build target. The default is to build the
+# application. The 'wheelhouse' target is to build Python wheels from
+# the required packages but not actually install them.
 
-echo "---> Building application from source"
+WARPDRIVE_BUILD_SYSTEM=${WARPDRIVE_BUILD_SYSTEM:-docker}
+WARPDRIVE_BUILD_TARGET=${WARPDRIVE_BUILD_TARGET:-application}
 
-warpdrive build
+export WARPDRIVE_BUILD_SYSTEM
+export WARPDRIVE_BUILD_TARGET
+
+if [ "$WARPDRIVE_BUILD_TARGET" = "wheelhouse" ]; then
+    echo "---> Building Python wheels for packages"
+
+    warpdrive wheels
+else
+    echo "---> Building application from source"
+
+    warpdrive build
+fi
 
 # Need to make everything group writable so that 'oc rsync' will work
 # when deploying the image to OpenShift and trying to do live updates in
