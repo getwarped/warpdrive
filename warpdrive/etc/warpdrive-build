@@ -95,6 +95,7 @@ WARPDRIVE_BUILD_DIR=${WARPDRIVE_BUILD_DIR:-/tmp/warpdrive-build.$$}
 WARPDRIVE_PIP_OPTIONS=
 
 if [ -d ${WARPDRIVE_APPL_DIR}/.warpdrive/wheelhouse ]; then
+    echo " -----> Found Python wheelhouse of packages"
     WARPDRIVE_PIP_OPTIONS="--find-links file://${WARPDRIVE_APPL_DIR}/.warpdrive/wheelhouse"
 fi
 

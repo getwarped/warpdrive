@@ -9,63 +9,72 @@ WARPDRIVE_BUILD_TARGET=application
 WARPDRIVE_WHEELHOUSE=
 
 while [ "$#" != "0" ]; do
-    case "$0" in
+    case "$1" in
         --build-target=*)
-            WARPDRIVE_BUILD_TARGET=`echo $0 | sed -e 's/--build-target=//'`
+            WARPDRIVE_BUILD_TARGET=`echo $1 | sed -e 's/--build-target=//'`
             ;;
         --build-target)
-            WARPDRIVE_BUILD_TARGET=$1
+            WARPDRIVE_BUILD_TARGET=$2
             shift
             ;;
         --wheelhouse=*)
-            WARPDRIVE_WHEELHOUSE=`echo $0 | sed -e 's/--wheelhouse=//'`
+            WARPDRIVE_WHEELHOUSE=`echo $1 | sed -e 's/--wheelhouse=//'`
             ;;
         --wheelhouse)
-            WARPDRIVE_WHEELHOUSE=$1
+            WARPDRIVE_WHEELHOUSE=$2
             shift
             ;;
         *)
-            WARPDRIVE_IMAGE_NAME=$0
+            WARPDRIVE_IMAGE_NAME=$1
             ;;
     esac
 
     shift
 done
 
+WARPDRIVE_TMP_FILES=/tmp/warpdrive-image.$$
+
+mkdir -p /tmp/warpdrive-image.$$
+
+function cleanup() {
+    rm -rf $WARPDRIVE_TMP_FILES
+    docker rm warpdrive-image-$$
+}
+
+trap "cleanup; exit" SIGHUP SIGINT SIGTERM
+
+tar --exclude .git -c -C $WARPDRIVE_APPL_DIR -f - . | \
+    tar xCf $WARPDRIVE_TMP_FILES -
+
+if [ "$WARPDRIVE_WHEELHOUSE" != "" ]; then
+    docker run --name warpdrive-image-$$ $WARPDRIVE_WHEELHOUSE true
+
+    docker cp warpdrive-image-$$:/opt/warpdrive/.warpdrive - | \
+        tar xCf $WARPDRIVE_TMP_FILES -
+
+    docker rm warpdrive-image-$$
+fi
+
 if [ "$WARPDRIVE_BUILD_TARGET" = "wheelhouse" ]; then
     if [ "$WARPDRIVE_IMAGE_NAME" = "" ]; then
         WARPDRIVE_IMAGE_NAME=warpdrive-$WARPDRIVE_VENV_NAME-wheelhouse
     fi
 
-    exec s2i build $WARPDRIVE_APPL_DIR $WARPDRIVE_S2I_BUILDER \
-      $WARPDRIVE_IMAGE_NAME --env WARPDRIVE_BUILD_TARGET=wheelhouse
+    s2i build $WARPDRIVE_TMP_FILES $WARPDRIVE_S2I_BUILDER $WARPDRIVE_IMAGE_NAME \
+        --env WARPDRIVE_DEBUG=$WARPDRIVE_DEBUG,WARPDRIVE_BUILD_TARGET=wheelhouse
+
+    STATUS=$?
 else
     if [ "$WARPDRIVE_IMAGE_NAME" = "" ]; then
         WARPDRIVE_IMAGE_NAME=warpdrive-$WARPDRIVE_VENV_NAME-application
     fi
 
-    if [ "$WARPDRIVE_WHEELHOUSE" != "" ]; then
-        WARPDRIVE_TMP_FILES=/tmp/warpdrive-image.$$
+    s2i build $WARPDRIVE_TMP_FILES $WARPDRIVE_S2I_BUILDER \
+        $WARPDRIVE_IMAGE_NAME --env WARPDRIVE_DEBUG=$WARPDRIVE_DEBUG
 
-        mkdir -p /tmp/warpdrive-image.$$
-
-        trap "rm -rf $WARPDRIVE_TMP_FILES; exit" SIGHUP SIGINT SIGTERM
-
-        tar cCf $WARPDRIVE_APPL_DIR - . | tar xvCf $WARPDRIVE_TMP_FILES -
-
-        docker cp $WARPDRIVE_WHEELHOUSE:/opt/warpdrive/.warpdrive -
-          tar xvCf $WARPDRIVE_TMP_FILES -
-
-        s2i build $WARPDRIVE_TMP_FILES $WARPDRIVE_S2I_BUILDER \
-          $WARPDRIVE_IMAGE_NAME
-
-        STATUS=$?
-
-        rm -rf $WARPDRIVE_TMP_FILES
-
-        exit $STATUS
-    else
-        exec s2i build $WARPDRIVE_APPL_DIR $WARPDRIVE_S2I_BUILDER \
-          $WARPDRIVE_IMAGE_NAME
-    fi
+    STATUS=$?
 fi
+
+rm -rf $WARPDRIVE_TMP_FILES
+
+exit $STATUS
