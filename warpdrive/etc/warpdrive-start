@@ -105,14 +105,23 @@ esac
 
 # Utility functions for deducing server args for various cases.
 
-function wsgi_module_exists() {
+function wsgi_module_path() {
     WARPDRIVE_WSGI_MODULE_FILE="`echo $WARPDRIVE_WSGI_MODULE_NAME | \
         sed -e 's%\.%/%g'`.py"
     WARPDRIVE_WSGI_PACKAGE_FILE="`echo $WARPDRIVE_WSGI_MODULE_NAME | \
         sed -e 's%\.%/%g'`/__init__.py"
 
-    return test -f $WARPDRIVE_WSGI_MODULE_FILE || \
-           test -f $WARPDRIVE_WSGI_PACKAGE_FILE
+    WARPDRIVE_WSGI_FILE=""
+
+    if [ -f $WARPDRIVE_WSGI_MODULE_FILE ]; then
+        WARPDRIVE_WSGI_FILE=$WARPDRIVE_WSGI_MODULE_FILE
+    fi
+    
+    if [ -f $WARPDRIVE_WSGI_PACKAGE_FILE ]; then
+        WARPDRIVE_WSGI_FILE=$WARPDRIVE_WSGI_PACKAGE_FILE
+    fi
+
+    echo $WARPDRIVE_WSGI_FILE
 }
 
 function django_server_args() {
@@ -187,8 +196,10 @@ fi
 # Now check whether server of 'wsgi' is selected. We are going to
 # switch to type 'mod_wsgi' in this case and configure it appropriately.
 
-if [ "$WARPDRIVE_SERVER_TYPE" = "wsgi" -a $(wsgi_module_exists) ]; then
-    WARPDRIVE_SERVER_TYPE="$WARPDRIVE_WSGI_SERVER"
+if [ "$WARPDRIVE_SERVER_TYPE" = "wsgi" ]; then
+    if [ "$(wsgi_module_path)" != "" ]; then
+        WARPDRIVE_SERVER_TYPE="$WARPDRIVE_WSGI_SERVER"
+    fi
 fi
 
 # Now check whether server of 'django' is selected. We are going to
@@ -222,8 +233,10 @@ fi
 # Now check whether there exists a 'wsgi.py' file in the top level
 # directory. If there is, we switch to 'mod_wsgi' server type.
 
-if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -a $(wsgi_module_exists) ]; then
-    WARPDRIVE_SERVER_TYPE="$WARPDRIVE_WSGI_SERVER"
+if [ "$WARPDRIVE_SERVER_TYPE" = "auto" ]; then
+    if [ "$(wsgi_module_path)" != "" ]; then
+        WARPDRIVE_SERVER_TYPE="$WARPDRIVE_WSGI_SERVER"
+    fi
 fi
 
 # Now check whether there exists a 'setup.py' file in the top level
