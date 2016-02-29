@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# If there was a wheelhouse directory then output it as saved artifacts.
+
+if [ -d /opt/warpdrive/.warpdrive/wheelhouse ]; then
+    tar -c -C /opt/warpdrive/.warpdrive -f - wheelhouse
+fi
