@@ -64,7 +64,8 @@ fi
 
 # Create and populate the wheelhouse directory.
 
-WARPDRIVE_PIP_WHEELS=${WARPDRIVE_PIP_WHEELS:-requirements.txt}
+WARPDRIVE_PIP_PACKAGES=${WARPDRIVE_PIP_PACKAGES:-requirements.txt}
+WARPDRIVE_PIP_WHEELS=${WARPDRIVE_PIP_WHEELS:-$WARPDRIVE_PIP_PACKAGES}
 
 WARPDRIVE_WHEEL_DIR=${WARPDRIVE_WHEEL_DIR:-.warpdrive/wheelhouse}
 WARPDRIVE_BUILD_DIR=${WARPDRIVE_BUILD_DIR:-/tmp/warpdrive-wheelhouse.$$}
