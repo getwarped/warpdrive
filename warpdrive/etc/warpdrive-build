@@ -99,6 +99,10 @@ if [ -d ${WARPDRIVE_APPL_DIR}/.warpdrive/wheelhouse ]; then
     WARPDRIVE_PIP_OPTIONS="--find-links file://${WARPDRIVE_APPL_DIR}/.warpdrive/wheelhouse"
 fi
 
+if [ x"$WARPDRIVE_PIP_NO_INDEX" != x"" ]; then
+    WARPDRIVE_PIP_OPTIONS="$WARPDRIVE_PIP_OPTIONS --no-index"
+fi
+
 WARPDRIVE_PIP_PACKAGES=${WARPDRIVE_PIP_PACKAGES:-requirements.txt}
 
 for filename in $WARPDRIVE_PIP_PACKAGES; do

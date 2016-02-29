@@ -7,6 +7,7 @@ WARPDRIVE_S2I_BUILDER=${WARPDRIVE_S2I_BUILDER:-grahamdumpleton/warp0-debian8-pyt
 WARPDRIVE_IMAGE_NAME=
 WARPDRIVE_BUILD_TARGET=application
 WARPDRIVE_WHEELHOUSE=
+WARPDRIVE_PIP_NO_INDEX=
 
 while [ "$#" != "0" ]; do
     case "$1" in
@@ -23,6 +24,9 @@ while [ "$#" != "0" ]; do
         --wheelhouse)
             WARPDRIVE_WHEELHOUSE=$2
             shift
+            ;;
+        --no-index)
+            WARPDRIVE_PIP_NO_INDEX=1
             ;;
         *)
             WARPDRIVE_IMAGE_NAME=$1
@@ -63,7 +67,7 @@ if [ "$WARPDRIVE_BUILD_TARGET" = "wheelhouse" ]; then
     fi
 
     s2i build $WARPDRIVE_TMP_FILES $WARPDRIVE_S2I_BUILDER $WARPDRIVE_IMAGE_NAME \
-        --env WARPDRIVE_DEBUG=$WARPDRIVE_DEBUG,WARPDRIVE_BUILD_TARGET=wheelhouse \
+        --env WARPDRIVE_DEBUG=$WARPDRIVE_DEBUG,WARPDRIVE_BUILD_TARGET=wheelhouse,WARPDRIVE_PIP_NO_INDEX=$WARPDRIVE_PIP_NO_INDEX \
         --incremental --loglevel=$WARPDRIVE_S2I_LOGLEVEL
 
     STATUS=$?
