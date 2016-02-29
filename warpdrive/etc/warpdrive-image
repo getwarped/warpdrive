@@ -55,13 +55,16 @@ if [ "$WARPDRIVE_WHEELHOUSE" != "" ]; then
     docker rm warpdrive-image-$$
 fi
 
+WARPDRIVE_S2I_LOGLEVEL=${WARPDRIVE_S2I_LOGLEVEL:-0}
+
 if [ "$WARPDRIVE_BUILD_TARGET" = "wheelhouse" ]; then
     if [ "$WARPDRIVE_IMAGE_NAME" = "" ]; then
         WARPDRIVE_IMAGE_NAME=warpdrive-$WARPDRIVE_VENV_NAME-wheelhouse
     fi
 
     s2i build $WARPDRIVE_TMP_FILES $WARPDRIVE_S2I_BUILDER $WARPDRIVE_IMAGE_NAME \
-        --env WARPDRIVE_DEBUG=$WARPDRIVE_DEBUG,WARPDRIVE_BUILD_TARGET=wheelhouse
+        --env WARPDRIVE_DEBUG=$WARPDRIVE_DEBUG,WARPDRIVE_BUILD_TARGET=wheelhouse \
+        --incremental --loglevel=$WARPDRIVE_S2I_LOGLEVEL
 
     STATUS=$?
 else
@@ -70,7 +73,8 @@ else
     fi
 
     s2i build $WARPDRIVE_TMP_FILES $WARPDRIVE_S2I_BUILDER \
-        $WARPDRIVE_IMAGE_NAME --env WARPDRIVE_DEBUG=$WARPDRIVE_DEBUG
+        $WARPDRIVE_IMAGE_NAME --env WARPDRIVE_DEBUG=$WARPDRIVE_DEBUG \
+        --loglevel=$WARPDRIVE_S2I_LOGLEVEL
 
     STATUS=$?
 fi
