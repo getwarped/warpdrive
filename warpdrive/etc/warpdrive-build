@@ -99,11 +99,15 @@ if [ -d ${WARPDRIVE_APPL_DIR}/.warpdrive/wheelhouse ]; then
     WARPDRIVE_PIP_OPTIONS="--find-links file://${WARPDRIVE_APPL_DIR}/.warpdrive/wheelhouse"
 fi
 
-if [ -f requirements.txt ]; then
-    echo " -----> Installing dependencies with pip"
-    pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir --exists-action=w \
-        --src=$WARPDRIVE_BUILD_DIR -r requirements.txt
-fi
+WARPDRIVE_PIP_PACKAGES=${WARPDRIVE_PIP_PACKAGES:-requirements.txt}
+
+for filename in $WARPDRIVE_PIP_PACKAGES; do
+    if [ -f $filename ]; then
+        echo " -----> Installing dependencies with pip ($filename)"
+        pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir --exists-action=w \
+            --src=$WARPDRIVE_BUILD_DIR -r $(filename)
+    fi
+done
 
 # We also install any application package if a 'setup.py' file is
 # present. This is installed in 'develop' mode so is linked into Python
