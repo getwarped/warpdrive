@@ -7,12 +7,12 @@ set -eo pipefail
 # already exists and we need to ensure that file system ownership
 # permissions as may be dictated by the target directory are inherited.
 
-if [ -d /tmp/src/artifacts/wheelhouse ]; then
+if [ -d /tmp/artifacts/wheelhouse ]; then
     echo "---> Restoring wheelhouse from prior build"
 
     mkdir -p /opt/warpdrive/.warpdrive/wheelhouse
 
-    cp -R /tmp/src/artifacts/wheelhouse/* /opt/warpdrive/.warpdrive/wheelhouse
+    cp -R /tmp/artifacts/wheelhouse/* /opt/warpdrive/.warpdrive/wheelhouse
 fi
 
 echo "---> Installing application source"
