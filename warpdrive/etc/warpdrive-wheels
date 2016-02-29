@@ -72,10 +72,16 @@ WARPDRIVE_BUILD_DIR=${WARPDRIVE_BUILD_DIR:-/tmp/warpdrive-wheelhouse.$$}
 
 mkdir -p $WARPDRIVE_WHEEL_DIR
 
+WARPDRIVE_PIP_OPTIONS=
+
+if [ "$WARPDRIVE_BUILD_TARGET" = "wheelhouse" ]; then
+    WARPDRIVE_PIP_OPTIONS="--cache-dir .warpdrive/packages"
+fi
+
 for filename in $WARPDRIVE_PIP_WHEELS; do
     if [ -f $filename ]; then
         echo " -----> Installing dependencies as wheels with pip ($filename)"
-        pip wheel --wheel-dir $WARPDRIVE_WHEEL_DIR \
+        pip wheel $WARPDRIVE_PIP_OPTIONS --wheel-dir $WARPDRIVE_WHEEL_DIR \
             --exists-action=w --src=$WARPDRIVE_BUILD_DIR -r $filename
     fi
 done

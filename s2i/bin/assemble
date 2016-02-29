@@ -13,6 +13,10 @@ if [ -d /tmp/artifacts/wheelhouse ]; then
     mkdir -p /opt/warpdrive/.warpdrive/wheelhouse
 
     cp -R /tmp/artifacts/wheelhouse/* /opt/warpdrive/.warpdrive/wheelhouse
+
+    mkdir -p /opt/warpdrive/.warpdrive/packages
+
+    cp -R /tmp/artifacts/packages/* /opt/warpdrive/.warpdrive/packages
 fi
 
 echo "---> Installing application source"
