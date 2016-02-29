@@ -73,6 +73,7 @@ mkdir -p $WARPDRIVE_WHEEL_DIR
 
 for filename in $WARPDRIVE_PIP_WHEELS; do
     if [ -f $filename ]; then
+        echo " -----> Installing dependencies as wheels with pip ($filename)"
         pip wheel --wheel-dir $WARPDRIVE_WHEEL_DIR \
             --exists-action=w --src=$WARPDRIVE_BUILD_DIR -r $filename
     fi
