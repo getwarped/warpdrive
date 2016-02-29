@@ -105,7 +105,7 @@ for filename in $WARPDRIVE_PIP_PACKAGES; do
     if [ -f $filename ]; then
         echo " -----> Installing dependencies with pip ($filename)"
         pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir --exists-action=w \
-            --src=$WARPDRIVE_BUILD_DIR -r $(filename)
+            --src=$WARPDRIVE_BUILD_DIR -r $filename
     fi
 done
 
