@@ -63,8 +63,8 @@ fi
 
 # Activate the Python virtual environment if one has been created.
 
-if [ -f $WARPDRIVE_APP_DIR/bin/activate ]; then
-    . $WARPDRIVE_APP_DIR/bin/activate
+if [ -f /opt/app-root/bin/activate ]; then
+    . /opt/app-root/bin/activate
 fi
 
 # Copy environment variable configuration to the system directory used
