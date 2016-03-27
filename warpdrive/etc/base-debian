@@ -162,3 +162,16 @@ WARPDRIVE_SRC_ROOT=${WARPDRIVE_SRC_ROOT:-$WARPDRIVE_APP_ROOT/src}
 
 mkdir -p ${WARPDRIVE_SRC_ROOT}
 chmod 1777 ${WARPDRIVE_SRC_ROOT}
+
+# Create a Python virtual environment and ensure pip is up to date.
+
+virtualenv $WARPDRIVE_APP_ROOT
+
+. $WARPDRIVE_APP_ROOT/bin/activate
+
+pip install -U pip
+
+find $WARPDRIVE_APP_ROOT -type d -exec chmod g+ws {} \;
+
+find $WARPDRIVE_APP_ROOT -perm 2755 -exec chmod g+w {} \;
+find $WARPDRIVE_APP_ROOT -perm 0644 -exec chmod g+w {} \;
