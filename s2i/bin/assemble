@@ -10,18 +10,18 @@ set -eo pipefail
 if [ -d /tmp/artifacts/wheelhouse ]; then
     echo "---> Restoring wheelhouse from prior build"
 
-    mkdir -p /opt/warpdrive/.warpdrive/wheelhouse
+    mkdir -p /opt/app-root/src/.warpdrive/wheelhouse
 
-    cp -R /tmp/artifacts/wheelhouse/* /opt/warpdrive/.warpdrive/wheelhouse
+    cp -R /tmp/artifacts/wheelhouse/* /opt/app-root/src/.warpdrive/wheelhouse
 
-    mkdir -p /opt/warpdrive/.warpdrive/packages
+    mkdir -p /opt/app-root/src/.warpdrive/packages
 
-    cp -R /tmp/artifacts/packages/* /opt/warpdrive/.warpdrive/packages
+    cp -R /tmp/artifacts/packages/* /opt/app-root/src/.warpdrive/packages
 fi
 
 echo "---> Installing application source"
 
-cp -Rf /tmp/src/. /opt/warpdrive
+cp -Rf /tmp/src/. /opt/app-root/src
 
 rm -rf /tmp/src
 
@@ -62,4 +62,4 @@ fi
 
 echo "---> Fix permissions on application source"
 
-chmod -Rf g+w /opt/warpdrive || true
+chmod -Rf g+w /opt/app-root/src || true

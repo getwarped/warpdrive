@@ -42,23 +42,23 @@ export WARPDRIVE_BUILD_TARGET
 
 # Set up the home directory for the application.
 
-WARPDRIVE_APPL_DIR=${WARPDRIVE_APPL_DIR:-/opt/warpdrive}
-export WARPDRIVE_APPL_DIR
+WARPDRIVE_APP_DIR=${WARPDRIVE_APP_DIR:-/opt/app-root/src}
+export WARPDRIVE_APP_DIR
 
 # Set up the system directory where we keep runtime files.
 
-WARPDRIVE_HOME_DIR=${WARPDRIVE_HOME_DIR:-/home/warpdrive}
-export WARPDRIVE_HOME_DIR
+WARPDRIVE_TMP_DIR=${WARPDRIVE_TMP_DIR:-/opt/app-root/tmp}
+export WARPDRIVE_TMP_DIR
 
 # Make sure we are in the correct working directory for the application.
 
-cd $WARPDRIVE_APPL_DIR
+cd $WARPDRIVE_APP_DIR
 
-# Set the umask to be '002' so that any files/directories created from
-# this point are group writable. This does rely on any applications or
-# installation scripts honouring the umask setting.
+# Activate the Python virtual environment if one has been created.
 
-umask 002
+if [ -f $WARPDRIVE_APP_DIR/bin/activate ]; then
+    . $WARPDRIVE_APP_DIR/bin/activate
+fi
 
 # Check for the existence of the '.warpdrive/user_vars' directory for
 # storage of user defined environment variables. These can be created by
@@ -76,15 +76,15 @@ umask 002
 #
 #   https://github.com/docker/docker/issues/9547
 
-if [ -f ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build ]; then
-    if [ ! -x ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build ]; then
-        echo "WARNING: Script ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build not executable."
+if [ -f ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build ]; then
+    if [ ! -x ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build ]; then
+        echo "WARNING: Script ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build not executable."
     fi
 fi
 
-if [ -x ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build ]; then
-    echo " -----> Running ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build"
-    ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build
+if [ -x ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build ]; then
+    echo " -----> Running ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build"
+    ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build
 fi
 
 # Now run 'pip' to install any required Python packages based on the
@@ -94,9 +94,9 @@ WARPDRIVE_BUILD_DIR=${WARPDRIVE_BUILD_DIR:-/tmp/warpdrive-build.$$}
 
 WARPDRIVE_PIP_OPTIONS=
 
-if [ -d ${WARPDRIVE_APPL_DIR}/.warpdrive/wheelhouse ]; then
+if [ -d ${WARPDRIVE_APP_DIR}/.warpdrive/wheelhouse ]; then
     echo " -----> Found Python wheelhouse of packages"
-    WARPDRIVE_PIP_OPTIONS="--find-links file://${WARPDRIVE_APPL_DIR}/.warpdrive/wheelhouse"
+    WARPDRIVE_PIP_OPTIONS="--find-links file://${WARPDRIVE_APP_DIR}/.warpdrive/wheelhouse"
 fi
 
 if [ x"$WARPDRIVE_PIP_NO_INDEX" != x"" ]; then
@@ -127,8 +127,8 @@ fi
 # application server type. If we haven't, we will try and automatically
 # determine how the server should be started and what WSGI server to use.
 
-if [ -f ${WARPDRIVE_APPL_DIR}/.warpdrive/server_type ]; then
-    WARPDRIVE_SERVER_TYPE="`cat ${WARPDRIVE_APPL_DIR}/.warpdrive/server_type`"
+if [ -f ${WARPDRIVE_APP_DIR}/.warpdrive/server_type ]; then
+    WARPDRIVE_SERVER_TYPE="`cat ${WARPDRIVE_APP_DIR}/.warpdrive/server_type`"
 else
     WARPDRIVE_SERVER_TYPE="auto"
 fi
@@ -160,34 +160,34 @@ esac
 
 if [ "$WARPDRIVE_WSGI_SERVER" = "gunicorn" ]; then
     if ! (python -c "import gunicorn" &>/dev/null); then
-        pip install gunicorn
+        pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir gunicorn
     fi
     if [ "$WARPDRIVE_SERVER_TYPE" = "auto" ]; then
         if ! (python -c "import whitenoise" &>/dev/null); then
-            pip install whitenoise
+            pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir whitenoise
         fi
     fi
 fi
 
 if [ "$WARPDRIVE_WSGI_SERVER" = "mod_wsgi" ]; then
     if ! (python -c "import mod_wsgi" &>/dev/null); then
-        pip install mod_wsgi
+        pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir mod_wsgi
     fi
 fi
 
 if [ "$WARPDRIVE_WSGI_SERVER" = "uwsgi" ]; then
     if ! (which uwsgi &>/dev/null); then
-        pip install uwsgi
+        pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir uwsgi
     fi
 fi
 
 if [ "$WARPDRIVE_WSGI_SERVER" = "waitress" ]; then
     if ! (python -c "import waitress" &>/dev/null); then
-        pip install waitress
+        pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir waitress
     fi
     if [ "$WARPDRIVE_SERVER_TYPE" = "auto" ]; then
         if ! (python -c "import whitenoise" &>/dev/null); then
-            pip install whitenoise
+            pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir whitenoise
         fi
     fi
 fi
@@ -222,19 +222,19 @@ function django_collectstatic() {
 
     WARPDRIVE_TMP_MODULE="project_settings_$$"
 
-    cat > $WARPDRIVE_HOME_DIR/$WARPDRIVE_TMP_MODULE.py << !
+    cat > $WARPDRIVE_TMP_DIR/$WARPDRIVE_TMP_MODULE.py << !
 from $WARPDRIVE_PROJECT_SETTINGS import *
 if 'STATIC_ROOT' not in globals():
-    STATIC_ROOT = '$WARPDRIVE_HOME_DIR/django/static'
+    STATIC_ROOT = '$WARPDRIVE_TMP_DIR/django/static'
 !
 
-    mkdir -p $WARPDRIVE_HOME_DIR/django
+    mkdir -p $WARPDRIVE_TMP_DIR/django
 
-    PYTHONPATH=$WARPDRIVE_HOME_DIR:$PYTHONPATH \
+    PYTHONPATH=$WARPDRIVE_TMP_DIR:$PYTHONPATH \
       DJANGO_SETTINGS_MODULE=$WARPDRIVE_TMP_MODULE \
       python manage.py collectstatic --noinput
 
-    rm $WARPDRIVE_HOME_DIR/$WARPDRIVE_TMP_MODULE.py*
+    rm $WARPDRIVE_TMP_DIR/$WARPDRIVE_TMP_MODULE.py*
 }
 
 if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -o "$WARPDRIVE_SERVER_TYPE" = "django" ]; then
@@ -255,9 +255,9 @@ fi
 #
 #   https://github.com/docker/docker/issues/9547
 
-if [ -x ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/build ]; then
-    echo " -----> Running ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/build"
-    ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/build
+if [ -x ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/build ]; then
+    echo " -----> Running ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/build"
+    ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/build
 fi
 
 # Clean up any temporary files, including the results of checking out

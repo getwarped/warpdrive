@@ -30,7 +30,7 @@ create_environment() {
         pip install $WARPDRIVE_PACKAGE_URL
     fi
 
-    mkdir $WARPDRIVE_VENV_DIR/home
+    mkdir $WARPDRIVE_VENV_DIR/tmp
 }
 
 if [ ! -d $WARPDRIVE_VENV_DIR ];
@@ -39,12 +39,12 @@ then
 fi
 
 WARPDRIVE_ACTIVATE="$WARPDRIVE_VENV_DIR/bin/activate"
-WARPDRIVE_HOME_DIR="$WARPDRIVE_VENV_DIR/home"
-WARPDRIVE_APPL_DIR=`pwd`
+WARPDRIVE_TMP_DIR="$WARPDRIVE_VENV_DIR/tmp"
+WARPDRIVE_APP_DIR=`pwd`
 
 echo "export WARPDRIVE_VENV_NAME=$WARPDRIVE_VENV_NAME"
-echo "export WARPDRIVE_HOME_DIR=$WARPDRIVE_HOME_DIR"
-echo "export WARPDRIVE_APPL_DIR=$WARPDRIVE_APPL_DIR"
+echo "export WARPDRIVE_TMP_DIR=$WARPDRIVE_TMP_DIR"
+echo "export WARPDRIVE_APP_DIR=$WARPDRIVE_APP_DIR"
 
 echo "source $WARPDRIVE_ACTIVATE"
 echo "# Run this command to configure your shell:"

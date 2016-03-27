@@ -10,7 +10,7 @@ if [ x"$WARPDRIVE_ACTION" = x"" ]; then
     eval "$(warpdrive env)"
 fi
 
-WARPDRIVE_ACTION=migrate
+WARPDRIVE_ACTION=setup
 export WARPDRIVE_ACTION
 
 # Make sure we are in the correct working directory for the application.
@@ -56,6 +56,11 @@ if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -o "$WARPDRIVE_SERVER_TYPE" = "django" ];
         if grep -q DJANGO_SETTINGS_MODULE manage.py; then
             echo " -----> Running Django database migration"
             python manage.py migrate
+
+            if (tty > /dev/null 2>&1); then
+                echo " -----> Running Django super user creation"
+                python manage.py createsuperuser
+            fi
         fi
     fi
 fi
@@ -68,13 +73,13 @@ fi
 #
 #   https://github.com/docker/docker/issues/9547
 
-if [ -f .warpdrive/action_hooks/migrate ]; then
-    if [ ! -x .warpdrive/action_hooks/migrate ]; then
-        echo "WARNING: Script .warpdrive/action_hooks/migrate not executable."
+if [ -f .warpdrive/action_hooks/setup ]; then
+    if [ ! -x .warpdrive/action_hooks/setup ]; then
+        echo "WARNING: Script .warpdrive/action_hooks/setup not executable."
     fi
 fi
 
-if [ -x .warpdrive/action_hooks/migrate ]; then
-    echo " -----> Running .warpdrive/action_hooks/migrate"
-    .warpdrive/action_hooks/migrate
+if [ -x .warpdrive/action_hooks/setup ]; then
+    echo " -----> Running .warpdrive/action_hooks/setup"
+    .warpdrive/action_hooks/setup
 fi

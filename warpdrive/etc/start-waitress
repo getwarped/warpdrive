@@ -34,11 +34,6 @@ EOF
     rm -f $WARPDRIVE_TMP_FILE
 fi
 
-if [ $$ = 1 ]; then
-    WARPDRIVE_TINI="tini --"
-fi
+echo " -----> Executing server command 'waitress-serve $WARPDRIVE_SERVER_ARGS $@'"
 
-echo " -----> Executing server command '$WARPDRIVE_TINI waitress-serve
-$WARPDRIVE_SERVER_ARGS $@'"
-
-exec $WARPDRIVE_TINI waitress-serve $WARPDRIVE_SERVER_ARGS "$@"
+exec warpdrive exec waitress-serve $WARPDRIVE_SERVER_ARGS "$@"

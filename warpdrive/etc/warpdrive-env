@@ -4,26 +4,18 @@
 
 # Directory for the application.
 
-WARPDRIVE_APPL_DIR=${WARPDRIVE_APPL_DIR:-/opt/warpdrive}
-export WARPDRIVE_APPL_DIR
+WARPDRIVE_APP_DIR=${WARPDRIVE_APP_DIR:-/opt/app-root/src}
+export WARPDRIVE_APP_DIR
 
-echo "export WARPDRIVE_APPL_DIR=$WARPDRIVE_APPL_DIR"
+echo "export WARPDRIVE_APP_DIR=$WARPDRIVE_APP_DIR"
 
 # Home directory for the user and where any additional generated files
 # will be placed.
 
-WARPDRIVE_HOME_DIR=${WARPDRIVE_HOME_DIR:=/home/warpdrive}
-export WARPDRIVE_HOME_DIR
+WARPDRIVE_TMP_DIR=${WARPDRIVE_TMP_DIR:=/opt/app-root/tmp}
+export WARPDRIVE_TMP_DIR
 
-echo "export WARPDRIVE_HOME_DIR=$WARPDRIVE_HOME_DIR"
-
-# Override HOME directory for the user, in case it isn't set to a
-# sensible value.
-
-HOME=$WARPDRIVE_HOME_DIR
-export HOME
-
-echo "export HOME=$HOME"
+echo "export WARPDRIVE_TMP_DIR=$WARPDRIVE_TMP_DIR"
 
 # Set the default listener port for the web application server.
 
@@ -41,22 +33,38 @@ echo "export WARPDRIVE_HTTP_PORT=$WARPDRIVE_HTTP_PORT"
 
 WARPDRIVE_USER_ID=$(id -u)
 
-NSS_WRAPPER_PASSWD=$WARPDRIVE_HOME_DIR/passwd
+NSS_WRAPPER_PASSWD=$WARPDRIVE_TMP_DIR/passwd
 NSS_WRAPPER_GROUP=/etc/group
 
+NSS_WRAPPER_LIBRARY=
+
 if [ -f /usr/local/nss_wrapper/lib64/libnss_wrapper.so ]; then
+    NSS_WRAPPER_LIBRARY=/usr/local/nss_wrapper/lib64/libnss_wrapper.so
+else
+    if [ -f /lib64/libnss_wrapper.so ]; then
+        NSS_WRAPPER_LIBRARY=/lib64/libnss_wrapper.so
+    fi
+fi
+
+if [ "$NSS_WRAPPER_LIBRARY" != "" ]; then
     if [ x"$WARPDRIVE_USER_ID" != x"0" -a x"$WARPDRIVE_USER_ID" != x"1001" ]; then
         if [ ! -f $NSS_WRAPPER_PASSWD ]; then
-            cat /etc/passwd | sed -e 's/^warpdrive:/builder:/' > $NSS_WRAPPER_PASSWD
+            cat /etc/passwd | sed -e 's/^default:/builder:/' > $NSS_WRAPPER_PASSWD
 
-            echo "warpdrive:x:$WARPDRIVE_USER_ID:0:Warp Drive,,,:$WARPDRIVE_HOME_DIR:/bin/bash" >> $NSS_WRAPPER_PASSWD
+            echo "default:x:$WARPDRIVE_USER_ID:0:Warp Drive,,,:$HOME:/sbin/nologin" >> $NSS_WRAPPER_PASSWD
         fi
 
         echo "export NSS_WRAPPER_PASSWD=$NSS_WRAPPER_PASSWD"
         echo "export NSS_WRAPPER_GROUP=$NSS_WRAPPER_GROUP"
 
-        echo "export LD_PRELOAD=/usr/local/nss_wrapper/lib64/libnss_wrapper.so"
+        echo "export LD_PRELOAD=$NSS_WRAPPER_LIBRARY"
     fi
+fi
+
+# Activate the Python virtual environment if one has been created.
+
+if [ -f $WARPDRIVE_APP_DIR/bin/activate ]; then
+    . $WARPDRIVE_APP_DIR/bin/activate
 fi
 
 # Copy environment variable configuration to the system directory used
@@ -66,13 +74,13 @@ fi
 # may not be writable, or could be a mounted directory and we do not
 # want to modify any original outside of Docker.
 
-WARPDRIVE_USER_VARS=$WARPDRIVE_HOME_DIR/user_vars.$$
+WARPDRIVE_USER_VARS=$WARPDRIVE_TMP_DIR/user_vars.$$
 export WARPDRIVE_USER_VARS
 
 mkdir -p $WARPDRIVE_USER_VARS
 
-if [ -d $WARPDRIVE_APPL_DIR/.warpdrive/user_vars ]; then
-    for name in `ls $WARPDRIVE_APPL_DIR/.warpdrive/user_vars/*`; do
+if [ -d $WARPDRIVE_APP_DIR/.warpdrive/user_vars ]; then
+    for name in `ls $WARPDRIVE_APP_DIR/.warpdrive/user_vars/*`; do
         cp $name $WARPDRIVE_USER_VARS
     done
 fi
@@ -96,15 +104,15 @@ done
 # Run any user supplied script to be run to set, modify or delete the
 # environment variables.
 
-if [ -f $WARPDRIVE_APPL_DIR/.warpdrive/action_hooks/deploy-env ]; then
-    if [ ! -x $WARPDRIVE_APPL_DIR/.warpdrive/action_hooks/deploy-env ]; then
-        echo "# WARNING: Script $WARPDRIVE_APPL_DIR/.warpdrive/action_hooks/deploy-env not executable."
+if [ -f $WARPDRIVE_APP_DIR/.warpdrive/action_hooks/deploy-env ]; then
+    if [ ! -x $WARPDRIVE_APP_DIR/.warpdrive/action_hooks/deploy-env ]; then
+        echo "# WARNING: Script $WARPDRIVE_APP_DIR/.warpdrive/action_hooks/deploy-env not executable."
     fi
 fi
 
-if [ -x $WARPDRIVE_APPL_DIR/.warpdrive/action_hooks/deploy-env ]; then
-    echo "# INFO: Running script $WARPDRIVE_APPL_DIR/.warpdrive/action_hooks/deploy-env"
-    $WARPDRIVE_APPL_DIR/.warpdrive/action_hooks/deploy-env
+if [ -x $WARPDRIVE_APP_DIR/.warpdrive/action_hooks/deploy-env ]; then
+    echo "# INFO: Running script $WARPDRIVE_APP_DIR/.warpdrive/action_hooks/deploy-env"
+    $WARPDRIVE_APP_DIR/.warpdrive/action_hooks/deploy-env
 fi
 
 # Go back and output the final values of the user supplied environment

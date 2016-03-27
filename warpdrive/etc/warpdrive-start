@@ -7,12 +7,6 @@ fi
 # This script will run 'mod_wsgi-express start-server', adding in some
 # additional initial arguments to send logging to the terminal.
 
-# Set the umask to be '002' so that any files/directories created from
-# this point are group writable. This does rely on any applications or
-# installation scripts honouring the umask setting.
-
-umask 002
-
 # Setup the environment if not already done.
 
 if [ x"$WARPDRIVE_ACTION" = x"" ]; then
@@ -24,7 +18,7 @@ export WARPDRIVE_ACTION
 
 # Make sure we are in the correct working directory for the application.
 
-cd $WARPDRIVE_APPL_DIR
+cd $WARPDRIVE_APP_DIR
 
 # Run any user supplied script to be run prior to starting the
 # application in the actual container. The script must be executable in
@@ -99,7 +93,7 @@ case "$WARPDRIVE_SHELL_FILE" in
     /*)
         ;;
     *)
-        WARPDRIVE_SHELL_FILE="$WARPDRIVE_APPL_DIR/$WARPDRIVE_SHELL_FILE"
+        WARPDRIVE_SHELL_FILE="$WARPDRIVE_APP_DIR/$WARPDRIVE_SHELL_FILE"
         ;;
 esac
 
@@ -140,7 +134,7 @@ try:
     wsgi_application = getattr(settings, 'WSGI_APPLICATION')
     static_url = getattr(settings, 'STATIC_URL', '/static/')
     static_root = getattr(settings, 'STATIC_ROOT',
-            '$WARPDRIVE_HOME_DIR/django/static')
+            '$WARPDRIVE_TMP_DIR/django/static')
     entry_point = '.'.join(wsgi_application.split('.')[:2])
     callable_object = wsgi_application.split('.')[-1]
 except Exception:
@@ -170,8 +164,8 @@ function server_args() {
 }
 
 function create_whitenoise_wrapper() {
-    mkdir -p $WARPDRIVE_HOME_DIR/django/modules
-    cat > $WARPDRIVE_HOME_DIR/django/modules/whitenoise_wrapper.py << !
+    mkdir -p $WARPDRIVE_TMP_DIR/django/modules
+    cat > $WARPDRIVE_TMP_DIR/django/modules/whitenoise_wrapper.py << !
 from whitenoise import WhiteNoise
 
 from $WARPDRIVE_WSGI_MODULE_NAME import $WARPDRIVE_WSGI_CALLABLE_OBJECT as _application
@@ -266,13 +260,13 @@ fi
 # Setup server args when WSGI server is to be used.
 
 if [ "$WARPDRIVE_SERVER_TYPE" = "gunicorn" ]; then
-    WARPDRIVE_WSGI_APPLICATION="$WARPDRIVE_WSGI_STATIC_URL:$WARPDRIVE_WSGI_STATIC_ROOT"
+    WARPDRIVE_WSGI_APPLICATION="$WARPDRIVE_WSGI_MODULE_NAME:$WARPDRIVE_WSGI_CALLABLE_OBJECT"
 
     if [ "$WARPDRIVE_WSGI_STATIC_URL" != "" ]; then
         if [ "$WARPDRIVE_WSGI_STATIC_ROOT" != "" ]; then
             create_whitenoise_wrapper
             WARPDRIVE_WSGI_APPLICATION="whitenoise_wrapper:application"
-            PYTHONPATH="$PYTHONPATH:$WARPDRIVE_HOME_DIR/django/modules"
+            PYTHONPATH="$PYTHONPATH:$WARPDRIVE_TMP_DIR/django/modules"
             export PYTHONPATH
         fi
     fi
@@ -304,13 +298,13 @@ if [ "$WARPDRIVE_SERVER_TYPE" = "uwsgi" ]; then
 fi
 
 if [ "$WARPDRIVE_SERVER_TYPE" = "waitress" ]; then
-    WARPDRIVE_WSGI_APPLICATION="$WARPDRIVE_WSGI_STATIC_URL:$WARPDRIVE_WSGI_STATIC_ROOT"
+    WARPDRIVE_WSGI_APPLICATION="$WARPDRIVE_WSGI_MODULE_NAME:$WARPDRIVE_WSGI_CALLABLE_OBJECT"
 
     if [ "$WARPDRIVE_WSGI_STATIC_URL" != "" ]; then
         if [ "$WARPDRIVE_WSGI_STATIC_ROOT" != "" ]; then
             create_whitenoise_wrapper
             WARPDRIVE_WSGI_APPLICATION="whitenoise_wrapper:application"
-            PYTHONPATH="$PYTHONPATH:$WARPDRIVE_HOME_DIR/django/modules"
+            PYTHONPATH="$PYTHONPATH:$WARPDRIVE_TMP_DIR/django/modules"
             export PYTHONPATH
         fi
     fi

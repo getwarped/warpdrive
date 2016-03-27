@@ -2,12 +2,6 @@
 
 # This script will execute the command passed as arguments.
 
-# Set the umask to be '002' so that any files/directories created from
-# this point are group writable. This does rely on any applications or
-# installation scripts honouring the umask setting.
-
-umask 002
-
 # Setup the environment if not already done.
 
 if [ x"$WARPDRIVE_ACTION" = x"" ]; then
@@ -17,12 +11,29 @@ fi
 WARPDRIVE_ACTION=exec
 export WARPDRIVE_ACTION
 
+WARPDRIVE_PROGRAM=$1
+
+shift
+
 # Now execute the command passed as arguments. If running as process ID
 # 1, we want to do that as a sub process to the 'tini' process, which
 # will perform reaping of zombie processes for us.
 
-if [ $$ = 1 ]; then
-    TINI="tini --"
+if ( which tini > /dev/null 2>&1 ); then
+    if [ $$ = 1 ]; then
+        TINI="tini --"
+    fi
+
+    exec $TINI $WARPDRIVE_PROGRAM "$@"
 fi
 
-exec $TINI "$@"
+trap 'kill -TERM $PID' TERM INT
+
+$WARPDRIVE_PROGRAM "$@" &
+
+PID=$!
+wait $PID
+trap - TERM INT
+wait $PID
+STATUS=$?
+exit $STATUS

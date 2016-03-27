@@ -2,6 +2,6 @@
 
 # If there was a wheelhouse directory then output it as saved artifacts.
 
-if [ -d /opt/warpdrive/.warpdrive/wheelhouse ]; then
-    tar -c -C /opt/warpdrive/.warpdrive -f - wheelhouse packages
+if [ -d /opt/app-root/src/.warpdrive/wheelhouse ]; then
+    tar -c -C /opt/app-root/src/.warpdrive -f - wheelhouse packages
 fi

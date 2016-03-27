@@ -36,10 +36,6 @@ EOF
     rm -f $WARPDRIVE_TMP_FILE
 fi
 
-if [ $$ = 1 ]; then
-    WARPDRIVE_TINI="tini --"
-fi
+echo " -----> Executing server command 'uwsgi $WARPDRIVE_SERVER_ARGS $@'"
 
-echo " -----> Executing server command '$WARPDRIVE_TINI uwsgi $WARPDRIVE_SERVER_ARGS $@'"
-
-exec $WARPDRIVE_TINI uwsgi $WARPDRIVE_SERVER_ARGS "$@"
+exec warpdrive exec uwsgi $WARPDRIVE_SERVER_ARGS "$@"

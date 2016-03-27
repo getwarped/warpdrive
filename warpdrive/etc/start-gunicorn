@@ -33,10 +33,6 @@ EOF
     rm -f $WARPDRIVE_TMP_FILE
 fi
 
-if [ $$ = 1 ]; then
-    WARPDRIVE_TINI="tini --"
-fi
+echo " -----> Executing server command 'gunicorn $WARPDRIVE_SERVER_ARGS $@'"
 
-echo " -----> Executing server command '$WARPDRIVE_TINI gunicorn $WARPDRIVE_SERVER_ARGS $@'"
-
-exec $WARPDRIVE_TINI gunicorn $WARPDRIVE_SERVER_ARGS "$@"
+exec warpdrive exec gunicorn $WARPDRIVE_SERVER_ARGS "$@"

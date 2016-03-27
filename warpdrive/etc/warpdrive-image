@@ -47,13 +47,13 @@ function cleanup() {
 
 trap "cleanup; exit" SIGHUP SIGINT SIGTERM
 
-tar --exclude .git -c -C $WARPDRIVE_APPL_DIR -f - . | \
+tar --exclude .git -c -C $WARPDRIVE_APP_DIR -f - . | \
     tar xCf $WARPDRIVE_TMP_FILES -
 
 if [ "$WARPDRIVE_WHEELHOUSE" != "" ]; then
     docker run --name warpdrive-image-$$ $WARPDRIVE_WHEELHOUSE true
 
-    docker cp warpdrive-image-$$:/opt/warpdrive/.warpdrive - | \
+    docker cp warpdrive-image-$$:/opt/app-root/src/.warpdrive - | \
         tar xCf $WARPDRIVE_TMP_FILES -
 
     docker rm warpdrive-image-$$

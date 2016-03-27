@@ -23,17 +23,23 @@ set -eo pipefail
 
 # Set up the home directory for the application.
 
-WARPDRIVE_APPL_DIR=${WARPDRIVE_APPL_DIR:-/opt/warpdrive}
-export WARPDRIVE_APPL_DIR
+WARPDRIVE_APP_DIR=${WARPDRIVE_APP_DIR:-/opt/app-root/src}
+export WARPDRIVE_APP_DIR
 
 # Set up the system directory where we keep runtime files.
 
-WARPDRIVE_HOME_DIR=${WARPDRIVE_HOME_DIR:-/home/warpdrive}
-export WARPDRIVE_HOME_DIR
+WARPDRIVE_TMP_DIR=${WARPDRIVE_TMP_DIR:-/opt/app-root/tmp}
+export WARPDRIVE_TMP_DIR
 
 # Make sure we are in the correct working directory for the application.
 
-cd $WARPDRIVE_APPL_DIR
+cd $WARPDRIVE_APP_DIR
+
+# Activate the Python virtual environment if one has been created.
+
+if [ -f $WARPDRIVE_APP_DIR/bin/activate ]; then
+    . $WARPDRIVE_APP_DIR/bin/activate
+fi
 
 # Check for the existence of the '.warpdrive/user_vars' directory for
 # storage of user defined environment variables. These can be created by
@@ -51,15 +57,15 @@ cd $WARPDRIVE_APPL_DIR
 #
 #   https://github.com/docker/docker/issues/9547
 
-if [ -f ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build ]; then
-    if [ ! -x ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build ]; then
-        echo "WARNING: Script ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build not executable."
+if [ -f ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build ]; then
+    if [ ! -x ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build ]; then
+        echo "WARNING: Script ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build not executable."
     fi
 fi
 
-if [ -x ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build ]; then
-    echo " -----> Running ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build"
-    ${WARPDRIVE_APPL_DIR}/.warpdrive/action_hooks/pre-build
+if [ -x ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build ]; then
+    echo " -----> Running ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build"
+    ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build
 fi
 
 # Create and populate the wheelhouse directory.
