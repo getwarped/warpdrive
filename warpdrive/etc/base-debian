@@ -137,26 +137,26 @@ find $WARPDRIVE_ROOT_DIR -perm 0644 -exec chmod g+w {} \;
 
 rm -rf $WARPDRIVE_BUILD_DIR
 
+# Create a special user account under which any application should be
+# run. This has group of 'root' with gid of '0' as it appears to be
+# safest bet to allow file system permisions for everything to work.
+
+WARPDRIVE_APP_ROOT=${WARPDRIVE_APP_ROOT:-/opt/app-root}
+
+adduser --disabled-password --gecos "Warp Drive" --uid 1001 --gid 0 \
+    --home ${WARPDRIVE_APP_ROOT} default
+
+chmod 1777 ${WARPDRIVE_APP_ROOT}
+
 # Create directories to be used as application directory etc. Ensure
 # they are world writable but also has the sticky bit so only root or the
 # owner can unlink any files. Needs to be world writable as we cannot be
 # certain what uid application will run as.
 
-WARPDRIVE_APP_ROOT=${WARPDRIVE_APP_ROOT:-/opt/app-root}
-WARPDRIVE_SRC_ROOT=${WARPDRIVE_SRC_ROOT:-$WARPDRIVE_APP_ROOT/src}
-
-mkdir -p ${WARPDRIVE_APP_ROOT}
-chmod 1777 ${WARPDRIVE_APP_ROOT}
-
-mkdir -p ${WARPDRIVE_SRC_ROOT}
-chmod 1777 ${WARPDRIVE_SRC_ROOT}
-
 mkdir -p ${WARPDRIVE_APP_ROOT}/tmp
 chmod 1777 ${WARPDRIVE_APP_ROOT}/tmp
 
-# Create a special user account under which any application should be
-# run. This has group of 'root' with gid of '0' as it appears to be
-# safest bet to allow file system permisions for everything to work.
+WARPDRIVE_SRC_ROOT=${WARPDRIVE_SRC_ROOT:-$WARPDRIVE_APP_ROOT/src}
 
-adduser --disabled-password --gecos "Warp Drive" --uid 1001 --gid 0 \
-    --home ${WARPDRIVE_APP_ROOT} default
+mkdir -p ${WARPDRIVE_SRC_ROOT}
+chmod 1777 ${WARPDRIVE_SRC_ROOT}
