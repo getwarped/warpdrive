@@ -114,7 +114,9 @@ if [ ! -f $WARPDRIVE_ROOT_DIR/python/bin/pip ]; then
     fi
 fi
 
-pip install --no-cache-dir -U mod_wsgi==$MOD_WSGI_VERSION
+pip install --no-cache-dir virtualenv
+
+pip install --no-cache-dir mod_wsgi==$MOD_WSGI_VERSION
 
 # Prune unwanted files from Python and Apache installations.
 

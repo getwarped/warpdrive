@@ -52,11 +52,14 @@ WARPDRIVE_SRC_ROOT=${WARPDRIVE_SRC_ROOT:-$WARPDRIVE_APP_ROOT/src}
 
 cd $WARPDRIVE_SRC_ROOT
 
-# Activate the Python virtual environment if one has been created.
+# Activate the Python virtual environment. If one doesn't exist then
+# create one first.
 
-if [ -f $WARPDRIVE_APP_ROOT/bin/activate ]; then
-    . $WARPDRIVE_APP_ROOT/bin/activate
+if [ ! -f $WARPDRIVE_APP_ROOT/bin/activate ]; then
+    virtualenv $WARPDRIVE_APP_ROOT
 fi
+
+. $WARPDRIVE_APP_ROOT/bin/activate
 
 # Check for the existence of the '.warpdrive/user_vars' directory for
 # storage of user defined environment variables. These can be created by
