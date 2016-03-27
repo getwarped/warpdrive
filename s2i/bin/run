@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
+    set -x
+fi
+
 set -eo pipefail
 
 # Trigger warpdrive to start the application. We need to make sure we do

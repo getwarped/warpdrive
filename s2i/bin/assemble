@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
+    set -x
+fi
+
 set -eo pipefail
 
 # Root directory for the runtime environment of the application.
