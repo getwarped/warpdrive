@@ -11,6 +11,6 @@ WARPDRIVE_SCRIPTS=`dirname $WARPDRIVE_BASE`
 
 WARPDRIVE_OSTYPE=$1
 
-echo " -----> Running base image script build-$WARPDRIVE_OSTYPE"
+echo " -----> Running base image script base-$WARPDRIVE_OSTYPE"
 
-exec $WARPDRIVE_SCRIPTS/build-$WARPDRIVE_OSTYPE
+exec $WARPDRIVE_SCRIPTS/base-$WARPDRIVE_OSTYPE
