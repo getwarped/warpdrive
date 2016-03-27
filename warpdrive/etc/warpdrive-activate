@@ -12,12 +12,12 @@ test ! -d $WARPDRIVE_VIRTUALENVS && mkdir $WARPDRIVE_VIRTUALENVS
 # need to create it and initialise it with base packages.
 
 if [ "$#" = "0" ]; then
-    WARPDRIVE_VENV_NAME="default"
+    WARPDRIVE_ENV_NAME="default"
 else
-    WARPDRIVE_VENV_NAME="$1"
+    WARPDRIVE_ENV_NAME="$1"
 fi
 
-WARPDRIVE_VENV_DIR="$WARPDRIVE_VIRTUALENVS/warpdrive+$WARPDRIVE_VENV_NAME"
+WARPDRIVE_VENV_DIR="$WARPDRIVE_VIRTUALENVS/warpdrive+$WARPDRIVE_ENV_NAME"
 
 create_environment() {
     virtualenv $WARPDRIVE_VENV_DIR
@@ -39,13 +39,14 @@ then
 fi
 
 WARPDRIVE_ACTIVATE="$WARPDRIVE_VENV_DIR/bin/activate"
-WARPDRIVE_TMP_DIR="$WARPDRIVE_VENV_DIR/tmp"
-WARPDRIVE_APP_DIR=`pwd`
 
-echo "export WARPDRIVE_VENV_NAME=$WARPDRIVE_VENV_NAME"
-echo "export WARPDRIVE_TMP_DIR=$WARPDRIVE_TMP_DIR"
-echo "export WARPDRIVE_APP_DIR=$WARPDRIVE_APP_DIR"
+WARPDRIVE_APP_ROOT=$WARPDRIVE_VENV_DIR
+WARPDRIVE_SRC_ROOT=`pwd`
+
+echo "export WARPDRIVE_ENV_NAME=$WARPDRIVE_ENV_NAME"
+echo "export WARPDRIVE_APP_ROOT=$WARPDRIVE_APP_ROOT"
+echo "export WARPDRIVE_SRC_ROOT=$WARPDRIVE_SRC_ROOT"
 
 echo "source $WARPDRIVE_ACTIVATE"
 echo "# Run this command to configure your shell:"
-echo "# eval \"\$(warpdrive activate $WARPDRIVE_VENV_NAME)\""
+echo "# eval \"\$(warpdrive activate $WARPDRIVE_ENV_NAME)\""

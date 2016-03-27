@@ -2,6 +2,14 @@
 
 set -eo pipefail
 
+# Root directory for the runtime environment of the application.
+
+WARPDRIVE_APP_ROOT=/opt/app-root
+
+# Root directory for the source code of the application.
+
+WARPDRIVE_SRC_ROOT=$WARPDRIVE_APP_ROOT/src
+
 # Copy the application source files into place and then remove the
 # original files. We can't just move the files as the target directory
 # already exists and we need to ensure that file system ownership
@@ -10,18 +18,18 @@ set -eo pipefail
 if [ -d /tmp/artifacts/wheelhouse ]; then
     echo "---> Restoring wheelhouse from prior build"
 
-    mkdir -p /opt/app-root/src/.warpdrive/wheelhouse
+    mkdir -p $WARPDRIVE_SRC_ROOT/.warpdrive/wheelhouse
 
-    cp -R /tmp/artifacts/wheelhouse/* /opt/app-root/src/.warpdrive/wheelhouse
+    cp -R /tmp/artifacts/wheelhouse/* $WARPDRIVE_SRC_ROOT/.warpdrive/wheelhouse
 
-    mkdir -p /opt/app-root/src/.warpdrive/packages
+    mkdir -p $WARPDRIVE_SRC_ROOT/.warpdrive/packages
 
-    cp -R /tmp/artifacts/packages/* /opt/app-root/src/.warpdrive/packages
+    cp -R /tmp/artifacts/packages/* $WARPDRIVE_SRC_ROOT/.warpdrive/packages
 fi
 
 echo "---> Installing application source"
 
-cp -Rf /tmp/src/. /opt/app-root/src
+cp -Rf /tmp/src/. $WARPDRIVE_SRC_ROOT
 
 rm -rf /tmp/src
 
@@ -54,7 +62,7 @@ fi
 # to make it work when running container as an arbitrary user ID and
 # relying on group access controls.
 #
-# Note that this will fail to change the permissions of the /app
+# Note that this may fail to change the permissions of the source
 # directory itself. We therefore suppress any warnings, but we also need
 # to ignore the exit status as any failure will cause an error exit
 # status even though permissions of remaining files are updated as we
@@ -62,4 +70,4 @@ fi
 
 echo "---> Fix permissions on application source"
 
-chmod -Rf g+w /opt/app-root/src || true
+chmod -Rf g+w $WARPDRIVE_SRC_ROOT || true

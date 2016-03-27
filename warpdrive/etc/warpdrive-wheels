@@ -21,24 +21,22 @@ fi
 
 set -eo pipefail
 
-# Set up the home directory for the application.
+# Root directory for the runtime environment of the application.
 
-WARPDRIVE_APP_DIR=${WARPDRIVE_APP_DIR:-/opt/app-root/src}
-export WARPDRIVE_APP_DIR
+WARPDRIVE_APP_ROOT=${WARPDRIVE_APP_ROOT:-/opt/app-root}
 
-# Set up the system directory where we keep runtime files.
+# Root directory for the source code of the application.
 
-WARPDRIVE_TMP_DIR=${WARPDRIVE_TMP_DIR:-/opt/app-root/tmp}
-export WARPDRIVE_TMP_DIR
+WARPDRIVE_SRC_ROOT=${WARPDRIVE_SRC_ROOT:-$WARPDRIVE_APP_ROOT/src}
 
 # Make sure we are in the correct working directory for the application.
 
-cd $WARPDRIVE_APP_DIR
+cd $WARPDRIVE_SRC_ROOT
 
 # Activate the Python virtual environment if one has been created.
 
-if [ -f /opt/app-root/bin/activate ]; then
-    . /opt/app-root/bin/activate
+if [ -f $WARPDRIVE_APP_ROOT/bin/activate ]; then
+    . $WARPDRIVE_APP_ROOT/bin/activate
 fi
 
 # Check for the existence of the '.warpdrive/user_vars' directory for
@@ -57,15 +55,15 @@ fi
 #
 #   https://github.com/docker/docker/issues/9547
 
-if [ -f ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build ]; then
-    if [ ! -x ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build ]; then
-        echo "WARNING: Script ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build not executable."
+if [ -f ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/pre-build ]; then
+    if [ ! -x ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/pre-build ]; then
+        echo "WARNING: Script ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/pre-build not executable."
     fi
 fi
 
-if [ -x ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build ]; then
-    echo " -----> Running ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build"
-    ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build
+if [ -x ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/pre-build ]; then
+    echo " -----> Running ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/pre-build"
+    ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/pre-build
 fi
 
 # Create and populate the wheelhouse directory.
@@ -73,26 +71,27 @@ fi
 WARPDRIVE_PIP_PACKAGES=${WARPDRIVE_PIP_PACKAGES:-requirements.txt}
 WARPDRIVE_PIP_WHEELS=${WARPDRIVE_PIP_WHEELS:-$WARPDRIVE_PIP_PACKAGES}
 
-WARPDRIVE_WHEEL_DIR=${WARPDRIVE_WHEEL_DIR:-.warpdrive/wheelhouse}
-WARPDRIVE_BUILD_DIR=${WARPDRIVE_BUILD_DIR:-/tmp/warpdrive-wheelhouse.$$}
+WARPDRIVE_WHEEL_DIR=${WARPDRIVE_WHEEL_DIR:-$WARPDRIVE_SRC_ROOT/.warpdrive/wheelhouse}
+
+WARPDRIVE_BLD_ROOT=${WARPDRIVE_BLD_ROOT:-/tmp/warpdrive-wheelhouse.$$}
 
 mkdir -p $WARPDRIVE_WHEEL_DIR
 
 WARPDRIVE_PIP_OPTIONS=
 
 if [ "$WARPDRIVE_BUILD_TARGET" = "wheelhouse" ]; then
-    WARPDRIVE_PIP_OPTIONS="--cache-dir .warpdrive/packages"
+    WARPDRIVE_PIP_OPTIONS="--cache-dir $WARPDRIVE_SRC_ROOT/.warpdrive/packages"
 fi
 
 for filename in $WARPDRIVE_PIP_WHEELS; do
     if [ -f $filename ]; then
         echo " -----> Installing dependencies as wheels with pip ($filename)"
         pip wheel $WARPDRIVE_PIP_OPTIONS --wheel-dir $WARPDRIVE_WHEEL_DIR \
-            --exists-action=w --src=$WARPDRIVE_BUILD_DIR -r $filename
+            --exists-action=w --src=$WARPDRIVE_BLD_ROOT -r $filename
     fi
 done
 
 # Clean up any temporary files, including the results of checking out
 # any source code repositories when doing a 'pip install' from a VCS.
 
-rm -rf $WARPDRIVE_BUILD_DIR
+rm -rf $WARPDRIVE_BLD_ROOT

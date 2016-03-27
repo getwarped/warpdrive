@@ -2,20 +2,17 @@
 
 # This script outputs the environment for the application or shell.
 
-# Directory for the application.
+# Root directory for the runtime environment of the application.
 
-WARPDRIVE_APP_DIR=${WARPDRIVE_APP_DIR:-/opt/app-root/src}
-export WARPDRIVE_APP_DIR
+WARPDRIVE_APP_ROOT=${WARPDRIVE_APP_ROOT:-/opt/app-root}
+export WARPDRIVE_APP_ROOT
 
-echo "export WARPDRIVE_APP_DIR=$WARPDRIVE_APP_DIR"
+# Root directory for the source code of the application.
 
-# Home directory for the user and where any additional generated files
-# will be placed.
+WARPDRIVE_SRC_ROOT=${WARPDRIVE_SRC_ROOT:-$WARPDRIVE_APP_ROOT/src}
+export WARPDRIVE_SRC_ROOT
 
-WARPDRIVE_TMP_DIR=${WARPDRIVE_TMP_DIR:=/opt/app-root/tmp}
-export WARPDRIVE_TMP_DIR
-
-echo "export WARPDRIVE_TMP_DIR=$WARPDRIVE_TMP_DIR"
+echo "export WARPDRIVE_SRC_ROOT=$WARPDRIVE_SRC_ROOT"
 
 # Set the default listener port for the web application server.
 
@@ -33,7 +30,7 @@ echo "export WARPDRIVE_HTTP_PORT=$WARPDRIVE_HTTP_PORT"
 
 WARPDRIVE_USER_ID=$(id -u)
 
-NSS_WRAPPER_PASSWD=$WARPDRIVE_TMP_DIR/passwd
+NSS_WRAPPER_PASSWD=$WARPDRIVE_APP_ROOT/tmp/passwd
 NSS_WRAPPER_GROUP=/etc/group
 
 NSS_WRAPPER_LIBRARY=
@@ -63,8 +60,8 @@ fi
 
 # Activate the Python virtual environment if one has been created.
 
-if [ -f /opt/app-root/bin/activate ]; then
-    . /opt/app-root/bin/activate
+if [ -f $WARPDRIVE_APP_ROOT/bin/activate ]; then
+    . $WARPDRIVE_APP_ROOT/bin/activate
 fi
 
 # Copy environment variable configuration to the system directory used
@@ -74,13 +71,13 @@ fi
 # may not be writable, or could be a mounted directory and we do not
 # want to modify any original outside of Docker.
 
-WARPDRIVE_USER_VARS=$WARPDRIVE_TMP_DIR/user_vars.$$
+WARPDRIVE_USER_VARS=$WARPDRIVE_APP_ROOT/tmp/user_vars.$$
 export WARPDRIVE_USER_VARS
 
 mkdir -p $WARPDRIVE_USER_VARS
 
-if [ -d $WARPDRIVE_APP_DIR/.warpdrive/user_vars ]; then
-    for name in `ls $WARPDRIVE_APP_DIR/.warpdrive/user_vars/*`; do
+if [ -d $WARPDRIVE_SRC_ROOT/.warpdrive/user_vars ]; then
+    for name in `ls $WARPDRIVE_SRC_ROOT/.warpdrive/user_vars/*`; do
         cp $name $WARPDRIVE_USER_VARS
     done
 fi
@@ -104,15 +101,15 @@ done
 # Run any user supplied script to be run to set, modify or delete the
 # environment variables.
 
-if [ -f $WARPDRIVE_APP_DIR/.warpdrive/action_hooks/deploy-env ]; then
-    if [ ! -x $WARPDRIVE_APP_DIR/.warpdrive/action_hooks/deploy-env ]; then
-        echo "# WARNING: Script $WARPDRIVE_APP_DIR/.warpdrive/action_hooks/deploy-env not executable."
+if [ -f $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-env ]; then
+    if [ ! -x $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-env ]; then
+        echo "# WARNING: Script $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-env not executable."
     fi
 fi
 
-if [ -x $WARPDRIVE_APP_DIR/.warpdrive/action_hooks/deploy-env ]; then
-    echo "# INFO: Running script $WARPDRIVE_APP_DIR/.warpdrive/action_hooks/deploy-env"
-    $WARPDRIVE_APP_DIR/.warpdrive/action_hooks/deploy-env
+if [ -x $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-env ]; then
+    echo "# INFO: Running script $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-env"
+    $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-env
 fi
 
 # Go back and output the final values of the user supplied environment

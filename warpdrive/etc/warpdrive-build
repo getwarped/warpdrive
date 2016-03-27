@@ -40,24 +40,22 @@ WARPDRIVE_BUILD_TARGET=application
 export WARPDRIVE_BUILD_SYSTEM
 export WARPDRIVE_BUILD_TARGET
 
-# Set up the home directory for the application.
+# Root directory for the runtime environment of the application.
 
-WARPDRIVE_APP_DIR=${WARPDRIVE_APP_DIR:-/opt/app-root/src}
-export WARPDRIVE_APP_DIR
+WARPDRIVE_APP_ROOT=${WARPDRIVE_APP_ROOT:-/opt/app-root}
 
-# Set up the system directory where we keep runtime files.
+# Root directory for the source code of the application.
 
-WARPDRIVE_TMP_DIR=${WARPDRIVE_TMP_DIR:-/opt/app-root/tmp}
-export WARPDRIVE_TMP_DIR
+WARPDRIVE_SRC_ROOT=${WARPDRIVE_SRC_ROOT:-$WARPDRIVE_APP_ROOT/src}
 
 # Make sure we are in the correct working directory for the application.
 
-cd $WARPDRIVE_APP_DIR
+cd $WARPDRIVE_SRC_ROOT
 
 # Activate the Python virtual environment if one has been created.
 
-if [ -f /opt/app-root/bin/activate ]; then
-    . /opt/app-root/bin/activate
+if [ -f $WARPDRIVE_APP_ROOT/bin/activate ]; then
+    . $WARPDRIVE_APP_ROOT/bin/activate
 fi
 
 # Check for the existence of the '.warpdrive/user_vars' directory for
@@ -76,27 +74,27 @@ fi
 #
 #   https://github.com/docker/docker/issues/9547
 
-if [ -f ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build ]; then
-    if [ ! -x ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build ]; then
-        echo "WARNING: Script ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build not executable."
+if [ -f ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/pre-build ]; then
+    if [ ! -x ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/pre-build ]; then
+        echo "WARNING: Script ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/pre-build not executable."
     fi
 fi
 
-if [ -x ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build ]; then
-    echo " -----> Running ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build"
-    ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/pre-build
+if [ -x ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/pre-build ]; then
+    echo " -----> Running ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/pre-build"
+    ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/pre-build
 fi
 
 # Now run 'pip' to install any required Python packages based on the
 # contents of the 'requirements.txt' file.
 
-WARPDRIVE_BUILD_DIR=${WARPDRIVE_BUILD_DIR:-/tmp/warpdrive-build.$$}
+WARPDRIVE_BLD_ROOT=${WARPDRIVE_BLD_ROOT:-/tmp/warpdrive-build.$$}
 
 WARPDRIVE_PIP_OPTIONS=
 
-if [ -d ${WARPDRIVE_APP_DIR}/.warpdrive/wheelhouse ]; then
+if [ -d ${WARPDRIVE_SRC_ROOT}/.warpdrive/wheelhouse ]; then
     echo " -----> Found Python wheelhouse of packages"
-    WARPDRIVE_PIP_OPTIONS="--find-links file://${WARPDRIVE_APP_DIR}/.warpdrive/wheelhouse"
+    WARPDRIVE_PIP_OPTIONS="--find-links file://${WARPDRIVE_SRC_ROOT}/.warpdrive/wheelhouse"
 fi
 
 if [ x"$WARPDRIVE_PIP_NO_INDEX" != x"" ]; then
@@ -109,7 +107,7 @@ for filename in $WARPDRIVE_PIP_PACKAGES; do
     if [ -f $filename ]; then
         echo " -----> Installing dependencies with pip ($filename)"
         pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir --exists-action=w \
-            --src=$WARPDRIVE_BUILD_DIR -r $filename
+            --src=$WARPDRIVE_BLD_ROOT -r $filename
     fi
 done
 
@@ -127,8 +125,8 @@ fi
 # application server type. If we haven't, we will try and automatically
 # determine how the server should be started and what WSGI server to use.
 
-if [ -f ${WARPDRIVE_APP_DIR}/.warpdrive/server_type ]; then
-    WARPDRIVE_SERVER_TYPE="`cat ${WARPDRIVE_APP_DIR}/.warpdrive/server_type`"
+if [ -f ${WARPDRIVE_SRC_ROOT}/.warpdrive/server_type ]; then
+    WARPDRIVE_SERVER_TYPE="`cat ${WARPDRIVE_SRC_ROOT}/.warpdrive/server_type`"
 else
     WARPDRIVE_SERVER_TYPE="auto"
 fi
@@ -222,19 +220,19 @@ function django_collectstatic() {
 
     WARPDRIVE_TMP_MODULE="project_settings_$$"
 
-    cat > $WARPDRIVE_TMP_DIR/$WARPDRIVE_TMP_MODULE.py << !
+    cat > $WARPDRIVE_APP_ROOT/tmp/$WARPDRIVE_TMP_MODULE.py << !
 from $WARPDRIVE_PROJECT_SETTINGS import *
 if 'STATIC_ROOT' not in globals():
-    STATIC_ROOT = '$WARPDRIVE_TMP_DIR/django/static'
+    STATIC_ROOT = '$WARPDRIVE_APP_ROOT/tmp/django/static'
 !
 
-    mkdir -p $WARPDRIVE_TMP_DIR/django
+    mkdir -p $WARPDRIVE_APP_ROOT/tmp/django
 
-    PYTHONPATH=$WARPDRIVE_TMP_DIR:$PYTHONPATH \
+    PYTHONPATH=$WARPDRIVE_APP_ROOT/tmp:$PYTHONPATH \
       DJANGO_SETTINGS_MODULE=$WARPDRIVE_TMP_MODULE \
       python manage.py collectstatic --noinput
 
-    rm $WARPDRIVE_TMP_DIR/$WARPDRIVE_TMP_MODULE.py*
+    rm $WARPDRIVE_APP_ROOT/tmp/$WARPDRIVE_TMP_MODULE.py*
 }
 
 if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -o "$WARPDRIVE_SERVER_TYPE" = "django" ]; then
@@ -255,12 +253,12 @@ fi
 #
 #   https://github.com/docker/docker/issues/9547
 
-if [ -x ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/build ]; then
-    echo " -----> Running ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/build"
-    ${WARPDRIVE_APP_DIR}/.warpdrive/action_hooks/build
+if [ -x ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/build ]; then
+    echo " -----> Running ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/build"
+    ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/build
 fi
 
 # Clean up any temporary files, including the results of checking out
 # any source code repositories when doing a 'pip install' from a VCS.
 
-rm -rf $WARPDRIVE_BUILD_DIR
+rm -rf $WARPDRIVE_BLD_ROOT

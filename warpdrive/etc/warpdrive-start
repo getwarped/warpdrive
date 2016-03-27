@@ -18,7 +18,7 @@ export WARPDRIVE_ACTION
 
 # Make sure we are in the correct working directory for the application.
 
-cd $WARPDRIVE_APP_DIR
+cd $WARPDRIVE_SRC_ROOT
 
 # Run any user supplied script to be run prior to starting the
 # application in the actual container. The script must be executable in
@@ -93,7 +93,7 @@ case "$WARPDRIVE_SHELL_FILE" in
     /*)
         ;;
     *)
-        WARPDRIVE_SHELL_FILE="$WARPDRIVE_APP_DIR/$WARPDRIVE_SHELL_FILE"
+        WARPDRIVE_SHELL_FILE="$WARPDRIVE_SRC_ROOT/$WARPDRIVE_SHELL_FILE"
         ;;
 esac
 
@@ -134,7 +134,7 @@ try:
     wsgi_application = getattr(settings, 'WSGI_APPLICATION')
     static_url = getattr(settings, 'STATIC_URL', '/static/')
     static_root = getattr(settings, 'STATIC_ROOT',
-            '$WARPDRIVE_TMP_DIR/django/static')
+            '$WARPDRIVE_APP_ROOT/tmp/django/static')
     entry_point = '.'.join(wsgi_application.split('.')[:2])
     callable_object = wsgi_application.split('.')[-1]
 except Exception:
@@ -164,8 +164,8 @@ function server_args() {
 }
 
 function create_whitenoise_wrapper() {
-    mkdir -p $WARPDRIVE_TMP_DIR/django/modules
-    cat > $WARPDRIVE_TMP_DIR/django/modules/whitenoise_wrapper.py << !
+    mkdir -p $WARPDRIVE_APP_ROOT/tmp/django/modules
+    cat > $WARPDRIVE_APP_ROOT/tmp/django/modules/whitenoise_wrapper.py << !
 from whitenoise import WhiteNoise
 
 from $WARPDRIVE_WSGI_MODULE_NAME import $WARPDRIVE_WSGI_CALLABLE_OBJECT as _application
@@ -266,7 +266,7 @@ if [ "$WARPDRIVE_SERVER_TYPE" = "gunicorn" ]; then
         if [ "$WARPDRIVE_WSGI_STATIC_ROOT" != "" ]; then
             create_whitenoise_wrapper
             WARPDRIVE_WSGI_APPLICATION="whitenoise_wrapper:application"
-            PYTHONPATH="$PYTHONPATH:$WARPDRIVE_TMP_DIR/django/modules"
+            PYTHONPATH="$PYTHONPATH:$WARPDRIVE_APP_ROOT/tmp/django/modules"
             export PYTHONPATH
         fi
     fi
@@ -304,7 +304,7 @@ if [ "$WARPDRIVE_SERVER_TYPE" = "waitress" ]; then
         if [ "$WARPDRIVE_WSGI_STATIC_ROOT" != "" ]; then
             create_whitenoise_wrapper
             WARPDRIVE_WSGI_APPLICATION="whitenoise_wrapper:application"
-            PYTHONPATH="$PYTHONPATH:$WARPDRIVE_TMP_DIR/django/modules"
+            PYTHONPATH="$PYTHONPATH:$WARPDRIVE_APP_ROOT/tmp/django/modules"
             export PYTHONPATH
         fi
     fi

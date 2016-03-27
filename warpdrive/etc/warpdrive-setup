@@ -15,14 +15,14 @@ export WARPDRIVE_ACTION
 
 # Make sure we are in the correct working directory for the application.
 
-cd $WARPDRIVE_APP_DIR
+cd $WARPDRIVE_SRC_ROOT
 
 # Determine whether we have been told that we are running a specific web
 # application server type. If we haven't, we will try and automatically
 # determine how the server should be started and what WSGI server to use.
 
-if [ -f ${WARPDRIVE_APP_DIR}/.warpdrive/server_type ]; then
-    WARPDRIVE_SERVER_TYPE="`cat ${WARPDRIVE_APP_DIR}/.warpdrive/server_type`"
+if [ -f ${WARPDRIVE_SRC_ROOT}/.warpdrive/server_type ]; then
+    WARPDRIVE_SERVER_TYPE="`cat ${WARPDRIVE_SRC_ROOT}/.warpdrive/server_type`"
 else
     WARPDRIVE_SERVER_TYPE="auto"
 fi
