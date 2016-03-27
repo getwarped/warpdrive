@@ -146,20 +146,19 @@ WARPDRIVE_APP_ROOT=${WARPDRIVE_APP_ROOT:-/opt/app-root}
 adduser --disabled-password --gecos "Warp Drive" --uid 1001 --gid 0 \
     --home ${WARPDRIVE_APP_ROOT} default
 
-chmod 1777 ${WARPDRIVE_APP_ROOT}
+chmod g+ws ${WARPDRIVE_APP_ROOT}
 
 # Create directories to be used as application directory etc. Ensure
-# they are world writable but also has the sticky bit so only root or the
-# owner can unlink any files. Needs to be world writable as we cannot be
-# certain what uid application will run as.
+# they are group writable, as we cannot be certain what uid application
+# will run as. We do expect gid of '0' to be used though.
 
 mkdir -p ${WARPDRIVE_APP_ROOT}/tmp
-chmod 1777 ${WARPDRIVE_APP_ROOT}/tmp
+chmod g+ws ${WARPDRIVE_APP_ROOT}/tmp
 
 WARPDRIVE_SRC_ROOT=${WARPDRIVE_SRC_ROOT:-$WARPDRIVE_APP_ROOT/src}
 
 mkdir -p ${WARPDRIVE_SRC_ROOT}
-chmod 1777 ${WARPDRIVE_SRC_ROOT}
+chmod g+ws ${WARPDRIVE_SRC_ROOT}
 
 # Create a Python virtual environment and ensure pip is up to date.
 # Also install mod_wsgi as the default WSGI server.
