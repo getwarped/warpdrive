@@ -58,10 +58,10 @@ if [ "$NSS_WRAPPER_LIBRARY" != "" ]; then
     fi
 fi
 
-# Activate the Python virtual environment if one has been created.
+# Add the bin directory for the Python virtual environment if it exists.
 
 if [ -f $WARPDRIVE_APP_ROOT/bin/activate ]; then
-    . $WARPDRIVE_APP_ROOT/bin/activate
+    echo "export PATH=$WARPDRIVE_APP_ROOT/bin:$PATH"
 fi
 
 # Copy environment variable configuration to the system directory used
