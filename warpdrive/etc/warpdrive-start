@@ -4,8 +4,7 @@ if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
     set -x
 fi
 
-# This script will run 'mod_wsgi-express start-server', adding in some
-# additional initial arguments to send logging to the terminal.
+# This script will run the Python web server.
 
 # Setup the environment if not already done.
 
@@ -324,7 +323,7 @@ fi
 # Finally, execute the startup script for the final server type.
 
 WARPDRIVE_START=`which $0`
-WARPDRIVE_SCRIPTS=`dirname $WARPDRIVE_START`/../etc
+WARPDRIVE_SCRIPTS=`dirname $WARPDRIVE_START`
 
 echo " -----> Running server script start-$WARPDRIVE_SERVER_TYPE"
 

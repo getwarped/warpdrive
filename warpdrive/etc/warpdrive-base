@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
+    set -x
+fi
+
+# This script will trigger installation of Python in base image.
+
+WARPDRIVE_BASE=`which $0`
+WARPDRIVE_SCRIPTS=`dirname $WARPDRIVE_BASE`
+
+WARPRIVE_OSTYPE=$1
+
+echo " -----> Running server script build-$WARPDRIVE_OSTYPE"
+
+exec $WARPDRIVE_SCRIPTS/build-$WARPDRIVE_OSTYPE
