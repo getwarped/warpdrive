@@ -116,8 +116,6 @@ fi
 
 pip install --no-cache-dir virtualenv
 
-pip install --no-cache-dir mod_wsgi==$MOD_WSGI_VERSION
-
 # Prune unwanted files from Python and Apache installations.
 
 find $WARPDRIVE_ROOT_DIR/python/lib \
@@ -164,12 +162,14 @@ mkdir -p ${WARPDRIVE_SRC_ROOT}
 chmod 1777 ${WARPDRIVE_SRC_ROOT}
 
 # Create a Python virtual environment and ensure pip is up to date.
+# Also install mod_wsgi as the default WSGI server.
 
 virtualenv $WARPDRIVE_APP_ROOT
 
 . $WARPDRIVE_APP_ROOT/bin/activate
 
-pip install -U pip
+pip install --no-cache-dir -U pip
+pip install --no-cache-dir mod_wsgi==$MOD_WSGI_VERSION
 
 find $WARPDRIVE_APP_ROOT -type d -exec chmod g+ws {} \;
 
