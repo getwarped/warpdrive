@@ -9,8 +9,8 @@ fi
 WARPDRIVE_BASE=`which $0`
 WARPDRIVE_SCRIPTS=`dirname $WARPDRIVE_BASE`
 
-WARPRIVE_OSTYPE=$1
+WARPDRIVE_OSTYPE=$1
 
-echo " -----> Running server script build-$WARPDRIVE_OSTYPE"
+echo " -----> Running base image script build-$WARPDRIVE_OSTYPE"
 
 exec $WARPDRIVE_SCRIPTS/build-$WARPDRIVE_OSTYPE
