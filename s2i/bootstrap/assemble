@@ -1,0 +1,16 @@
+#!/bin/sh
+
+if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
+    set -x
+fi
+
+if [ -x /usr/local/s2i/bin/assemble ]; then
+    exec /usr/local/s2i/bin/assemble
+fi
+
+curl -SL -o /opt/app-root/getwarped.sh \
+  https://raw.githubusercontent.com/GrahamDumpleton/warpdrive/master/getwarped.sh
+
+sh /opt/app-root/getwarped.sh --version master
+
+exec /opt/app-root/s2i/bin/assemble
