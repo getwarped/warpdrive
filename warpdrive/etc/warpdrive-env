@@ -7,6 +7,8 @@
 WARPDRIVE_APP_ROOT=${WARPDRIVE_APP_ROOT:-/opt/app-root}
 export WARPDRIVE_APP_ROOT
 
+echo "export WARPDRIVE_APP_ROOT=$WARPDRIVE_APP_ROOT"
+
 # Root directory for the source code of the application.
 
 WARPDRIVE_SRC_ROOT=${WARPDRIVE_SRC_ROOT:-$WARPDRIVE_APP_ROOT/src}
