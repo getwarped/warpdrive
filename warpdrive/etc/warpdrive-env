@@ -50,7 +50,7 @@ if [ "$NSS_WRAPPER_LIBRARY" != "" ]; then
         if [ ! -f $NSS_WRAPPER_PASSWD ]; then
             cat /etc/passwd | sed -e 's/^default:/builder:/' > $NSS_WRAPPER_PASSWD
 
-            echo "default:x:$WARPDRIVE_USER_ID:0:Warp Drive,,,:$HOME:/sbin/nologin" >> $NSS_WRAPPER_PASSWD
+            echo "default:x:$WARPDRIVE_USER_ID:0:Warp Drive,,,:$HOME:/bin/bash" >> $NSS_WRAPPER_PASSWD
         fi
 
         echo "export NSS_WRAPPER_PASSWD=$NSS_WRAPPER_PASSWD"
