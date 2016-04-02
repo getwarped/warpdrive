@@ -44,9 +44,13 @@ export WARPDRIVE_BUILD_TARGET
 
 WARPDRIVE_APP_ROOT=${WARPDRIVE_APP_ROOT:-/opt/app-root}
 
+export WARPDRIVE_APP_ROOT
+
 # Root directory for the source code of the application.
 
 WARPDRIVE_SRC_ROOT=${WARPDRIVE_SRC_ROOT:-$WARPDRIVE_APP_ROOT/src}
+
+export WARPDRIVE_SRC_ROOT
 
 # Make sure we are in the correct working directory for the application.
 
