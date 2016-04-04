@@ -19,6 +19,27 @@ export WARPDRIVE_ACTION
 
 cd $WARPDRIVE_SRC_ROOT
 
+# Run any user supplied script to be run to update configuration files
+# based on environment variables available at deployment time.
+
+if [ ! -f $WARPDRIVE_APP_ROOT/markers/deploy-cfg ]; then
+    # Create the marker file so we know if we have been run already.
+
+    mkdir -p $WARPDRIVE_APP_ROOT/markers
+    date > $WARPDRIVE_APP_ROOT/markers/deploy-cfg
+
+    if [ -f $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-cfg ]; then
+        if [ ! -x $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-cfg ]; then
+            echo "# WARNING: Script $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-cfg not executable."
+        fi
+    fi
+
+    if [ -x $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-cfg ]; then
+        echo "# INFO: Running script $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-cfg"
+        $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-cfg
+    fi
+fi
+
 # Run any user supplied script to be run prior to starting the
 # application in the actual container. The script must be executable in
 # order to be run. It is not possible for this script to change the
@@ -27,15 +48,15 @@ cd $WARPDRIVE_SRC_ROOT
 #
 #   https://github.com/docker/docker/issues/9547
 
-if [ -f .warpdrive/action_hooks/deploy ]; then
-    if [ ! -x .warpdrive/action_hooks/deploy ]; then
-        echo "WARNING: Script .warpdrive/action_hooks/deploy not executable."
+if [ -f $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy ]; then
+    if [ ! -x $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy ]; then
+        echo "WARNING: Script $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy not executable."
     fi
 fi
 
-if [ -x .warpdrive/action_hooks/deploy ]; then
-    echo " -----> Running .warpdrive/action_hooks/deploy"
-    .warpdrive/action_hooks/deploy
+if [ -x $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy ]; then
+    echo " -----> Running $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy"
+    $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy
 fi
 
 # Determine whether we have been told that we are running a specific web

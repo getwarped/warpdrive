@@ -17,6 +17,27 @@ export WARPDRIVE_ACTION
 
 cd $WARPDRIVE_SRC_ROOT
 
+# Run any user supplied script to be run to update configuration files
+# based on environment variables available at deployment time.
+
+if [ ! -f $WARPDRIVE_APP_ROOT/markers/deploy-cfg ]; then
+    # Create the marker file so we know if we have been run already.
+
+    mkdir -p $WARPDRIVE_APP_ROOT/markers
+    date > $WARPDRIVE_APP_ROOT/markers/deploy-cfg
+
+    if [ -f $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-cfg ]; then
+        if [ ! -x $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-cfg ]; then
+            echo "# WARNING: Script $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-cfg not executable."
+        fi
+    fi
+
+    if [ -x $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-cfg ]; then
+        echo "# INFO: Running script $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-cfg"
+        $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-cfg
+    fi
+fi
+
 # Determine whether we have been told that we are running a specific web
 # application server type. If we haven't, we will try and automatically
 # determine how the server should be started and what WSGI server to use.
