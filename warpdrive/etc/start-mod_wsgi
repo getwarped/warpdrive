@@ -15,6 +15,10 @@ fi
 
 WARPDRIVE_SERVER_ARGS="--log-to-terminal --startup-log --port $WARPDRIVE_HTTP_PORT"
 
+if [ x"$MOD_WSGI_ACCESS_LOG" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --access-log"
+fi
+
 if [ x"$MOD_WSGI_PROCESSES" != x"" ]; then
     WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --processes $MOD_WSGI_PROCESSES"
 fi
