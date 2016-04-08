@@ -1,32 +1,29 @@
-Welcome to warpdrive's documentation!
-=====================================
+Engage Warp Drive
+=================
 
 .. toctree::
    :maxdepth: 2
    :hidden:
 
-The ``warpdrive`` project provide the scripts for implementing a build and
-deployment system for Python web applications using Docker. The scripts can
-be integrated into a suitable Docker base image to provide a more
-structured way for incorporating a Python web application into a Docker
-image, with ``warpdrive`` doing all the hard work of co-ordinating the
-build of the Docker image containing you application. The ``warpdrive``
-scripts will also handle the startup of the Python web application when the
-container is run.
+The ``warpdrive`` project provides scripts for implementing a build and
+deployment system for Python web applications. It targets local
+development, as well as deployment directly to a managed host, a Docker
+hosting service, a more comprehensive container application platform, or
+a platform as a service (PaaS) provider.
 
-As well as basic support for working with Docker directly, the ``warpdrive``
-project also provides ``assemble`` and ``run`` scripts suitable for use
-with the S2I_ (Source to Image) project. This allows a Docker image to be
-enabled as a S2I builder for constructing Docker images for your
-application without you needing to even know how to build Docker
-containers. Any S2I enabled Docker image would also be able to be used as a
-S2I builder with any Docker based PaaS with S2I support built in, such as
-OpenShift.
+In short, ``warpdrive`` aims to make working on and deploying Python web
+applications easy. It does this by managing for you the tasks of building
+up everything required to deploy your application, including Docker images,
+and then also managing the startup of your Python web application. Builtin
+support is provided for the most popular Python WSGI servers, with hooking
+mechanisms to allow you to also make use of custom Python web servers,
+including ASYNC based web servers or frameworks.
 
-For examples of Docker images which incorporate the ``warpdrive`` scripts
-see:
+Want to get a quick feel for what ``warpdrive`` can do for you, check out
+:doc:`getting-started`.
 
-  * warp0-debian8-python_
+.. toctree::
+    :maxdepth: 1
+    :hidden:
 
-.. _warp0-debian8-python: https://github.com/GrahamDumpleton/warp0-debian8-python
-.. _S2I: https://github.com/openshift/source-to-image
+    getting-started
