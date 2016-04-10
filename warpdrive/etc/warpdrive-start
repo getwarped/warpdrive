@@ -66,7 +66,7 @@ fi
 if [ -f ${WARPDRIVE_SRC_ROOT}/.warpdrive/deployment ]; then
     WARPDRIVE_DEPLOYMENT="`cat ${WARPDRIVE_SRC_ROOT}/.warpdrive/deployment`"
 else
-    WARPDRIVE_DEPLOYMENT="auto"
+    WARPDRIVE_DEPLOYMENT=${WARPDRIVE_DEPLOYMENT:-auto}
 fi
 
 # Determine which WSGI server should be used if hosting a WSGI application
