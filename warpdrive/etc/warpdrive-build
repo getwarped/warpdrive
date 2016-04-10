@@ -14,8 +14,6 @@ fi
 # after the installation of any application dependencies. These user
 # scripts enable the ability to install additional system packages, or
 # run any application specific startup commands for preparing an
-# application, such as for running 'collectstatic' on a Django web
-# application.
 
 # Ensure that any failure within this script or a user provided script
 # causes this script to fail immediately. This eliminates the need to
@@ -61,12 +59,6 @@ cd $WARPDRIVE_SRC_ROOT
 if [ -f $WARPDRIVE_APP_ROOT/bin/activate ]; then
     . $WARPDRIVE_APP_ROOT/bin/activate
 fi
-
-# Check for the existence of the '.warpdrive/user_vars' directory for
-# storage of user defined environment variables. These can be created by
-# the user from any hook script. The name of the file corresponds to the
-# name of the environment variable and the contents of the file the
-# value to set the environment variable to.
 
 # Run any user supplied script to be run prior to installing application
 # dependencies. This is to allow additional system packages to be
@@ -157,8 +149,14 @@ case $WARPDRIVE_SERVER_TYPE in
 esac
 
 # See whether WSGI server is actually installed and if it isn't and we
-# may require it, then install it. It should already be installed for
-# mod_wsgi if using the Docker base images.
+# may require it, then install it. It may already be installed for
+# mod_wsgi if using the Docker base image which has it pre installed.
+#
+# For WSGI servers which themselves can't handle serving up static
+# files, if 'auto' server type was selected, then also install the
+# Whitenoise WSGI middleware, which we will use for hosting any static
+# files that may need to be served as required for certain web
+# frameworks such as Django.
 
 if [ "$WARPDRIVE_WSGI_SERVER" = "gunicorn" ]; then
     if ! (python -c "import gunicorn" &>/dev/null); then
@@ -250,10 +248,9 @@ fi
 
 # Run any user supplied script to run after installing any application
 # dependencies. This is to allow any application specific setup scripts
-# to be run, such as 'collectstatic' for a Django web application. It is
-# not possible for this script to change the permissions so it is
-# executable and then run it, due to some docker bug which results in
-# the text file being busy. For more details see:
+# to be run. It is not possible for this script to change the
+# permissions so it is executable and then run it, due to some docker
+# bug which results in the text file being busy. For more details see:
 #
 #   https://github.com/docker/docker/issues/9547
 
