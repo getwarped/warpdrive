@@ -117,78 +117,61 @@ if [ -f setup.py ]; then
     python setup.py develop
 fi
 
-# Determine whether we have been told that we are running a specific web
-# application server type. If we haven't, we will try and automatically
-# determine how the server should be started and what WSGI server to use.
+# Determine the type of deployment, falling back to 'auto' if none is
+# defined. If 'auto', we will try and automatically determine how the
+# web application should be started or which WSGI server to use.
+
+if [ -f ${WARPDRIVE_SRC_ROOT}/.warpdrive/deployment ]; then
+    WARPDRIVE_DEPLOYMENT="`cat ${WARPDRIVE_SRC_ROOT}/.warpdrive/deployment`"
+else
+    WARPDRIVE_DEPLOYMENT="auto"
+fi
+
+# Determine which WSGI server should be used if hosting a WSGI application
+# directly, or if hosting a Django based web application.
 
 if [ -f ${WARPDRIVE_SRC_ROOT}/.warpdrive/server_type ]; then
     WARPDRIVE_SERVER_TYPE="`cat ${WARPDRIVE_SRC_ROOT}/.warpdrive/server_type`"
 else
-    WARPDRIVE_SERVER_TYPE="auto"
+    WARPDRIVE_SERVER_TYPE=${WARPDRIVE_SERVER_TYPE:-mod_wsgi}
 fi
-
-WARPDRIVE_WSGI_SERVER=${WARPDRIVE_WSGI_SERVER:-mod_wsgi}
-
-case $WARPDRIVE_SERVER_TYPE in
-    auto+gunicorn|gunicorn)
-        WARPDRIVE_SERVER_TYPE=auto
-        WARPDRIVE_WSGI_SERVER=gunicorn
-        ;;
-    auto+mod_wsgi|mod_wsgi)
-        WARPDRIVE_SERVER_TYPE=auto
-        WARPDRIVE_WSGI_SERVER=mod_wsgi
-        ;;
-    auto+uwsgi|uwsgi)
-        WARPDRIVE_SERVER_TYPE=auto
-        WARPDRIVE_WSGI_SERVER=uwsgi
-        ;;
-    auto+waitress|waitress)
-        WARPDRIVE_SERVER_TYPE=auto
-        WARPDRIVE_WSGI_SERVER=waitress
-        ;;
-esac
 
 # See whether WSGI server is actually installed and if it isn't and we
 # may require it, then install it. It may already be installed for
 # mod_wsgi if using the Docker base image which has it pre installed.
 #
 # For WSGI servers which themselves can't handle serving up static
-# files, if 'auto' server type was selected, then also install the
-# Whitenoise WSGI middleware, which we will use for hosting any static
-# files that may need to be served as required for certain web
-# frameworks such as Django.
+# files, also install the Whitenoise WSGI middleware, which we will use
+# for hosting any static files that may need to be served as required
+# for certain web frameworks such as Django.
 
-if [ "$WARPDRIVE_WSGI_SERVER" = "gunicorn" ]; then
+if [ "$WARPDRIVE_SERVER_TYPE" = "gunicorn" ]; then
     if ! (python -c "import gunicorn" &>/dev/null); then
         pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir gunicorn
     fi
-    if [ "$WARPDRIVE_SERVER_TYPE" = "auto" ]; then
-        if ! (python -c "import whitenoise" &>/dev/null); then
-            pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir whitenoise
-        fi
+    if ! (python -c "import whitenoise" &>/dev/null); then
+        pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir whitenoise
     fi
 fi
 
-if [ "$WARPDRIVE_WSGI_SERVER" = "mod_wsgi" ]; then
+if [ "$WARPDRIVE_SERVER_TYPE" = "mod_wsgi" ]; then
     if ! (python -c "import mod_wsgi" &>/dev/null); then
         pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir mod_wsgi
     fi
 fi
 
-if [ "$WARPDRIVE_WSGI_SERVER" = "uwsgi" ]; then
+if [ "$WARPDRIVE_SERVER_TYPE" = "uwsgi" ]; then
     if ! (which uwsgi &>/dev/null); then
         pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir uwsgi
     fi
 fi
 
-if [ "$WARPDRIVE_WSGI_SERVER" = "waitress" ]; then
+if [ "$WARPDRIVE_SERVER_TYPE" = "waitress" ]; then
     if ! (python -c "import waitress" &>/dev/null); then
         pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir waitress
     fi
-    if [ "$WARPDRIVE_SERVER_TYPE" = "auto" ]; then
-        if ! (python -c "import whitenoise" &>/dev/null); then
-            pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir whitenoise
-        fi
+    if ! (python -c "import whitenoise" &>/dev/null); then
+        pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir whitenoise
     fi
 fi
 
@@ -237,7 +220,7 @@ if 'STATIC_ROOT' not in globals():
     rm $WARPDRIVE_APP_ROOT/tmp/$WARPDRIVE_TMP_MODULE.py*
 }
 
-if [ "$WARPDRIVE_SERVER_TYPE" = "auto" -o "$WARPDRIVE_SERVER_TYPE" = "django" ]; then
+if [ "$WARPDRIVE_DEPLOYMENT" = "auto" -o "$WARPDRIVE_DEPLOYMENT" = "django" ]; then
     if [ -f manage.py ]; then
         if grep -q DJANGO_SETTINGS_MODULE manage.py; then
             echo " -----> Collecting static files for Django"
