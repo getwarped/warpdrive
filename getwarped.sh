@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
+    set -x
+fi
+
 set -eo pipefail
 
 APP_ROOT=/opt/app-root
