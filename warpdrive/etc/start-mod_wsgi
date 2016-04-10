@@ -135,6 +135,10 @@ if [ x"$MOD_WSGI_CALLABLE_OBJECT" != x"" ]; then
     WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --callable-object $MOD_WSGI_CALLABLE_OBJECT"
 fi
 
+if [ x"$MOD_WSGI_SERVER_STATUS" != x"" ]; then
+    WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --server-status"
+fi
+
 if [ x"$NEW_RELIC_LICENSE_KEY" != x"" -o \
         x"$NEW_RELIC_CONFIG_FILE" != x"" ]; then
     WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --with-newrelic"
