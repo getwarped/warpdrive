@@ -58,7 +58,49 @@
                                     "namespace": "openshift",
                                     "name": "python:2.7"
                                 },
-                                "scripts": "https://raw.githubusercontent.com/GrahamDumpleton/warpdrive/master/s2i/bootstrap"
+                                "scripts": "https://raw.githubusercontent.com/GrahamDumpleton/warpdrive/master/s2i/bootstrap",
+                                "env" : [
+                                    {
+                                        "name": "WARPDRIVE_DEPLOYMENT",
+                                        "value": "${WARPDRIVE_DEPLOYMENT}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_SERVER_TYPE",
+                                        "value": "${WARPDRIVE_SERVER_TYPE}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_SHELL_FILE",
+                                        "value": "${WARPDRIVE_SHELL_FILE}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_PYTHON_FILE",
+                                        "value": "${WARPDRIVE_PYTHON_FILE}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_WSGI_MODULE_NAME",
+                                        "value": "${WARPDRIVE_WSGI_MODULE_NAME}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_WSGI_CALLABLE_OBJECT",
+                                        "value": "${WARPDRIVE_WSGI_CALLABLE_OBJECT}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_WSGI_STATIC_URL",
+                                        "value": "${WARPDRIVE_WSGI_STATIC_URL}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_WSGI_STATIC_ROOT",
+                                        "value": "${WARPDRIVE_WSGI_STATIC_ROOT}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_VERSION",
+                                        "value": "${WARPDRIVE_VERSION}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_DEBUG",
+                                        "value": "${WARPDRIVE_DEBUG}"
+                                    }
+                                ]
                             }
                         },
                         "output": {
@@ -163,7 +205,7 @@
                         }
                     },
                     "spec": {
-                        "host": "",
+                        "host": "${ROUTE_HOSTNAME}",
                         "to": {
                             "kind": "Service",
                             "name": "${APPLICATION_NAME}"
@@ -186,6 +228,69 @@
                     "displayName": "Git Repository URL",
                     "description": "Repository for your Python web application.",
                     "required": true
+                },
+                {
+                    "name": "ROUTE_HOSTNAME",
+                    "displayName": "Hostname",
+                    "description": "Public hostname for the route. If not specified, a hostname is generated."
+                },
+                {
+                    "name": "WARPDRIVE_DEPLOYMENT",
+                    "displayName": "Deployment Mode",
+                    "description": "Deployment mode for 'warpdrive' builder scripts. Options are: shell, python, django, wsgi, gunicorn, mod_wsgi, uwsgi, waitress. A value of 'auto' will automatically determine which of 'shell', 'python', 'django' or 'wsgi' should be used as the deployment mode based on the application source files.",
+                    "value": "auto"
+                },
+                {
+                    "name": "WARPDRIVE_SERVER_TYPE",
+                    "displayName": "Server Type",
+                    "description": "The WSGI server to be used in 'django', or 'wsgi' deployment modes. Options are: gunicorn, mod_wsgi, uwsgi, waitress.",
+                    "value": "mod_wsgi"
+                },
+                {
+                    "name": "WARPDRIVE_SHELL_FILE",
+                    "displayName": "Shell Script",
+                    "description": "The relative path name of the shell script used to launch the application. Required for deployment modes: shell.",
+                    "value": "app.sh"
+                },
+                {
+                    "name": "WARPDRIVE_PYTHON_FILE",
+                    "displayName": "Python Script",
+                    "description": "The relative path name of the Python script used to launch the application.  Required for deployment modes: python.",
+                    "value": "app.py"
+                },
+                {
+                    "name": "WARPDRIVE_WSGI_MODULE_NAME",
+                    "displayName": "Application Module",
+                    "description": "The name of the Python module containing the WSGI application. Will be superseded by the name of any Python module installed by 'setup.py' if the specified application module doesn't exist. Required for deployment modes: wsgi, gunicorn, mod_wsgi, uwsgi, waitress.",
+                    "value": "wsgi"
+                },
+                {
+                    "name": "WARPDRIVE_WSGI_CALLABLE_OBJECT",
+                    "displayName": "Application Callable",
+                    "description": "The name of the callable WSGI application entry point within the application module. Required for deployment modes: wsgi, gunicorn, mod_wsgi, uwsgi, waitress.",
+                    "value": "application"
+                },
+                {
+                    "name": "WARPDRIVE_WSGI_STATIC_URL",
+                    "displayName": "Static URL",
+                    "description": "The sub URL at which any static file resources should be mounted. Used in deployment modes: wsgi, gunicorn, mod_wsgi, uwsgi, waitress.",
+                    "value": ""
+                },
+                {
+                    "name": "WARPDRIVE_WSGI_STATIC_ROOT",
+                    "displayName": "Static Root",
+                    "description": "The relative path name to where any static file resources are located. Used in deployment modes: wsgi, gunicorn, mod_wsgi, uwsgi, waitress.",
+                    "value": ""
+                },
+                {
+                    "name": "WARPDRIVE_VERSION",
+                    "displayName": "Builder Version",
+                    "description": "Version of 'warpdrive' builder scripts to use. Defaults to latest official stable release."
+                },
+                {
+                    "name": "WARPDRIVE_DEBUG",
+                    "displayName": "Script Debugging",
+                    "description": "Enable debug logging for 'warpdrive' builder scripts. Defaults to being disabled."
                 }
             ],
             "labels": {
@@ -247,7 +352,49 @@
                                     "namespace": "openshift",
                                     "name": "python:3.3"
                                 },
-                                "scripts": "https://raw.githubusercontent.com/GrahamDumpleton/warpdrive/master/s2i/bootstrap"
+                                "scripts": "https://raw.githubusercontent.com/GrahamDumpleton/warpdrive/master/s2i/bootstrap",
+                                "env" : [
+                                    {
+                                        "name": "WARPDRIVE_DEPLOYMENT",
+                                        "value": "${WARPDRIVE_DEPLOYMENT}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_SERVER_TYPE",
+                                        "value": "${WARPDRIVE_SERVER_TYPE}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_SHELL_FILE",
+                                        "value": "${WARPDRIVE_SHELL_FILE}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_PYTHON_FILE",
+                                        "value": "${WARPDRIVE_PYTHON_FILE}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_WSGI_MODULE_NAME",
+                                        "value": "${WARPDRIVE_WSGI_MODULE_NAME}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_WSGI_CALLABLE_OBJECT",
+                                        "value": "${WARPDRIVE_WSGI_CALLABLE_OBJECT}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_WSGI_STATIC_URL",
+                                        "value": "${WARPDRIVE_WSGI_STATIC_URL}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_WSGI_STATIC_ROOT",
+                                        "value": "${WARPDRIVE_WSGI_STATIC_ROOT}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_VERSION",
+                                        "value": "${WARPDRIVE_VERSION}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_DEBUG",
+                                        "value": "${WARPDRIVE_DEBUG}"
+                                    }
+                                ]
                             }
                         },
                         "output": {
@@ -352,7 +499,7 @@
                         }
                     },
                     "spec": {
-                        "host": "",
+                        "host": "${ROUTE_HOSTNAME}",
                         "to": {
                             "kind": "Service",
                             "name": "${APPLICATION_NAME}"
@@ -375,6 +522,69 @@
                     "displayName": "Git Repository URL",
                     "description": "Repository for your Python web application.",
                     "required": true
+                },
+                {
+                    "name": "ROUTE_HOSTNAME",
+                    "displayName": "Hostname",
+                    "description": "Public hostname for the route. If not specified, a hostname is generated."
+                },
+                {
+                    "name": "WARPDRIVE_DEPLOYMENT",
+                    "displayName": "Deployment Mode",
+                    "description": "Deployment mode for 'warpdrive' builder scripts. Options are: shell, python, django, wsgi, gunicorn, mod_wsgi, uwsgi, waitress. A value of 'auto' will automatically determine which of 'shell', 'python', 'django' or 'wsgi' should be used as the deployment mode based on the application source files.",
+                    "value": "auto"
+                },
+                {
+                    "name": "WARPDRIVE_SERVER_TYPE",
+                    "displayName": "Server Type",
+                    "description": "The WSGI server to be used in 'django', or 'wsgi' deployment modes. Options are: gunicorn, mod_wsgi, uwsgi, waitress.",
+                    "value": "mod_wsgi"
+                },
+                {
+                    "name": "WARPDRIVE_SHELL_FILE",
+                    "displayName": "Shell Script",
+                    "description": "The relative path name of the shell script used to launch the application. Required for deployment modes: shell.",
+                    "value": "app.sh"
+                },
+                {
+                    "name": "WARPDRIVE_PYTHON_FILE",
+                    "displayName": "Python Script",
+                    "description": "The relative path name of the Python script used to launch the application.  Required for deployment modes: python.",
+                    "value": "app.py"
+                },
+                {
+                    "name": "WARPDRIVE_WSGI_MODULE_NAME",
+                    "displayName": "Application Module",
+                    "description": "The name of the Python module containing the WSGI application. Will be superseded by the name of any Python module installed by 'setup.py' if the specified application module doesn't exist. Required for deployment modes: wsgi, gunicorn, mod_wsgi, uwsgi, waitress.",
+                    "value": "wsgi"
+                },
+                {
+                    "name": "WARPDRIVE_WSGI_CALLABLE_OBJECT",
+                    "displayName": "Application Callable",
+                    "description": "The name of the callable WSGI application entry point within the application module. Required for deployment modes: wsgi, gunicorn, mod_wsgi, uwsgi, waitress.",
+                    "value": "application"
+                },
+                {
+                    "name": "WARPDRIVE_WSGI_STATIC_URL",
+                    "displayName": "Static URL",
+                    "description": "The sub URL at which any static file resources should be mounted. Used in deployment modes: wsgi, gunicorn, mod_wsgi, uwsgi, waitress.",
+                    "value": ""
+                },
+                {
+                    "name": "WARPDRIVE_WSGI_STATIC_ROOT",
+                    "displayName": "Static Root",
+                    "description": "The relative path name to where any static file resources are located. Used in deployment modes: wsgi, gunicorn, mod_wsgi, uwsgi, waitress.",
+                    "value": ""
+                },
+                {
+                    "name": "WARPDRIVE_VERSION",
+                    "displayName": "Builder Version",
+                    "description": "Version of 'warpdrive' builder scripts to use. Defaults to latest official stable release."
+                },
+                {
+                    "name": "WARPDRIVE_DEBUG",
+                    "displayName": "Script Debugging",
+                    "description": "Enable debug logging for 'warpdrive' builder scripts. Defaults to being disabled."
                 }
             ],
             "labels": {
@@ -436,7 +646,49 @@
                                     "namespace": "openshift",
                                     "name": "python:3.4"
                                 },
-                                "scripts": "https://raw.githubusercontent.com/GrahamDumpleton/warpdrive/master/s2i/bootstrap"
+                                "scripts": "https://raw.githubusercontent.com/GrahamDumpleton/warpdrive/master/s2i/bootstrap",
+                                "env" : [
+                                    {
+                                        "name": "WARPDRIVE_DEPLOYMENT",
+                                        "value": "${WARPDRIVE_DEPLOYMENT}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_SERVER_TYPE",
+                                        "value": "${WARPDRIVE_SERVER_TYPE}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_SHELL_FILE",
+                                        "value": "${WARPDRIVE_SHELL_FILE}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_PYTHON_FILE",
+                                        "value": "${WARPDRIVE_PYTHON_FILE}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_WSGI_MODULE_NAME",
+                                        "value": "${WARPDRIVE_WSGI_MODULE_NAME}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_WSGI_CALLABLE_OBJECT",
+                                        "value": "${WARPDRIVE_WSGI_CALLABLE_OBJECT}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_WSGI_STATIC_URL",
+                                        "value": "${WARPDRIVE_WSGI_STATIC_URL}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_WSGI_STATIC_ROOT",
+                                        "value": "${WARPDRIVE_WSGI_STATIC_ROOT}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_VERSION",
+                                        "value": "${WARPDRIVE_VERSION}"
+                                    },
+                                    {
+                                        "name": "WARPDRIVE_DEBUG",
+                                        "value": "${WARPDRIVE_DEBUG}"
+                                    }
+                                ]
                             }
                         },
                         "output": {
@@ -541,7 +793,7 @@
                         }
                     },
                     "spec": {
-                        "host": "",
+                        "host": "${ROUTE_HOSTNAME}",
                         "to": {
                             "kind": "Service",
                             "name": "${APPLICATION_NAME}"
@@ -564,6 +816,69 @@
                     "displayName": "Git Repository URL",
                     "description": "Repository for your Python web application.",
                     "required": true
+                },
+                {
+                    "name": "ROUTE_HOSTNAME",
+                    "displayName": "Hostname",
+                    "description": "Public hostname for the route. If not specified, a hostname is generated."
+                },
+                {
+                    "name": "WARPDRIVE_DEPLOYMENT",
+                    "displayName": "Deployment Mode",
+                    "description": "Deployment mode for 'warpdrive' builder scripts. Options are: shell, python, django, wsgi, gunicorn, mod_wsgi, uwsgi, waitress. A value of 'auto' will automatically determine which of 'shell', 'python', 'django' or 'wsgi' should be used as the deployment mode based on the application source files.",
+                    "value": "auto"
+                },
+                {
+                    "name": "WARPDRIVE_SERVER_TYPE",
+                    "displayName": "Server Type",
+                    "description": "The WSGI server to be used in 'django', or 'wsgi' deployment modes. Options are: gunicorn, mod_wsgi, uwsgi, waitress.",
+                    "value": "mod_wsgi"
+                },
+                {
+                    "name": "WARPDRIVE_SHELL_FILE",
+                    "displayName": "Shell Script",
+                    "description": "The relative path name of the shell script used to launch the application. Required for deployment modes: shell.",
+                    "value": "app.sh"
+                },
+                {
+                    "name": "WARPDRIVE_PYTHON_FILE",
+                    "displayName": "Python Script",
+                    "description": "The relative path name of the Python script used to launch the application.  Required for deployment modes: python.",
+                    "value": "app.py"
+                },
+                {
+                    "name": "WARPDRIVE_WSGI_MODULE_NAME",
+                    "displayName": "Application Module",
+                    "description": "The name of the Python module containing the WSGI application. Will be superseded by the name of any Python module installed by 'setup.py' if the specified application module doesn't exist. Required for deployment modes: wsgi, gunicorn, mod_wsgi, uwsgi, waitress.",
+                    "value": "wsgi"
+                },
+                {
+                    "name": "WARPDRIVE_WSGI_CALLABLE_OBJECT",
+                    "displayName": "Application Callable",
+                    "description": "The name of the callable WSGI application entry point within the application module. Required for deployment modes: wsgi, gunicorn, mod_wsgi, uwsgi, waitress.",
+                    "value": "application"
+                },
+                {
+                    "name": "WARPDRIVE_WSGI_STATIC_URL",
+                    "displayName": "Static URL",
+                    "description": "The sub URL at which any static file resources should be mounted. Used in deployment modes: wsgi, gunicorn, mod_wsgi, uwsgi, waitress.",
+                    "value": ""
+                },
+                {
+                    "name": "WARPDRIVE_WSGI_STATIC_ROOT",
+                    "displayName": "Static Root",
+                    "description": "The relative path name to where any static file resources are located. Used in deployment modes: wsgi, gunicorn, mod_wsgi, uwsgi, waitress.",
+                    "value": ""
+                },
+                {
+                    "name": "WARPDRIVE_VERSION",
+                    "displayName": "Builder Version",
+                    "description": "Version of 'warpdrive' builder scripts to use. Defaults to latest official stable release."
+                },
+                {
+                    "name": "WARPDRIVE_DEBUG",
+                    "displayName": "Script Debugging",
+                    "description": "Enable debug logging for 'warpdrive' builder scripts. Defaults to being disabled."
                 }
             ],
             "labels": {
