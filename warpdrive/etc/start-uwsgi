@@ -8,6 +8,7 @@ WARPDRIVE_SERVER_ARGS="--master --http-socket :$WARPDRIVE_HTTP_PORT"
 WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --enable-threads"
 WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --threads=5"
 WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --thunder-lock"
+WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --single-interpreter"
 
 if [ -d .warpdrive/server_args ]; then
     WARPDRIVE_SERVER_ARGS_FILE=".warpdrive/server_args/uwsgi"
