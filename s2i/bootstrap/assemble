@@ -11,6 +11,8 @@ fi
 curl -SL -o /opt/app-root/getwarped.sh \
   https://raw.githubusercontent.com/GrahamDumpleton/warpdrive/master/getwarped.sh
 
-sh /opt/app-root/getwarped.sh --version master
+WARPDRIVE_VERSION=${WARPDRIVE_VERSION:-0}
+
+sh /opt/app-root/getwarped.sh --version $WARPDRIVE_VERSION
 
 exec /opt/app-root/s2i/bin/assemble
