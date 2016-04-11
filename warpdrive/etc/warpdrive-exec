@@ -15,16 +15,27 @@ WARPDRIVE_PROGRAM=$1
 
 shift
 
-# Now execute the command passed as arguments. If running as process ID
-# 1, we want to do that as a sub process to the 'tini' process, which
-# will perform reaping of zombie processes for us.
+# If running as process ID 1 and flagged that we should run as process
+# ID 1, then simply exec the program. If not process ID 1, then always
+# exec the program.
+
+if [ $$ = 1 ]; then
+    if [ x"$WARPDRIVE_RUN_AS_PID1" != x"" ]; then
+        exec $WARPDRIVE_PROGRAM "$@"
+    fi
+else
+    exec $WARPDRIVE_PROGRAM "$@"
+fi
+
+# Should only get here if running as process ID 1, but we don't want the
+# program running as PID 1. In this case, if have 'tini', use it to
+# manage the process, else try and manage from this script with some
+# signal handling tricks so signals still propagated. We need to do this
+# as can't rely on the program handling reaping of zombie processes
+# properly.
 
 if ( which tini > /dev/null 2>&1 ); then
-    if [ $$ = 1 ]; then
-        TINI="tini --"
-    fi
-
-    exec $TINI $WARPDRIVE_PROGRAM "$@"
+    exec tini -- $WARPDRIVE_PROGRAM "$@"
 fi
 
 trap 'kill -TERM $PID' TERM INT
