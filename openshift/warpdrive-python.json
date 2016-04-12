@@ -237,13 +237,13 @@
                 {
                     "name": "WARPDRIVE_DEPLOYMENT",
                     "displayName": "Deployment Mode",
-                    "description": "Deployment mode for 'warpdrive' builder scripts. Options are: shell, python, django, wsgi, gunicorn, mod_wsgi, uwsgi, waitress. A value of 'auto' will automatically determine which of 'shell', 'python', 'django' or 'wsgi' should be used as the deployment mode based on the application source files.",
+                    "description": "Deployment mode for 'warpdrive' builder scripts. Options are: shell, python, django, wsgi, gunicorn, mod_wsgi, uwsgi, waitress. A value of 'auto' will automatically determine which of 'shell', 'python', 'django' or 'wsgi' should be used as the deployment mode based on the application source code. This setting will be ignored if specified in the application source code.",
                     "value": "auto"
                 },
                 {
                     "name": "WARPDRIVE_SERVER_TYPE",
                     "displayName": "Server Type",
-                    "description": "The WSGI server to be used in 'django', or 'wsgi' deployment modes. Options are: gunicorn, mod_wsgi, uwsgi, waitress.",
+                    "description": "The WSGI server to be used in 'django', or 'wsgi' deployment modes. Options are: gunicorn, mod_wsgi, uwsgi, waitress. This setting will be ignored if specified in the application source code.",
                     "value": "mod_wsgi"
                 },
                 {
@@ -531,13 +531,13 @@
                 {
                     "name": "WARPDRIVE_DEPLOYMENT",
                     "displayName": "Deployment Mode",
-                    "description": "Deployment mode for 'warpdrive' builder scripts. Options are: shell, python, django, wsgi, gunicorn, mod_wsgi, uwsgi, waitress. A value of 'auto' will automatically determine which of 'shell', 'python', 'django' or 'wsgi' should be used as the deployment mode based on the application source files.",
+                    "description": "Deployment mode for 'warpdrive' builder scripts. Options are: shell, python, django, wsgi, gunicorn, mod_wsgi, uwsgi, waitress. A value of 'auto' will automatically determine which of 'shell', 'python', 'django' or 'wsgi' should be used as the deployment mode based on the application source code. This setting will be ignored if specified in the application source code.",
                     "value": "auto"
                 },
                 {
                     "name": "WARPDRIVE_SERVER_TYPE",
                     "displayName": "Server Type",
-                    "description": "The WSGI server to be used in 'django', or 'wsgi' deployment modes. Options are: gunicorn, mod_wsgi, uwsgi, waitress.",
+                    "description": "The WSGI server to be used in 'django', or 'wsgi' deployment modes. Options are: gunicorn, mod_wsgi, uwsgi, waitress. This setting will be ignored if specified in the application source code.",
                     "value": "mod_wsgi"
                 },
                 {
@@ -825,13 +825,13 @@
                 {
                     "name": "WARPDRIVE_DEPLOYMENT",
                     "displayName": "Deployment Mode",
-                    "description": "Deployment mode for 'warpdrive' builder scripts. Options are: shell, python, django, wsgi, gunicorn, mod_wsgi, uwsgi, waitress. A value of 'auto' will automatically determine which of 'shell', 'python', 'django' or 'wsgi' should be used as the deployment mode based on the application source files.",
+                    "description": "Deployment mode for 'warpdrive' builder scripts. Options are: shell, python, django, wsgi, gunicorn, mod_wsgi, uwsgi, waitress. A value of 'auto' will automatically determine which of 'shell', 'python', 'django' or 'wsgi' should be used as the deployment mode based on the application source code. This setting will be ignored if specified in the application source code.",
                     "value": "auto"
                 },
                 {
                     "name": "WARPDRIVE_SERVER_TYPE",
                     "displayName": "Server Type",
-                    "description": "The WSGI server to be used in 'django', or 'wsgi' deployment modes. Options are: gunicorn, mod_wsgi, uwsgi, waitress.",
+                    "description": "The WSGI server to be used in 'django', or 'wsgi' deployment modes. Options are: gunicorn, mod_wsgi, uwsgi, waitress. This setting will be ignored if specified in the application source code.",
                     "value": "mod_wsgi"
                 },
                 {
