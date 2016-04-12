@@ -196,7 +196,7 @@ fi
 
 if [ "$WARPDRIVE_DEPLOYMENT" = "wsgi" ]; then
     if [ "$(wsgi_module_path)" != "" ]; then
-        WARPDRIVE_DEPLOYMENT="$WARPDRIVE_SERVER_TYPE"
+        # WARPDRIVE_DEPLOYMENT="wsgi"
     fi
 fi
 
@@ -204,7 +204,7 @@ fi
 
 if [ "$WARPDRIVE_DEPLOYMENT" = "django" -a -f manage.py ]; then
     if grep -q DJANGO_SETTINGS_MODULE manage.py; then
-        WARPDRIVE_DEPLOYMENT="$WARPDRIVE_SERVER_TYPE"
+        WARPDRIVE_DEPLOYMENT="wsgi"
         eval "$(django_server_args)"
     fi
 fi
@@ -232,7 +232,7 @@ fi
 
 if [ "$WARPDRIVE_DEPLOYMENT" = "auto" ]; then
     if [ "$(wsgi_module_path)" != "" ]; then
-        WARPDRIVE_DEPLOYMENT="$WARPDRIVE_SERVER_TYPE"
+        WARPDRIVE_DEPLOYMENT="wsgi"
     fi
 fi
 
@@ -243,7 +243,7 @@ fi
 
 if [ "$WARPDRIVE_DEPLOYMENT" = "auto" -a -f manage.py ]; then
     if grep -q DJANGO_SETTINGS_MODULE manage.py; then
-        WARPDRIVE_DEPLOYMENT="$WARPDRIVE_SERVER_TYPE"
+        WARPDRIVE_DEPLOYMENT="wsgi"
         eval $(django_server_args)
     fi
 fi
@@ -254,63 +254,67 @@ fi
 # module containing the WSGI application entry point.
 
 if [ "$WARPDRIVE_DEPLOYMENT" = "auto" -a -f setup.py ]; then
-    WARPDRIVE_DEPLOYMENT="$WARPDRIVE_SERVER_TYPE"
+    WARPDRIVE_DEPLOYMENT="wsgi"
     WARPDRIVE_WSGI_MODULE_NAME="$(python setup.py --name)"
 fi
 
 # Setup server args when WSGI server is to be used.
 
-if [ "$WARPDRIVE_DEPLOYMENT" = "gunicorn" ]; then
-    WARPDRIVE_WSGI_APPLICATION="$WARPDRIVE_WSGI_MODULE_NAME:$WARPDRIVE_WSGI_CALLABLE_OBJECT"
+if [ "$WARPDRIVE_DEPLOYMENT" = "wsgi" ]; then
+    if [ "$WARPDRIVE_SERVER_TYPE" = "gunicorn" ]; then
+        WARPDRIVE_WSGI_APPLICATION="$WARPDRIVE_WSGI_MODULE_NAME:$WARPDRIVE_WSGI_CALLABLE_OBJECT"
 
-    if [ "$WARPDRIVE_WSGI_STATIC_URL" != "" ]; then
-        if [ "$WARPDRIVE_WSGI_STATIC_ROOT" != "" ]; then
-            create_whitenoise_wrapper
-            WARPDRIVE_WSGI_APPLICATION="whitenoise_wrapper:application"
-            PYTHONPATH="$PYTHONPATH:$WARPDRIVE_APP_ROOT/tmp/django/modules"
-            export PYTHONPATH
+        if [ "$WARPDRIVE_WSGI_STATIC_URL" != "" ]; then
+            if [ "$WARPDRIVE_WSGI_STATIC_ROOT" != "" ]; then
+                create_whitenoise_wrapper
+                WARPDRIVE_WSGI_APPLICATION="whitenoise_wrapper:application"
+                PYTHONPATH="$PYTHONPATH:$WARPDRIVE_APP_ROOT/tmp/django/modules"
+                export PYTHONPATH
+            fi
+        fi
+
+        server_args $WARPDRIVE_WSGI_APPLICATION
+    fi
+
+    if [ "$WARPDRIVE_SERVER_TYPE" = "mod_wsgi" ]; then
+        server_args --application-type module
+        server_args --entry-point $WARPDRIVE_WSGI_MODULE_NAME
+        server_args --callable-object $WARPDRIVE_WSGI_CALLABLE_OBJECT
+
+        if [ "$WARPDRIVE_WSGI_STATIC_URL" != "" ]; then
+            if [ "$WARPDRIVE_WSGI_STATIC_ROOT" != "" ]; then
+                server_args --url-alias $WARPDRIVE_WSGI_STATIC_URL $WARPDRIVE_WSGI_STATIC_ROOT
+            fi
         fi
     fi
 
-    server_args $WARPDRIVE_WSGI_APPLICATION
-fi
+    if [ "$WARPDRIVE_SERVER_TYPE" = "uwsgi" ]; then
+        server_args --module $WARPDRIVE_WSGI_MODULE_NAME
+        server_args --callable $WARPDRIVE_WSGI_CALLABLE_OBJECT
 
-if [ "$WARPDRIVE_DEPLOYMENT" = "mod_wsgi" ]; then
-    server_args --application-type module
-    server_args --entry-point $WARPDRIVE_WSGI_MODULE_NAME
-    server_args --callable-object $WARPDRIVE_WSGI_CALLABLE_OBJECT
-
-    if [ "$WARPDRIVE_WSGI_STATIC_URL" != "" ]; then
-        if [ "$WARPDRIVE_WSGI_STATIC_ROOT" != "" ]; then
-            server_args --url-alias $WARPDRIVE_WSGI_STATIC_URL $WARPDRIVE_WSGI_STATIC_ROOT
-        fi
-    fi
-fi
-
-if [ "$WARPDRIVE_DEPLOYMENT" = "uwsgi" ]; then
-    server_args --module $WARPDRIVE_WSGI_MODULE_NAME
-    server_args --callable $WARPDRIVE_WSGI_CALLABLE_OBJECT
-
-    if [ "$WARPDRIVE_WSGI_STATIC_URL" != "" ]; then
-        if [ "$WARPDRIVE_WSGI_STATIC_ROOT" != "" ]; then
-            server_args --static-map $WARPDRIVE_WSGI_STATIC_URL=$WARPDRIVE_WSGI_STATIC_ROOT
-        fi
-    fi
-fi
-
-if [ "$WARPDRIVE_DEPLOYMENT" = "waitress" ]; then
-    WARPDRIVE_WSGI_APPLICATION="$WARPDRIVE_WSGI_MODULE_NAME:$WARPDRIVE_WSGI_CALLABLE_OBJECT"
-
-    if [ "$WARPDRIVE_WSGI_STATIC_URL" != "" ]; then
-        if [ "$WARPDRIVE_WSGI_STATIC_ROOT" != "" ]; then
-            create_whitenoise_wrapper
-            WARPDRIVE_WSGI_APPLICATION="whitenoise_wrapper:application"
-            PYTHONPATH="$PYTHONPATH:$WARPDRIVE_APP_ROOT/tmp/django/modules"
-            export PYTHONPATH
+        if [ "$WARPDRIVE_WSGI_STATIC_URL" != "" ]; then
+            if [ "$WARPDRIVE_WSGI_STATIC_ROOT" != "" ]; then
+                server_args --static-map $WARPDRIVE_WSGI_STATIC_URL=$WARPDRIVE_WSGI_STATIC_ROOT
+            fi
         fi
     fi
 
-    server_args $WARPDRIVE_WSGI_APPLICATION
+    if [ "$WARPDRIVE_SERVER_TYPE" = "waitress" ]; then
+        WARPDRIVE_WSGI_APPLICATION="$WARPDRIVE_WSGI_MODULE_NAME:$WARPDRIVE_WSGI_CALLABLE_OBJECT"
+
+        if [ "$WARPDRIVE_WSGI_STATIC_URL" != "" ]; then
+            if [ "$WARPDRIVE_WSGI_STATIC_ROOT" != "" ]; then
+                create_whitenoise_wrapper
+                WARPDRIVE_WSGI_APPLICATION="whitenoise_wrapper:application"
+                PYTHONPATH="$PYTHONPATH:$WARPDRIVE_APP_ROOT/tmp/django/modules"
+                export PYTHONPATH
+            fi
+        fi
+
+        server_args $WARPDRIVE_WSGI_APPLICATION
+    fi
+
+    WARPDRIVE_DEPLOYMENT="$WARPDRIVE_SERVER_TYPE"
 fi
 
 # If was doing auto detection and couldn't match any possible way to
@@ -318,7 +322,7 @@ fi
 # show the default splash page.
 
 if [ "$WARPDRIVE_DEPLOYMENT" = "auto" ]; then
-    WARPDRIVE_SERVER_TYPE="mod_wsgi"
+    WARPDRIVE_DEPLOYMENT="mod_wsgi"
     WARPDRIVE_SERVER_ARGS=""
 fi
 
