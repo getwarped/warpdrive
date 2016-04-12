@@ -145,6 +145,22 @@ fi
 # for hosting any static files that may need to be served as required
 # for certain web frameworks such as Django.
 
+if [ "$WARPDRIVE_DEPLOYMENT" = "gunicorn" ]; then
+    WARPDRIVE_SERVER_TYPE="gunicorn"
+fi
+
+if [ "$WARPDRIVE_DEPLOYMENT" = "mod_wsgi" ]; then
+    WARPDRIVE_SERVER_TYPE="mod_wsgi"
+fi
+
+if [ "$WARPDRIVE_DEPLOYMENT" = "uwsgi" ]; then
+    WARPDRIVE_SERVER_TYPE="uwsgi"
+fi
+
+if [ "$WARPDRIVE_DEPLOYMENT" = "waitress" ]; then
+    WARPDRIVE_SERVER_TYPE="waitress"
+fi
+
 if [ "$WARPDRIVE_SERVER_TYPE" = "gunicorn" ]; then
     if ! (python -c "import gunicorn" &>/dev/null); then
         pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir gunicorn
