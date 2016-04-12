@@ -13,7 +13,7 @@ def _files(prefix):
     return result
 
 setup(name = 'warpdrive',
-      version = '0.19.1',
+      version = '0.19.2',
       description = 'Launcher for Python web applications.',
       author = 'Graham Dumpleton',
       author_email = 'Graham.Dumpleton@gmail.com',
