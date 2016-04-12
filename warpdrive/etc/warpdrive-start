@@ -197,6 +197,7 @@ fi
 if [ "$WARPDRIVE_DEPLOYMENT" = "wsgi" ]; then
     if [ "$(wsgi_module_path)" != "" ]; then
         # WARPDRIVE_DEPLOYMENT="wsgi"
+        true
     fi
 fi
 
