@@ -8,6 +8,10 @@ if [ -x /usr/local/s2i/bin/assemble ]; then
     exec /usr/local/s2i/bin/assemble
 fi
 
+if [ -x /opt/app-root/s2i/bin/assemble ]; then
+    exec /opt/app-root/s2i/bin/assemble
+fi
+
 curl -SL -o /opt/app-root/getwarped.sh \
   https://raw.githubusercontent.com/GrahamDumpleton/warpdrive/master/getwarped.sh
 
