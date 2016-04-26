@@ -27,21 +27,14 @@ else
     exec $WARPDRIVE_PROGRAM "$@"
 fi
 
-# If runing with standard input attached, trust that that indicates
-# that a command is being run that needs to read from standard input.
-# We can't in this situation allow it to fall through to our final
-# shell script method of background and waiting on the process.
-
-if [ -t 0 ]; then
-    exec $WARPDRIVE_PROGRAM "$@"
-fi
-
 # Should only get here if running as process ID 1, but we don't want the
 # program running as PID 1. In this case, if have 'tini', use it to
 # manage the process, else try and manage from this script with some
 # signal handling tricks so signals still propagated. We need to do this
 # as can't rely on the program handling reaping of zombie processes
-# properly.
+# properly. Note though that if fall through to backgrounding process,
+# the program being run better not be wanting to read standard input
+# as putting it in background will prevent that.
 
 if ( which tini > /dev/null 2>&1 ); then
     exec tini -- $WARPDRIVE_PROGRAM "$@"
