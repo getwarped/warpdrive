@@ -50,6 +50,11 @@ WARPDRIVE_SRC_ROOT=${WARPDRIVE_SRC_ROOT:-$WARPDRIVE_APP_ROOT/src}
 
 export WARPDRIVE_SRC_ROOT
 
+# Create directories for temporary files and persistent data.
+
+mkdir -p $WARPDRIVE_APP_ROOT/tmp
+mkdir -p $WARPDRIVE_APP_ROOT/data
+
 # Make sure we are in the correct working directory for the application.
 
 cd $WARPDRIVE_SRC_ROOT
