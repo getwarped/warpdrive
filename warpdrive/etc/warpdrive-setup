@@ -52,55 +52,6 @@ if [ ! -f $WARPDRIVE_APP_ROOT/markers/deploy-cfg ]; then
     fi
 fi
 
-# Determine the type of deployment, falling back to 'auto' if none is
-# defined. If 'auto', we will try and automatically determine how the
-# web application should be started or which WSGI server to use.
-
-if [ -f ${WARPDRIVE_SRC_ROOT}/.warpdrive/deployment ]; then
-    WARPDRIVE_DEPLOYMENT="`cat ${WARPDRIVE_SRC_ROOT}/.warpdrive/deployment`"
-else
-    WARPDRIVE_DEPLOYMENT=${WARPDRIVE_DEPLOYMENT:-auto}
-fi
-
-# Determine which WSGI server should be used if hosting a WSGI application
-# directly, or if hosting a Django based web application.
-
-if [ -f ${WARPDRIVE_SRC_ROOT}/.warpdrive/server_type ]; then
-    WARPDRIVE_SERVER_TYPE="`cat ${WARPDRIVE_SRC_ROOT}/.warpdrive/server_type`"
-else
-    WARPDRIVE_SERVER_TYPE=${WARPDRIVE_SERVER_TYPE:-mod_wsgi}
-fi
-
-# If we are automatically detect the server type and we find a Django
-# application, trigger database migration and super user create if that
-# is possible due to being passed environment variables or being run in
-# an interactive session.
-
-if [ "$WARPDRIVE_DEPLOYMENT" = "auto" -o "$WARPDRIVE_DEPLOYMENT" = "django" ]; then
-    if [ -f manage.py ]; then
-        if grep -q DJANGO_SETTINGS_MODULE manage.py; then
-            echo " -----> Running Django database migration"
-            python manage.py migrate
-
-            if [ x"$DJANGO_ADMIN_USERNAME" != x"" ];
-            then
-                echo " -----> Creating predefined Django super user"
-                (cat - | python manage.py shell) << !
-from django.contrib.auth.models import User;
-User.objects.create_superuser('$DJANGO_ADMIN_USERNAME',
-                              '$DJANGO_ADMIN_EMAIL',
-                              '$DJANGO_ADMIN_PASSWORD')
-!
-            else
-                if (tty > /dev/null 2>&1); then
-                    echo " -----> Running Django super user creation"
-                    python manage.py createsuperuser
-                fi
-            fi
-        fi
-    fi
-fi
-
 # Run any user supplied script to be run prior to starting the
 # application in the actual container. The script must be executable in
 # order to be run. It is not possible for this script to change the
