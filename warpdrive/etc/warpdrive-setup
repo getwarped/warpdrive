@@ -72,7 +72,9 @@ else
 fi
 
 # If we are automatically detect the server type and we find a Django
-# application, trigger database migration.
+# application, trigger database migration and super user create if that
+# is possible due to being passed environment variables or being run in
+# an interactive session.
 
 if [ "$WARPDRIVE_DEPLOYMENT" = "auto" -o "$WARPDRIVE_DEPLOYMENT" = "django" ]; then
     if [ -f manage.py ]; then
@@ -80,9 +82,20 @@ if [ "$WARPDRIVE_DEPLOYMENT" = "auto" -o "$WARPDRIVE_DEPLOYMENT" = "django" ]; t
             echo " -----> Running Django database migration"
             python manage.py migrate
 
-            if (tty > /dev/null 2>&1); then
-                echo " -----> Running Django super user creation"
-                python manage.py createsuperuser
+            if [ x"$DJANGO_ADMIN_USERNAME" != x"" ];
+            then
+                echo " -----> Creating predefined Django super user"
+                (cat - | python manage.py shell) << !
+from django.contrib.auth.models import User;
+User.objects.create_superuser('$DJANGO_ADMIN_USERNAME',
+                              '$DJANGO_ADMIN_EMAIL',
+                              '$DJANGO_ADMIN_PASSWORD')
+!
+            else
+                if (tty > /dev/null 2>&1); then
+                    echo " -----> Running Django super user creation"
+                    python manage.py createsuperuser
+                fi
             fi
         fi
     fi
