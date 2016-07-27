@@ -34,21 +34,21 @@ cd $WARPDRIVE_SRC_ROOT
 # Run any user supplied script to be run to update configuration files
 # based on environment variables available at deployment time.
 
-if [ ! -f $WARPDRIVE_APP_ROOT/markers/deploy-cfg ]; then
+if [ ! -f $WARPDRIVE_APP_ROOT/markers/config ]; then
     # Create the marker file so we know if we have been run already.
 
     mkdir -p $WARPDRIVE_APP_ROOT/markers
-    date > $WARPDRIVE_APP_ROOT/markers/deploy-cfg
+    date > $WARPDRIVE_APP_ROOT/markers/config
 
-    if [ -f $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-cfg ]; then
-        if [ ! -x $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-cfg ]; then
-            echo "# WARNING: Script $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-cfg not executable."
+    if [ -f $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/config ]; then
+        if [ ! -x $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/config ]; then
+            echo "# WARNING: Script $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/config not executable."
         fi
     fi
 
-    if [ -x $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-cfg ]; then
-        echo "# INFO: Running script $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-cfg"
-        $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-cfg
+    if [ -x $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/config ]; then
+        echo "# INFO: Running script $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/config"
+        $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/config
     fi
 fi
 
