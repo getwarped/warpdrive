@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
+    set -x
+fi
+
+# This script will output the name of a rcfile to be source'd as
+# part of login shell scripts.
+
+WARPDRIVE_RCFILE=`which $0`
+WARPDRIVE_SCRIPTS=`dirname $WARPDRIVE_RCFILE`
+
+echo "$WARPDRIVE_SCRIPTS/shell-rcfile"

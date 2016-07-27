@@ -1,0 +1,43 @@
+function warpdrive() {
+    case $1 in
+        project)
+            WARPDRIVE_VIRTUALENVS=${WARPDRIVE_VIRTUALENVS:-$HOME/.warpdrive}
+
+            if [ "$#" = "1" ]; then
+                WARPDRIVE_ENV_NAME="default"
+            else
+                WARPDRIVE_ENV_NAME="$2"
+            fi
+
+            WARPDRIVE_VENV_DIR="$WARPDRIVE_VIRTUALENVS/warpdrive+$WARPDRIVE_ENV_NAME"
+
+            if [ -d "$WARPDRIVE_VENV_DIR" ]; then
+                echo "Switching to warpdrive project '$WARPDRIVE_ENV_NAME'."
+            else
+                echo "Initializing warpdrive project '$WARPDRIVE_ENV_NAME'."
+            fi
+
+            eval "$($WARPDRIVE activate $2)"
+
+            ;;
+
+        deactivate)
+            if [ x"$VIRTUAL_ENV" != x"" ]; then
+                if [ x`type -t deactivate` = x"function" ]; then
+                    WARPDRIVE=$WARPDRIVE_MASTER
+                    unset WARPDRIVE_MASTER
+                    unset WARPDRIVE_ENV_NAME
+                    unset WARPDRIVE_APP_ROOT
+                    unset WARPDRIVE_SRC_ROOT
+                    deactivate
+                fi
+            fi
+
+            ;;
+
+        *)
+            $WARPDRIVE $*
+
+            ;;
+    esac
+}
