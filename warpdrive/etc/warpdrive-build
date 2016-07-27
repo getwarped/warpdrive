@@ -4,9 +4,6 @@ if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
     set -x
 fi
 
-WARPDRIVE_ACTION=build
-export WARPDRIVE_ACTION
-
 # This is the script that prepares the Python application to be run. It
 # would normally be triggered from a derived docker image explicitly,
 # as a deferred ONBUILD action, or from an S2I builder.
@@ -34,6 +31,9 @@ set -eo pipefail
 
 # Specify the build system and target. The build target is mainly for
 # pre build action hooks.
+
+WARPDRIVE_PHASE=build
+export WARPDRIVE_PHASE
 
 WARPDRIVE_BUILD_SYSTEM=${WARPDRIVE_BUILD_SYSTEM:-local}
 WARPDRIVE_BUILD_TARGET=application

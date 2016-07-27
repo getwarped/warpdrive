@@ -2,6 +2,11 @@
 
 # This script outputs the environment for the application or shell.
 
+WARPDRIVE_PHASE=deploy
+export WARPDRIVE_PHASE
+
+echo "export WARPDRIVE_PHASE=$WARPDRIVE_PHASE"
+
 # Root directory for the runtime environment of the application.
 
 WARPDRIVE_APP_ROOT=${WARPDRIVE_APP_ROOT:-/opt/app-root}
