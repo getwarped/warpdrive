@@ -39,12 +39,6 @@ if [ -f $WARPDRIVE_APP_ROOT/bin/activate ]; then
     . $WARPDRIVE_APP_ROOT/bin/activate
 fi
 
-# Check for the existence of the '.warpdrive/user_vars' directory for
-# storage of user defined environment variables. These can be created by
-# the user from any hook script. The name of the file corresponds to the
-# name of the environment variable and the contents of the file the
-# value to set the environment variable to.
-
 # Run any user supplied script to be run prior to installing application
 # dependencies. This is to allow additional system packages to be
 # installed that may be required by any Python modules which are being
