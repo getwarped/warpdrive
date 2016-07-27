@@ -66,65 +66,6 @@ if [ -f $WARPDRIVE_APP_ROOT/bin/activate ]; then
     echo "export PATH=$WARPDRIVE_APP_ROOT/bin:$PATH"
 fi
 
-# Copy environment variable configuration to the system directory used
-# for runtime files. This is done so that the '.warpdrive/deploy-env' can
-# safely add or remove files without modifying the original source code
-# directory. This is necessary as the original source code directory
-# may not be writable, or could be a mounted directory and we do not
-# want to modify any original outside of Docker.
-
-WARPDRIVE_USER_VARS=$WARPDRIVE_APP_ROOT/tmp/user_vars.$$
-export WARPDRIVE_USER_VARS
-
-mkdir -p $WARPDRIVE_USER_VARS
-
-if [ -d $WARPDRIVE_SRC_ROOT/.warpdrive/user_vars ]; then
-    for name in `ls $WARPDRIVE_SRC_ROOT/.warpdrive/user_vars/*`; do
-        cp $name $WARPDRIVE_USER_VARS
-    done
-fi
-
-# Docker will have set any environment variables defined in the image or
-# on the command line when the container has been run. Here we are going
-# to look for any statically defined environment variables provided by
-# the user as part of the actual application. These will have been
-# placed in the '.warpdrive/user_vars' directory. The name of the file
-# corresponds to the name of the environment variable and the contents
-# of the file the value to set the environment variable to. Each of the
-# environment variables is set and exported.
-
-envvars=
-
-for name in `ls $WARPDRIVE_USER_VARS`; do
-    export $name="`cat $WARPDRIVE_USER_VARS/$name`"
-    envvars="$envvars $name"
-done
-
-# Run any user supplied script to be run to set, modify or delete the
-# environment variables.
-
-if [ -f $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-env ]; then
-    if [ ! -x $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-env ]; then
-        echo "# WARNING: Script $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-env not executable."
-    fi
-fi
-
-if [ -x $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-env ]; then
-    echo "# INFO: Running script $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-env"
-    $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-env
-fi
-
-# Go back and output the final values of the user supplied environment
-# variables.
-
-for name in `ls $WARPDRIVE_USER_VARS`; do
-    echo "export $name=\"`cat $WARPDRIVE_USER_VARS/$name`\""
-done
-
-# Clean up the environment variables directory.
-
-rm -rf $WARPDRIVE_USER_VARS
-
 # Now source '.warpdrive/environment' if it exists. And variables set in
 # trhe script will be automatically exported. It is possible to use
 # script logic as well but temporary variables would need to be cleaned
