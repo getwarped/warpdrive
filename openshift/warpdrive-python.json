@@ -60,8 +60,8 @@
                                 "scripts": "https://raw.githubusercontent.com/GrahamDumpleton/warpdrive/master/s2i/bootstrap",
                                 "env" : [
                                     {
-                                        "name": "WARPDRIVE_DEPLOYMENT",
-                                        "value": "${WARPDRIVE_DEPLOYMENT}"
+                                        "name": "WARPDRIVE_DEPLOY_MODE",
+                                        "value": "${WARPDRIVE_DEPLOY_MODE}"
                                     },
                                     {
                                         "name": "WARPDRIVE_SERVER_TYPE",
@@ -234,7 +234,7 @@
                     "description": "Public hostname for the route. If not specified, a hostname is generated."
                 },
                 {
-                    "name": "WARPDRIVE_DEPLOYMENT",
+                    "name": "WARPDRIVE_DEPLOY_MODE",
                     "displayName": "Deployment Mode",
                     "description": "Deployment mode for 'warpdrive' builder scripts. Options are: shell, python, django, wsgi, gunicorn, mod_wsgi, uwsgi, waitress. A value of 'auto' will automatically determine which of 'shell', 'python', 'django' or 'wsgi' should be used as the deployment mode based on the application source code. This setting will be ignored if specified in the application source code.",
                     "value": "auto"
@@ -353,8 +353,8 @@
                                 "scripts": "https://raw.githubusercontent.com/GrahamDumpleton/warpdrive/master/s2i/bootstrap",
                                 "env" : [
                                     {
-                                        "name": "WARPDRIVE_DEPLOYMENT",
-                                        "value": "${WARPDRIVE_DEPLOYMENT}"
+                                        "name": "WARPDRIVE_DEPLOY_MODE",
+                                        "value": "${WARPDRIVE_DEPLOY_MODE}"
                                     },
                                     {
                                         "name": "WARPDRIVE_SERVER_TYPE",
@@ -527,7 +527,7 @@
                     "description": "Public hostname for the route. If not specified, a hostname is generated."
                 },
                 {
-                    "name": "WARPDRIVE_DEPLOYMENT",
+                    "name": "WARPDRIVE_DEPLOY_MODE",
                     "displayName": "Deployment Mode",
                     "description": "Deployment mode for 'warpdrive' builder scripts. Options are: shell, python, django, wsgi, gunicorn, mod_wsgi, uwsgi, waitress. A value of 'auto' will automatically determine which of 'shell', 'python', 'django' or 'wsgi' should be used as the deployment mode based on the application source code. This setting will be ignored if specified in the application source code.",
                     "value": "auto"
@@ -646,8 +646,8 @@
                                 "scripts": "https://raw.githubusercontent.com/GrahamDumpleton/warpdrive/master/s2i/bootstrap",
                                 "env" : [
                                     {
-                                        "name": "WARPDRIVE_DEPLOYMENT",
-                                        "value": "${WARPDRIVE_DEPLOYMENT}"
+                                        "name": "WARPDRIVE_DEPLOY_MODE",
+                                        "value": "${WARPDRIVE_DEPLOY_MODE}"
                                     },
                                     {
                                         "name": "WARPDRIVE_SERVER_TYPE",
@@ -820,7 +820,7 @@
                     "description": "Public hostname for the route. If not specified, a hostname is generated."
                 },
                 {
-                    "name": "WARPDRIVE_DEPLOYMENT",
+                    "name": "WARPDRIVE_DEPLOY_MODE",
                     "displayName": "Deployment Mode",
                     "description": "Deployment mode for 'warpdrive' builder scripts. Options are: shell, python, django, wsgi, gunicorn, mod_wsgi, uwsgi, waitress. A value of 'auto' will automatically determine which of 'shell', 'python', 'django' or 'wsgi' should be used as the deployment mode based on the application source code. This setting will be ignored if specified in the application source code.",
                     "value": "auto"
