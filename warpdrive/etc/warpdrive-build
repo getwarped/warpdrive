@@ -102,12 +102,16 @@ if [ x"$WARPDRIVE_PIP_NO_INDEX" != x"" ]; then
     WARPDRIVE_PIP_OPTIONS="$WARPDRIVE_PIP_OPTIONS --no-index"
 fi
 
+if [ x"$WARPDRIVE_ENV_NAME" == x"" ]; then
+    WARPDRIVE_PIP_OPTIONS="$WARPDRIVE_PIP_OPTIONS --no-cache-dir"
+fi
+
 WARPDRIVE_PIP_PACKAGES=${WARPDRIVE_PIP_PACKAGES:-requirements.txt}
 
 for filename in $WARPDRIVE_PIP_PACKAGES; do
     if [ -f $filename ]; then
         echo " -----> Installing dependencies with pip ($filename)"
-        pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir --exists-action=w \
+        pip install $WARPDRIVE_PIP_OPTIONS --exists-action=w \
             --src=$WARPDRIVE_BLD_ROOT -r $filename
     fi
 done
@@ -168,31 +172,31 @@ fi
 
 if [ "$WARPDRIVE_SERVER_TYPE" = "gunicorn" ]; then
     if ! (python -c "import gunicorn" &>/dev/null); then
-        pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir gunicorn
+        pip install $WARPDRIVE_PIP_OPTIONS gunicorn
     fi
     if ! (python -c "import whitenoise" &>/dev/null); then
-        pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir whitenoise
+        pip install $WARPDRIVE_PIP_OPTIONS whitenoise
     fi
 fi
 
 if [ "$WARPDRIVE_SERVER_TYPE" = "mod_wsgi" ]; then
     if ! (python -c "import mod_wsgi" &>/dev/null); then
-        pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir mod_wsgi
+        pip install $WARPDRIVE_PIP_OPTIONS mod_wsgi
     fi
 fi
 
 if [ "$WARPDRIVE_SERVER_TYPE" = "uwsgi" ]; then
     if ! (which uwsgi &>/dev/null); then
-        pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir uwsgi
+        pip install $WARPDRIVE_PIP_OPTIONS uwsgi
     fi
 fi
 
 if [ "$WARPDRIVE_SERVER_TYPE" = "waitress" ]; then
     if ! (python -c "import waitress" &>/dev/null); then
-        pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir waitress
+        pip install $WARPDRIVE_PIP_OPTIONS waitress
     fi
     if ! (python -c "import whitenoise" &>/dev/null); then
-        pip install $WARPDRIVE_PIP_OPTIONS --no-cache-dir whitenoise
+        pip install $WARPDRIVE_PIP_OPTIONS whitenoise
     fi
 fi
 
