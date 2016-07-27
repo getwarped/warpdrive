@@ -4,6 +4,9 @@ if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
     set -x
 fi
 
+WARPDRIVE_ACTION=build
+export WARPDRIVE_ACTION
+
 # This is the script that prepares the Python application to be run. It
 # would normally be triggered from a derived docker image explicitly,
 # as a deferred ONBUILD action, or from an S2I builder.
@@ -84,6 +87,15 @@ fi
 if [ -x ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/install ]; then
     echo " -----> Running ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/install"
     ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/install
+fi
+
+# Now source '.warpdrive/environment' if it exists. And variables set in
+# the script will be automatically exported. It is possible to use
+# script logic as well but temporary variables would need to be cleaned
+# up manually due to variables set being automatically exported.
+
+if [ -f $WARPDRIVE_SRC_ROOT/.warpdrive/environment ]; then
+    set -a; . $WARPDRIVE_SRC_ROOT/.warpdrive/environment; set +a
 fi
 
 # Now run 'pip' to install any required Python packages based on the
