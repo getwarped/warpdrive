@@ -67,7 +67,7 @@ if [ -f $WARPDRIVE_APP_ROOT/bin/activate ]; then
 fi
 
 # Now source '.warpdrive/environment' if it exists. And variables set in
-# trhe script will be automatically exported. It is possible to use
+# the script will be automatically exported. It is possible to use
 # script logic as well but temporary variables would need to be cleaned
 # up manually due to variables set being automatically exported.
 
