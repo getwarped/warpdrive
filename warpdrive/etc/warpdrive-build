@@ -130,10 +130,10 @@ fi
 # defined. If 'auto', we will try and automatically determine how the
 # web application should be started or which WSGI server to use.
 
-if [ -f ${WARPDRIVE_SRC_ROOT}/.warpdrive/deployment ]; then
-    WARPDRIVE_DEPLOYMENT="`cat ${WARPDRIVE_SRC_ROOT}/.warpdrive/deployment`"
+if [ -f ${WARPDRIVE_SRC_ROOT}/.warpdrive/deploy_mode ]; then
+    WARPDRIVE_DEPLOY_MODE="`cat ${WARPDRIVE_SRC_ROOT}/.warpdrive/deploy_mode`"
 else
-    WARPDRIVE_DEPLOYMENT=${WARPDRIVE_DEPLOYMENT:-auto}
+    WARPDRIVE_DEPLOY_MODE=${WARPDRIVE_DEPLOY_MODE:-auto}
 fi
 
 # Determine which WSGI server should be used if hosting a WSGI application
@@ -154,19 +154,19 @@ fi
 # for hosting any static files that may need to be served as required
 # for certain web frameworks such as Django.
 
-if [ "$WARPDRIVE_DEPLOYMENT" = "gunicorn" ]; then
+if [ "$WARPDRIVE_DEPLOY_MODE" = "gunicorn" ]; then
     WARPDRIVE_SERVER_TYPE="gunicorn"
 fi
 
-if [ "$WARPDRIVE_DEPLOYMENT" = "mod_wsgi" ]; then
+if [ "$WARPDRIVE_DEPLOY_MODE" = "mod_wsgi" ]; then
     WARPDRIVE_SERVER_TYPE="mod_wsgi"
 fi
 
-if [ "$WARPDRIVE_DEPLOYMENT" = "uwsgi" ]; then
+if [ "$WARPDRIVE_DEPLOY_MODE" = "uwsgi" ]; then
     WARPDRIVE_SERVER_TYPE="uwsgi"
 fi
 
-if [ "$WARPDRIVE_DEPLOYMENT" = "waitress" ]; then
+if [ "$WARPDRIVE_DEPLOY_MODE" = "waitress" ]; then
     WARPDRIVE_SERVER_TYPE="waitress"
 fi
 
@@ -245,7 +245,7 @@ if 'STATIC_ROOT' not in globals():
     rm $WARPDRIVE_APP_ROOT/tmp/$WARPDRIVE_TMP_MODULE.py*
 }
 
-if [ "$WARPDRIVE_DEPLOYMENT" = "auto" -o "$WARPDRIVE_DEPLOYMENT" = "django" ]; then
+if [ "$WARPDRIVE_DEPLOY_MODE" = "auto" -o "$WARPDRIVE_DEPLOY_MODE" = "django" ]; then
     if [ -f manage.py ]; then
         if grep -q DJANGO_SETTINGS_MODULE manage.py; then
             echo " -----> Collecting static files for Django"
