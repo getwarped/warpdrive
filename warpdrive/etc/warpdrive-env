@@ -125,6 +125,15 @@ done
 
 rm -rf $WARPDRIVE_USER_VARS
 
+# Now source '.warpdrive/environment' if it exists. And variables set in
+# trhe script will be automatically exported. It is possible to use
+# script logic as well but temporary variables would need to be cleaned
+# up manually due to variables set being automatically exported.
+
+if [ -f $WARPDRIVE_SRC_ROOT/.warpdrive/environment ]; then
+    echo "set -a; . $WARPDRIVE_SRC_ROOT/.warpdrive/environment; set +a"
+fi
+
 # Output how environment variables should be incorporated.
 
 echo '# Run this command to configure your shell:'
