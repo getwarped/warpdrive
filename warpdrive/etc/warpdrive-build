@@ -75,15 +75,15 @@ fi
 #
 #   https://github.com/docker/docker/issues/9547
 
-if [ -f ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/pre-build ]; then
-    if [ ! -x ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/pre-build ]; then
-        echo "WARNING: Script ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/pre-build not executable."
+if [ -f ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/install ]; then
+    if [ ! -x ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/install ]; then
+        echo "WARNING: Script ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/install not executable."
     fi
 fi
 
-if [ -x ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/pre-build ]; then
-    echo " -----> Running ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/pre-build"
-    ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/pre-build
+if [ -x ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/install ]; then
+    echo " -----> Running ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/install"
+    ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/install
 fi
 
 # Now run 'pip' to install any required Python packages based on the
