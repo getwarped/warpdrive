@@ -138,12 +138,21 @@ function django_start_settings() {
 from django.conf import settings
 with open('$WARPDRIVE_TMP_VALUES', 'w') as fp:
     settings_module = getattr(settings, 'SETTINGS_MODULE')
+
     wsgi_application = getattr(settings, 'WSGI_APPLICATION')
-    static_url = getattr(settings, 'STATIC_URL', '/static/')
-    static_root = getattr(settings, 'STATIC_ROOT',
-            '$WARPDRIVE_APP_ROOT/tmp/django/static')
+
     entry_point = '.'.join(wsgi_application.split('.')[:-1])
     callable_object = wsgi_application.split('.')[-1]
+
+    static_url = getattr(settings, 'STATIC_URL')
+
+    if not static_url:
+        static_url = '/static/'
+
+    static_root = getattr(settings, 'STATIC_ROOT')
+
+    if not static_root:
+        static_root = '$WARPDRIVE_APP_ROOT/tmp/django/static'
 
     variables = [
         'DJANGO_SETTINGS_MODULE="%s"' % settings_module,
