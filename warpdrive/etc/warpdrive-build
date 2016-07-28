@@ -55,11 +55,13 @@ export WARPDRIVE_SRC_ROOT
 
 # Home directory of the application within the source code.
 
-if [ x"$WARPDRIVE_APP_HOME" != x"" ]; then
-    WARPDRIVE_APP_HOME=$WARPDRIVE_SRC_ROOT/$WARPDRIVE_APP_HOME
-    echo " -----> Using application home directory $WARPDRIVE_APP_HOME."
-else
-    WARPDRIVE_APP_HOME=$WARPDRIVE_SRC_ROOT
+if [[ "$WARPDRIVE_APP_HOME" != "/*" ]]; then
+    if [ x"$WARPDRIVE_APP_HOME" != x"" ]; then
+        WARPDRIVE_APP_HOME=$WARPDRIVE_SRC_ROOT/$WARPDRIVE_APP_HOME
+        echo " -----> Using application home directory $WARPDRIVE_APP_HOME."
+    else
+        WARPDRIVE_APP_HOME=$WARPDRIVE_SRC_ROOT
+    fi
 fi
 
 export WARPDRIVE_APP_HOME
