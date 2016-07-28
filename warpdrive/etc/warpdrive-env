@@ -24,7 +24,7 @@ echo "export WARPDRIVE_SRC_ROOT=$WARPDRIVE_SRC_ROOT"
 # Home directory of the application within the source code.
 
 case "$WARPDRIVE_APP_HOME" in
-    "/*")
+    /*)
         ;;
     "")
         WARPDRIVE_APP_HOME=$WARPDRIVE_SRC_ROOT
