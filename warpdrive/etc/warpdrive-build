@@ -53,12 +53,25 @@ WARPDRIVE_SRC_ROOT=${WARPDRIVE_SRC_ROOT:-$WARPDRIVE_APP_ROOT/src}
 
 export WARPDRIVE_SRC_ROOT
 
+# Home directory of the application within the source code.
+
+if [ x"$WARPDRIVE_APP_HOME" != x"" ]; then
+    WARPDRIVE_APP_HOME=$WARPDRIVE_SRC_ROOT/$WARPDRIVE_APP_HOME
+    echo " -----> Using application home directory $WARPDRIVE_APP_HOME."
+else
+    WARPDRIVE_APP_HOME=$WARPDRIVE_SRC_ROOT
+fi
+
+export WARPDRIVE_APP_HOME
+
 # Create directories for temporary files and persistent data.
 
 mkdir -p $WARPDRIVE_APP_ROOT/tmp
 mkdir -p $WARPDRIVE_APP_ROOT/data
 
-# Make sure we are in the correct working directory for the application.
+# Make sure we are in the top level directory of the source code for
+# when performing the build steps. When later starting the application
+# we will use the home directory for the application, but not here.
 
 cd $WARPDRIVE_SRC_ROOT
 
@@ -212,6 +225,17 @@ if [ "$WARPDRIVE_SERVER_TYPE" = "waitress" ]; then
     fi
 fi
 
+# Ensure that the source directory and application home directory are in
+# the Python module search path and that they are searched first.
+
+PYTHONPATH=$WARPDRIVE_SRC_ROOT:$PYTHONPATH
+
+if [ "$WARPDRIVE_APP_HOME" != "$WARPDRIVE_SRC_ROOT" ]; then
+    PYTHONPATH=$WARPDRIVE_APP_HOME:$PYTHONPATH
+fi
+
+export PYTHONPATH
+
 # If we are automatically detect the server type and we find a Django
 # application, trigger collection of static files if possible.
 
@@ -219,7 +243,7 @@ function django_settings_module() {
     WARPDRIVE_TMP_MODULE="project_settings_$$"
     WARPDRIVE_TMP_SCRIPT="/tmp/settings_module_$$.py"
 
-    python manage.py diffsettings > /tmp/$WARPDRIVE_TMP_MODULE.py
+    python $WARPDRIVE_APP_HOME/manage.py diffsettings > /tmp/$WARPDRIVE_TMP_MODULE.py
 
     cat > $WARPDRIVE_TMP_SCRIPT << !
 from __future__ import print_function
@@ -252,14 +276,14 @@ if 'STATIC_ROOT' not in globals():
 
     PYTHONPATH=$WARPDRIVE_APP_ROOT/tmp:$PYTHONPATH \
       DJANGO_SETTINGS_MODULE=$WARPDRIVE_TMP_MODULE \
-      python manage.py collectstatic --noinput
+      python $WARPDRIVE_APP_HOME/manage.py collectstatic --noinput
 
     rm $WARPDRIVE_APP_ROOT/tmp/$WARPDRIVE_TMP_MODULE.py*
 }
 
 if [ "$WARPDRIVE_DEPLOY_MODE" = "auto" -o "$WARPDRIVE_DEPLOY_MODE" = "django" ]; then
-    if [ -f manage.py ]; then
-        if grep -q DJANGO_SETTINGS_MODULE manage.py; then
+    if [ -f $WARPDRIVE_APP_HOME/manage.py ]; then
+        if grep -q DJANGO_SETTINGS_MODULE $WARPDRIVE_APP_HOME/manage.py; then
             echo " -----> Collecting static files for Django"
             django_collectstatic
         fi

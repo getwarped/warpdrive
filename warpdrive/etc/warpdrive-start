@@ -15,7 +15,9 @@ fi
 WARPDRIVE_ACTION=start
 export WARPDRIVE_ACTION
 
-# Make sure we are in the correct working directory for the application.
+# Make sure we are in the top level directory of the source code for
+# when performing the deploy steps. When later starting the application
+# we will use the home directory for the application, but not here.
 
 cd $WARPDRIVE_SRC_ROOT
 
@@ -58,6 +60,11 @@ if [ -x $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy ]; then
     echo " -----> Running $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy"
     $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy
 fi
+
+# Now change directory to the home directory for the application itself.
+# All checks are from this point done relative to that directory.
+
+cd $WARPDRIVE_APP_HOME
 
 # Determine the type of deployment, falling back to 'auto' if none is
 # defined. If 'auto', we will try and automatically determine how the
