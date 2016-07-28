@@ -23,13 +23,16 @@ echo "export WARPDRIVE_SRC_ROOT=$WARPDRIVE_SRC_ROOT"
 
 # Home directory of the application within the source code.
 
-if [[ "$WARPDRIVE_APP_HOME" != "/*" ]]; then
-    if [ x"$WARPDRIVE_APP_HOME" != x"" ]; then
-        WARPDRIVE_APP_HOME=$WARPDRIVE_SRC_ROOT/$WARPDRIVE_APP_HOME
-    else
+case "$WARPDRIVE_APP_HOME" in
+    "/*")
+        ;;
+    "")
         WARPDRIVE_APP_HOME=$WARPDRIVE_SRC_ROOT
-    fi
-fi
+        ;;
+    *)
+        WARPDRIVE_APP_HOME=$WARPDRIVE_SRC_ROOT/$WARPDRIVE_APP_HOME
+        ;;
+esac
 
 export WARPDRIVE_APP_HOME
 
