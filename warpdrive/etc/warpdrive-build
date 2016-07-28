@@ -147,11 +147,11 @@ for filename in $WARPDRIVE_PIP_PACKAGES; do
 done
 
 # We also install any application package if a 'setup.py' file is
-# present. This is installed in 'develop' mode so is linked into Python
-# installation. This allows for live source code updates in the
-# container still.
+# present but there is no 'requirements.txt' file. This is installed in
+# 'develop' mode so is linked into Python installation. This allows for
+# live source code updates in the container still.
 
-if [ -f setup.py ]; then
+if [ -f setup.py -a ! -f requirements.txt ]; then
     echo "---> Installing application from setup.py"
     python setup.py develop
 fi
