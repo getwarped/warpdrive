@@ -241,38 +241,37 @@ fi
 
 export PYTHONPATH
 
-# If we are automatically detect the server type and we find a Django
+# If we are automatically detecting the server type and we find a Django
 # application, trigger collection of static files if possible.
 
-function django_settings_module() {
-    WARPDRIVE_TMP_MODULE="project_settings_$$"
-    WARPDRIVE_TMP_SCRIPT="/tmp/settings_module_$$.py"
-
-    python $WARPDRIVE_APP_HOME/manage.py diffsettings > /tmp/$WARPDRIVE_TMP_MODULE.py
+function django_build_settings() {
+    WARPDRIVE_TMP_SCRIPT="/tmp/django_build_settings_$$.py"
+    WARPDRIVE_TMP_VALUES="/tmp/django_build_settings_$$.txt"
 
     cat > $WARPDRIVE_TMP_SCRIPT << !
-from __future__ import print_function
-import sys
-sys.path.insert(0, '/tmp')
-
-import $WARPDRIVE_TMP_MODULE as settings
-
-print(settings.SETTINGS_MODULE)
+from django.conf import settings
+with open('$WARPDRIVE_TMP_VALUES', 'w') as fp:
+    fp.write('WARPDRIVE_DJANGO_SETTINGS="%s"' % settings.SETTINGS_MODULE)
 !
 
-    python $WARPDRIVE_TMP_SCRIPT
+    (cat - | python $WARPDRIVE_APP_HOME/manage.py shell --plain > /dev/null) << !
+import runpy
+_ = runpy.run_path('$WARPDRIVE_TMP_SCRIPT')
+!
 
-    rm /tmp/$WARPDRIVE_TMP_MODULE.py*
+    cat $WARPDRIVE_TMP_VALUES
+
+    rm $WARPDRIVE_TMP_VALUES
     rm $WARPDRIVE_TMP_SCRIPT*
 }
 
 function django_collectstatic() {
-    WARPDRIVE_PROJECT_SETTINGS="$(django_settings_module)"
+    eval $(django_build_settings)
 
-    WARPDRIVE_TMP_MODULE="project_settings_$$"
+    WARPDRIVE_TMP_MODULE="django_settings_$$"
 
     cat > $WARPDRIVE_APP_ROOT/tmp/$WARPDRIVE_TMP_MODULE.py << !
-from $WARPDRIVE_PROJECT_SETTINGS import *
+from $WARPDRIVE_DJANGO_SETTINGS import *
 if 'STATIC_ROOT' not in globals():
     STATIC_ROOT = '$WARPDRIVE_APP_ROOT/tmp/django/static'
 !

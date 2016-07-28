@@ -130,29 +130,23 @@ function wsgi_module_path() {
     echo $WARPDRIVE_WSGI_FILE
 }
 
-function django_server_args() {
-    WARPDRIVE_TMP_MODULE="django_settings_$$"
-    WARPDRIVE_TMP_SCRIPT="/tmp/server_vars_$$.py"
-
-    python manage.py diffsettings > /tmp/$WARPDRIVE_TMP_MODULE.py
+function django_start_settings() {
+    WARPDRIVE_TMP_SCRIPT="/tmp/django_start_settings_$$.py"
+    WARPDRIVE_TMP_VALUES="/tmp/django_start_settings_$$.txt"
 
     cat > $WARPDRIVE_TMP_SCRIPT << !
-from __future__ import print_function
-import sys
-sys.path.insert(0, '/tmp')
-
-try:
-    import $WARPDRIVE_TMP_MODULE as settings
+from django.conf import settings
+with open('$WARPDRIVE_TMP_VALUES', 'w') as fp:
+    settings_module = getattr(settings, 'SETTINGS_MODULE')
     wsgi_application = getattr(settings, 'WSGI_APPLICATION')
     static_url = getattr(settings, 'STATIC_URL', '/static/')
     static_root = getattr(settings, 'STATIC_ROOT',
             '$WARPDRIVE_APP_ROOT/tmp/django/static')
-    entry_point = '.'.join(wsgi_application.split('.')[:2])
+    entry_point = '.'.join(wsgi_application.split('.')[:-1])
     callable_object = wsgi_application.split('.')[-1]
-except Exception:
-    pass
-else:
+
     variables = [
+        'DJANGO_SETTINGS_MODULE="%s"' % settings_module,
         'WARPDRIVE_WSGI_MODULE_NAME=%s' % entry_point,
         'WARPDRIVE_WSGI_CALLABLE_OBJECT=%s' % callable_object]
 
@@ -162,12 +156,17 @@ else:
     variables.append('WARPDRIVE_WSGI_STATIC_URL=%s' % static_url)
     variables.append('WARPDRIVE_WSGI_STATIC_ROOT=%s' % static_root)
 
-    print('\n'.join(variables))
+    fp.write('\n'.join(variables))
 !
 
-    python $WARPDRIVE_TMP_SCRIPT
+    (cat - | python manage.py shell --plain > /dev/null) << !
+import runpy
+_ = runpy.run_path('$WARPDRIVE_TMP_SCRIPT')
+!
 
-    rm /tmp/$WARPDRIVE_TMP_MODULE.py*
+    cat $WARPDRIVE_TMP_VALUES
+
+    rm $WARPDRIVE_TMP_VALUES
     rm $WARPDRIVE_TMP_SCRIPT*
 }
 
@@ -213,7 +212,8 @@ fi
 if [ "$WARPDRIVE_DEPLOY_MODE" = "django" -a -f manage.py ]; then
     if grep -q DJANGO_SETTINGS_MODULE manage.py; then
         WARPDRIVE_DEPLOY_MODE="wsgi"
-        eval "$(django_server_args)"
+        eval "$(django_start_settings)"
+        export DJANGO_SETTINGS_MODULE
     fi
 fi
 
@@ -235,15 +235,6 @@ if [ "$WARPDRIVE_DEPLOY_MODE" = "auto" -a -f $WARPDRIVE_PYTHON_FILE ]; then
     WARPDRIVE_SERVER_ARGS="$WARPDRIVE_PYTHON_FILE"
 fi
 
-# Now check whether there exists a 'wsgi.py' file in the top level
-# directory.
-
-if [ "$WARPDRIVE_DEPLOY_MODE" = "auto" ]; then
-    if [ "$(wsgi_module_path)" != "" ]; then
-        WARPDRIVE_DEPLOY_MODE="wsgi"
-    fi
-fi
-
 # Now check whether there exists a 'manage.py' file in the top level
 # directory. This can indicate we are running Django. Validate that it
 # is probably Django and then use 'manage.py' to determine the WSGI
@@ -252,7 +243,17 @@ fi
 if [ "$WARPDRIVE_DEPLOY_MODE" = "auto" -a -f manage.py ]; then
     if grep -q DJANGO_SETTINGS_MODULE manage.py; then
         WARPDRIVE_DEPLOY_MODE="wsgi"
-        eval $(django_server_args)
+        eval $(django_start_settings)
+        export DJANGO_SETTINGS_MODULE
+    fi
+fi
+
+# Now check whether there exists a 'wsgi.py' file in the top level
+# directory.
+
+if [ "$WARPDRIVE_DEPLOY_MODE" = "auto" ]; then
+    if [ "$(wsgi_module_path)" != "" ]; then
+        WARPDRIVE_DEPLOY_MODE="wsgi"
     fi
 fi
 
