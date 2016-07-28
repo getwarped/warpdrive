@@ -85,17 +85,21 @@ fi
 # Ensure that the source directory and application home directory are in
 # the Python module search path and that they are searched first.
 
-echo "export PYTHONPATH=$WARPDRIVE_SRC_ROOT:$PYTHONPATH"
+PYTHONPATH=$WARPDRIVE_SRC_ROOT:$PYTHONPATH
 
 if [ "$WARPDRIVE_APP_HOME" != "$WARPDRIVE_SRC_ROOT" ]; then
-    echo "export PYTHONPATH=$WARPDRIVE_APP_HOME:$PYTHONPATH"
+    PYTHONPATH=$WARPDRIVE_APP_HOME:$PYTHONPATH
 fi
+
+echo "export PYTHONPATH=$PYTHONPATH"
 
 # Add the bin directory for the Python virtual environment if it exists.
 
 if [ -f $WARPDRIVE_APP_ROOT/bin/activate ]; then
-    echo "export PATH=$WARPDRIVE_APP_ROOT/bin:$PATH"
+    PATH=$WARPDRIVE_APP_ROOT/bin:$PATH
 fi
+
+echo "export PATH=$PATH"
 
 # Now source '.warpdrive/environment' if it exists. And variables set in
 # the script will be automatically exported. It is possible to use
