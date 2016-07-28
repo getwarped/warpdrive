@@ -169,8 +169,8 @@ function server_args() {
 }
 
 function create_whitenoise_wrapper() {
-    mkdir -p $WARPDRIVE_APP_ROOT/tmp/django/modules
-    cat > $WARPDRIVE_APP_ROOT/tmp/django/modules/whitenoise_wrapper.py << !
+    mkdir -p $WARPDRIVE_APP_ROOT/tmp/modules
+    cat > $WARPDRIVE_APP_ROOT/tmp/modules/whitenoise_wrapper.py << !
 from whitenoise import WhiteNoise
 
 from $WARPDRIVE_WSGI_MODULE_NAME import $WARPDRIVE_WSGI_CALLABLE_OBJECT as _application
@@ -269,7 +269,7 @@ if [ "$WARPDRIVE_DEPLOY_MODE" = "wsgi" ]; then
             if [ "$WARPDRIVE_WSGI_STATIC_ROOT" != "" ]; then
                 create_whitenoise_wrapper
                 WARPDRIVE_WSGI_APPLICATION="whitenoise_wrapper:application"
-                PYTHONPATH="$PYTHONPATH:$WARPDRIVE_APP_ROOT/tmp/django/modules"
+                PYTHONPATH="$PYTHONPATH:$WARPDRIVE_APP_ROOT/tmp/modules"
                 export PYTHONPATH
             fi
         fi
@@ -307,7 +307,7 @@ if [ "$WARPDRIVE_DEPLOY_MODE" = "wsgi" ]; then
             if [ "$WARPDRIVE_WSGI_STATIC_ROOT" != "" ]; then
                 create_whitenoise_wrapper
                 WARPDRIVE_WSGI_APPLICATION="whitenoise_wrapper:application"
-                PYTHONPATH="$PYTHONPATH:$WARPDRIVE_APP_ROOT/tmp/django/modules"
+                PYTHONPATH="$PYTHONPATH:$WARPDRIVE_APP_ROOT/tmp/modules"
                 export PYTHONPATH
             fi
         fi
