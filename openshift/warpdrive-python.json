@@ -60,6 +60,10 @@
                                 "scripts": "https://raw.githubusercontent.com/GrahamDumpleton/warpdrive/master/s2i/bootstrap",
                                 "env" : [
                                     {
+                                        "name": "WARPDRIVE_APP_HOME",
+                                        "value": "${WARPDRIVE_APP_HOME}"
+                                    },
+                                    {
                                         "name": "WARPDRIVE_DEPLOY_MODE",
                                         "value": "${WARPDRIVE_DEPLOY_MODE}"
                                     },
@@ -229,9 +233,14 @@
                     "required": true
                 },
                 {
+                    "name": "WARPDRIVE_APP_HOME",
+                    "displayName": "Application Home",
+                    "description": "The name of the directory within your repository which contains your Python web application. If not specified, it is assumed it is located in the top directory of the repository."
+                },
+                {
                     "name": "ROUTE_HOSTNAME",
                     "displayName": "Hostname",
-                    "description": "Public hostname for the route. If not specified, a hostname is generated."
+                    "description": "Public hostname for your Python web application. If not specified, a hostname is generated."
                 },
                 {
                     "name": "WARPDRIVE_DEPLOY_MODE",
@@ -260,7 +269,7 @@
                 {
                     "name": "WARPDRIVE_WSGI_MODULE_NAME",
                     "displayName": "Application Module",
-                    "description": "The name of the Python module containing the WSGI application. Will be superseded by the name of any Python module installed by 'setup.py' if the specified application module doesn't exist. Required for deployment modes: wsgi, gunicorn, mod_wsgi, uwsgi, waitress.",
+                    "description": "The name of the Python module containing the WSGI application. Required for deployment modes: wsgi, gunicorn, mod_wsgi, uwsgi, waitress.",
                     "value": "wsgi"
                 },
                 {
@@ -353,6 +362,10 @@
                                 "scripts": "https://raw.githubusercontent.com/GrahamDumpleton/warpdrive/master/s2i/bootstrap",
                                 "env" : [
                                     {
+                                        "name": "WARPDRIVE_APP_HOME",
+                                        "value": "${WARPDRIVE_APP_HOME}"
+                                    },
+                                    {
                                         "name": "WARPDRIVE_DEPLOY_MODE",
                                         "value": "${WARPDRIVE_DEPLOY_MODE}"
                                     },
@@ -522,9 +535,14 @@
                     "required": true
                 },
                 {
+                    "name": "WARPDRIVE_APP_HOME",
+                    "displayName": "Application Home",
+                    "description": "The name of the directory within your repository which contains your Python web application. If not specified, it is assumed it is located in the top directory of the repository."
+                },
+                {
                     "name": "ROUTE_HOSTNAME",
                     "displayName": "Hostname",
-                    "description": "Public hostname for the route. If not specified, a hostname is generated."
+                    "description": "Public hostname for your Python web application. If not specified, a hostname is generated."
                 },
                 {
                     "name": "WARPDRIVE_DEPLOY_MODE",
@@ -553,7 +571,7 @@
                 {
                     "name": "WARPDRIVE_WSGI_MODULE_NAME",
                     "displayName": "Application Module",
-                    "description": "The name of the Python module containing the WSGI application. Will be superseded by the name of any Python module installed by 'setup.py' if the specified application module doesn't exist. Required for deployment modes: wsgi, gunicorn, mod_wsgi, uwsgi, waitress.",
+                    "description": "The name of the Python module containing the WSGI application. Required for deployment modes: wsgi, gunicorn, mod_wsgi, uwsgi, waitress.",
                     "value": "wsgi"
                 },
                 {
@@ -646,6 +664,10 @@
                                 "scripts": "https://raw.githubusercontent.com/GrahamDumpleton/warpdrive/master/s2i/bootstrap",
                                 "env" : [
                                     {
+                                        "name": "WARPDRIVE_APP_HOME",
+                                        "value": "${WARPDRIVE_APP_HOME}"
+                                    },
+                                    {
                                         "name": "WARPDRIVE_DEPLOY_MODE",
                                         "value": "${WARPDRIVE_DEPLOY_MODE}"
                                     },
@@ -815,9 +837,14 @@
                     "required": true
                 },
                 {
+                    "name": "WARPDRIVE_APP_HOME",
+                    "displayName": "Application Home",
+                    "description": "The name of the directory within your repository which contains your Python web application. If not specified, it is assumed it is located in the top directory of the repository."
+                },
+                {
                     "name": "ROUTE_HOSTNAME",
                     "displayName": "Hostname",
-                    "description": "Public hostname for the route. If not specified, a hostname is generated."
+                    "description": "Public hostname for your Python web application. If not specified, a hostname is generated."
                 },
                 {
                     "name": "WARPDRIVE_DEPLOY_MODE",
@@ -846,7 +873,7 @@
                 {
                     "name": "WARPDRIVE_WSGI_MODULE_NAME",
                     "displayName": "Application Module",
-                    "description": "The name of the Python module containing the WSGI application. Will be superseded by the name of any Python module installed by 'setup.py' if the specified application module doesn't exist. Required for deployment modes: wsgi, gunicorn, mod_wsgi, uwsgi, waitress.",
+                    "description": "The name of the Python module containing the WSGI application. Required for deployment modes: wsgi, gunicorn, mod_wsgi, uwsgi, waitress.",
                     "value": "wsgi"
                 },
                 {
