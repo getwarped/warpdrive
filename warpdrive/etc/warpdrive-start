@@ -257,16 +257,6 @@ if [ "$WARPDRIVE_DEPLOY_MODE" = "auto" ]; then
     fi
 fi
 
-# Now check whether there exists a 'setup.py' file in the top level
-# directory. This means we should have an application package installed.
-# In this case we we will use the name of the application package as the
-# module containing the WSGI application entry point.
-
-if [ "$WARPDRIVE_DEPLOY_MODE" = "auto" -a -f setup.py ]; then
-    WARPDRIVE_DEPLOY_MODE="wsgi"
-    WARPDRIVE_WSGI_MODULE_NAME="$(python setup.py --name)"
-fi
-
 # Setup server args when WSGI server is to be used.
 
 if [ "$WARPDRIVE_DEPLOY_MODE" = "wsgi" ]; then
