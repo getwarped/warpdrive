@@ -245,6 +245,19 @@ fi
 
 export PYTHONPATH
 
+# Run any user supplied script to run after installing any application
+# dependencies. This is to allow any application specific setup scripts
+# to be run. It is not possible for this script to change the
+# permissions so it is executable and then run it, due to some docker
+# bug which results in the text file being busy. For more details see:
+#
+#   https://github.com/docker/docker/issues/9547
+
+if [ -x ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/build ]; then
+    echo " -----> Running ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/build"
+    ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/build
+fi
+
 # If we are automatically detecting the server type and we find a Django
 # application, trigger collection of static files if possible.
 
@@ -296,19 +309,6 @@ if [ "$WARPDRIVE_DEPLOY_MODE" = "auto" -o "$WARPDRIVE_DEPLOY_MODE" = "django" ];
             django_collectstatic
         fi
     fi
-fi
-
-# Run any user supplied script to run after installing any application
-# dependencies. This is to allow any application specific setup scripts
-# to be run. It is not possible for this script to change the
-# permissions so it is executable and then run it, due to some docker
-# bug which results in the text file being busy. For more details see:
-#
-#   https://github.com/docker/docker/issues/9547
-
-if [ -x ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/build ]; then
-    echo " -----> Running ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/build"
-    ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/build
 fi
 
 # Clean up any temporary files, including the results of checking out
