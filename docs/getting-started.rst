@@ -101,10 +101,10 @@ To explain all these extra steps and how to set up a particular WSGI server
 is out of scope for this discussion, but then it isn't important anyway.
 This is because ``warpdrive`` will handle all that for you.
 
-Local development environment
------------------------------
+Packages and virtual environments
+---------------------------------
 
-In the prior step, one detail which was not covered was the step of
+In the prior instructions, one detail which was not covered was the step of
 actually installing Django. It was assumed that you had already installed
 it.
 
@@ -125,34 +125,68 @@ As your project grows this is where you would add new packages. Each time
 you add new packages you would need to rerun ``pip`` against the file to
 update your Python installation.
 
+Equally as important as being able to easily install packages is where you
+install them. As a general rule, it is a bad idea to install packages into
+you actual Python installation. Best practice is to always use a Python
+virtual environment.
+
+Using a distinct Python virtual environment for your application ensures
+you are able to install the actual versions of packages you need for that
+application. You do not have a problem of conflicting requirements arising
+from multiple applications sharing the same Python installation.
+
+On top of using ``pip`` you also need to be familiar with tools such as
+``virtualenv`` or ``pyvenv``.
+
+Working in a local environment
+------------------------------
+
 As you can already see, there are lots of little steps you need to start
 remembering and would have to replicate when it comes to deploying your
 web application to a production environment.
 
 This is where ``warpdrive`` can help out, as it knows how to run many of
-these tasks for you, and provides you with a simple interface to run them
-all at the necessary times.
-
-We now have our Django project that we created with the Django admin
-command ``startproject`` and we have the ``requirements.txt`` file.
+these tasks for you, or can at least capture the knowledge of what needs to
+be run, and provides you with a simple interface to run them all at the
+appropriate times.
 
 Lets now start over and see how you would use ``warpdrive`` to work on
 the same project.
 
-The first step is to get ``warpdrive`` installed. This should be into your
-main Python installation or any primary Python virtual environment you use
-to hold commonly used tools that are used in bootstraping further
-environments. To install ``warpdrive``, use ``pip``.
+The first step is to get ``warpdrive`` installed. To install ``warpdrive``,
+use ``pip``.
 
 ::
 
     pip install warpdrive
 
-Once you have done that, while in the Django project directory, run:
+This can be into your main Python installation, or you can create a
+dedicated Python virtual environment which contains only ``warpdrive``.
+
+Next we are going to add some extra lines to your login shell profile. If
+using ``bash`` you should add this to the end of ``~/.bash_profile``::
+
+    WARPDRIVE=$HOME/Python/warpdrive/bin/warpdrive
+    export WARPDRIVE
+
+    source `$WARPDRIVE rcfile`
+
+The ``WARPDRIVE`` variable should be set to where the ``warpdrive`` command
+was installed. In the case of using a Python virtual environment, there is
+no need to activate the Python virtual environment you installed
+``warpdrive`` into. What you are adding to the login shell profile will
+ensure that ``waprdrive`` always works without you needing to do that.
+
+That completes the once off initial installation of ``warpdrive``. Create
+a new shell so the updated login shell profile is picked up and you are
+good to go.
+
+To start out with ``warpdrive`` we first need to set up the project for
+your application. While in the Django project directory, now run:
 
 ::
 
-    eval "$(warprive activate mydjangosite)"
+    warpdrive project mydjangosite
 
 This should update your command prompt to include
 ``(warpdrive+mydjangosite)``. This is done so you know what environment
@@ -200,12 +234,44 @@ necessary run any special steps they require. If your web framework isn't
 supported, or you have your own custom steps, then ``warpdrive`` can be
 told about them and trigger them as part of the build as well.
 
-The application is now all ready to go, the next step is to initialise the
-database and perform any other required setup steps. This is done
-separately because it only needs to be done once and when you do it has to
-be coordinated with the creation of any database you may be using.
+One example of where you will want to capture such commands is those
+special steps we ran to initialise the database and create the initial
+super user. You could run these explicitly again, but it is better to
+capture them in a script and add it to your application source code. You
+can then have ``warpdrive`` run them for you, ensuring that the correct
+environment has been set up so that it will work.
 
-To perform any application setup, the ``warpdrive setup`` command is run.
+What we are going to therefore do is create what is called an action hook.
+These are executable programs which ``warpdrive`` will run when needed. For
+any special setup steps for the application or database we are going to
+add them to the file ``.warpdrive/action_hooks/setup``.
+
+::
+
+    #!/bin/bash
+
+    echo " -----> Running Django database migration"
+
+    python manage.py migrate
+
+    if [ x"$DJANGO_ADMIN_USERNAME" != x"" ];
+    then
+        echo " -----> Creating predefined Django super user"
+        (cat - | python manage.py shell) << !
+    from django.contrib.auth.models import User;
+    User.objects.create_superuser('$DJANGO_ADMIN_USERNAME',
+                                 '$DJANGO_ADMIN_EMAIL',
+                                 '$DJANGO_ADMIN_PASSWORD')
+    !
+    else
+        if (tty > /dev/null 2>&1); then
+            echo " -----> Running Django super user creation"
+            python manage.py createsuperuser
+        fi
+    fi
+
+Having created the script and made it executable, we now run the command
+``warpdrive setup``.
 
 ::
 
@@ -233,11 +299,6 @@ To perform any application setup, the ``warpdrive setup`` command is run.
     Password:
     Password (again):
     Superuser created successfully.
-
-As before, ``warpdrive`` knew that Django was being used and that special
-steps were required. It thus automatically ran the Django management
-commands to initialise the database and create an initial super user
-account.
 
 We can now startup the Django web application using ``warpdrive start``.
 
@@ -372,9 +433,23 @@ everything is all made up to date again in preparation for running
 ``warpdrive start`` again.
 
 If you make changes to database models that would necessitate a database
-migration, then a new command needs to be run. This is the ``warpdrive
-migrate`` command. This will run the Django management command ``migrate``
-as well as trigger any other steps that may be required on a migration.
+migration. As with setup of the application and database, we want to
+capture what is required for this as well so we don't have to remember
+every time. For any special steps related to database migration or
+otherwise migrating from one version of your application code to another,
+we are going to use the ``.warpdrive/action_hooks/migrate`` file.
+
+::
+
+    #!/bin/bash
+
+    echo " -----> Running Django database migration"
+
+    python manage.py migrate
+
+We can then run ``warpdrive migrate`` and not need to worry about the
+details of what needs to be run, or ensuring that the environment is setup
+correctly to run it as ``warpdrive`` will worry about it.
 
 ::
 
@@ -385,12 +460,10 @@ as well as trigger any other steps that may be required on a migration.
     Running migrations:
       No migrations to apply.
 
-You may be thinking that these commands just parallel what you would do
-if using Django management commands directly. That is true to a degree, but
-the benefit of using ``warpdrive`` is that you don't need to remember what
-the steps are, plus you can add in hook scripts for additional things that
-may need to be run at the ``build``, ``setup``, ``migrate`` and ``deploy``
-phases.
+Along with actions hooks for ``setup`` and ``migrate``, there are also
+others for ``build`` and ``deploy`` steps. These allow you to specify
+extra steps to be run when ``warpdrive build`` and ``warpdrive start``
+are being run.
 
 The ``warpdrive`` command therefore provides a higher level command which
 can be used to hide all the steps and ensure that they are reliably
@@ -399,7 +472,8 @@ performed every time they are required and in the required order.
 If not using Django but some other Python web framework, or even a simple
 WSGI ``hello world`` application, then how you use ``warpdrive`` is exactly
 the same. You therefore have only one set of commands to remember if using
-different Python web frameworks at different times.
+different Python web frameworks at different times as the special steps
+will be captured by the action hooks.
 
 Building an image for Docker
 ----------------------------
@@ -444,7 +518,9 @@ To create a Docker image, all you need to do is run ``warpdrive image``.
     ---> Fix permissions on application source
 
 This obviously requires you to have Docker installed locally, plus you will
-also need a program installed called Source to Image (S2I).
+also need a program installed called Source to Image (S2I_).
+
+.. _S2I: https://github.com/openshift/source-to-image
 
 The S2I program which does all the hard work, uses a special Docker base
 image which already incorporates ``warpdrive`` and all the required Python
@@ -477,7 +553,9 @@ Running the Docker image is then as simple as running ``docker run``.
 
 You can see that the same steps for running your Python web application are
 followed as when you were working in the local environment. This is because
-``warpdrive`` is being used inside of the container as well.
+``warpdrive`` is being used inside of the container as well. This ensures
+that how things were run on your local environment are as close as possible
+to the final deployment.
 
 As before we still need to initialise the database and setup everything for
 the application. Just like before ``warpdrive setup`` is used, but this
