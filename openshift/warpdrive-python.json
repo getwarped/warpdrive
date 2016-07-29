@@ -60,8 +60,8 @@
                                 "scripts": "https://raw.githubusercontent.com/GrahamDumpleton/warpdrive/master/s2i/bootstrap",
                                 "env" : [
                                     {
-                                        "name": "WARPDRIVE_APP_HOME",
-                                        "value": "${WARPDRIVE_APP_HOME}"
+                                        "name": "WARPDRIVE_PRJ_ROOT",
+                                        "value": "${WARPDRIVE_PRJ_ROOT}"
                                     },
                                     {
                                         "name": "WARPDRIVE_DEPLOY_MODE",
@@ -233,14 +233,14 @@
                     "required": true
                 },
                 {
-                    "name": "WARPDRIVE_APP_HOME",
-                    "displayName": "Application Home",
-                    "description": "The name of the directory within your repository which contains your Python web application. If not specified, it is assumed it is located in the top directory of the repository."
+                    "name": "ROUTE_HOSTNAME",
+                    "displayName": "Public Hostname",
+                    "description": "Public hostname for your Python web application. If not specified, a hostname is generated."
                 },
                 {
-                    "name": "ROUTE_HOSTNAME",
-                    "displayName": "Hostname",
-                    "description": "Public hostname for your Python web application. If not specified, a hostname is generated."
+                    "name": "WARPDRIVE_PRJ_ROOT",
+                    "displayName": "Project Root",
+                    "description": "The name of the directory within your repository which contains your Python web application. If not specified, it is assumed it is located in the top directory of the repository. This setting will be ignored if specified in the application source code."
                 },
                 {
                     "name": "WARPDRIVE_DEPLOY_MODE",
@@ -362,8 +362,8 @@
                                 "scripts": "https://raw.githubusercontent.com/GrahamDumpleton/warpdrive/master/s2i/bootstrap",
                                 "env" : [
                                     {
-                                        "name": "WARPDRIVE_APP_HOME",
-                                        "value": "${WARPDRIVE_APP_HOME}"
+                                        "name": "WARPDRIVE_PRJ_ROOT",
+                                        "value": "${WARPDRIVE_PRJ_ROOT}"
                                     },
                                     {
                                         "name": "WARPDRIVE_DEPLOY_MODE",
@@ -535,14 +535,14 @@
                     "required": true
                 },
                 {
-                    "name": "WARPDRIVE_APP_HOME",
-                    "displayName": "Application Home",
-                    "description": "The name of the directory within your repository which contains your Python web application. If not specified, it is assumed it is located in the top directory of the repository."
+                    "name": "ROUTE_HOSTNAME",
+                    "displayName": "Public Hostname",
+                    "description": "Public hostname for your Python web application. If not specified, a hostname is generated."
                 },
                 {
-                    "name": "ROUTE_HOSTNAME",
-                    "displayName": "Hostname",
-                    "description": "Public hostname for your Python web application. If not specified, a hostname is generated."
+                    "name": "WARPDRIVE_PRJ_ROOT",
+                    "displayName": "Project Root",
+                    "description": "The name of the directory within your repository which contains your Python web application. If not specified, it is assumed it is located in the top directory of the repository. This setting will be ignored if specified in the application source code."
                 },
                 {
                     "name": "WARPDRIVE_DEPLOY_MODE",
@@ -664,8 +664,8 @@
                                 "scripts": "https://raw.githubusercontent.com/GrahamDumpleton/warpdrive/master/s2i/bootstrap",
                                 "env" : [
                                     {
-                                        "name": "WARPDRIVE_APP_HOME",
-                                        "value": "${WARPDRIVE_APP_HOME}"
+                                        "name": "WARPDRIVE_PRJ_ROOT",
+                                        "value": "${WARPDRIVE_PRJ_ROOT}"
                                     },
                                     {
                                         "name": "WARPDRIVE_DEPLOY_MODE",
@@ -837,14 +837,14 @@
                     "required": true
                 },
                 {
-                    "name": "WARPDRIVE_APP_HOME",
-                    "displayName": "Application Home",
-                    "description": "The name of the directory within your repository which contains your Python web application. If not specified, it is assumed it is located in the top directory of the repository."
+                    "name": "ROUTE_HOSTNAME",
+                    "displayName": "Public Hostname",
+                    "description": "Public hostname for your Python web application. If not specified, a hostname is generated."
                 },
                 {
-                    "name": "ROUTE_HOSTNAME",
-                    "displayName": "Hostname",
-                    "description": "Public hostname for your Python web application. If not specified, a hostname is generated."
+                    "name": "WARPDRIVE_PRJ_ROOT",
+                    "displayName": "Project Root",
+                    "description": "The name of the directory within your repository which contains your Python web application. If not specified, it is assumed it is located in the top directory of the repository. This setting will be ignored if specified in the application source code."
                 },
                 {
                     "name": "WARPDRIVE_DEPLOY_MODE",
