@@ -2,6 +2,7 @@
 
 if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
     set -x
+    env
 fi
 
 set -eo pipefail
