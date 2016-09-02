@@ -2,7 +2,11 @@
 
 PYTHON_VERSION=`python -V 2>&1 | sed -e 's/Python //' -e 's/\.[0-9]*$//' -e 's/\.//'`
 
-WARPDRIVE_S2I_BUILDER=${WARPDRIVE_S2I_BUILDER:-grahamdumpleton/warp0-debian8-python$PYTHON_VERSION}
+WARPDRIVE_BUILDER_IMAGE=${WARPDRIVE_BUILDER_IMAGE:-grahamdumpleton/warp0-debian8-python$PYTHON_VERSION}
+
+if [ -f $WARPDRIVE_SRC_ROOT/.warpdrive/builder_image ]; then
+    WARPDRIVE_BUILDER_IMAGE=`cat $WARPDRIVE_SRC_ROOT/.warpdrive/builder_image`
+fi
 
 WARPDRIVE_IMAGE_NAME=
 WARPDRIVE_BUILD_TARGET=application
@@ -11,6 +15,13 @@ WARPDRIVE_PIP_NO_INDEX=
 
 while [ "$#" != "0" ]; do
     case "$1" in
+        --builder-image=*)
+            WARPDRIVE_BUILDER_IMAGE=`echo $1 | sed -e 's/--builder=//'`
+            ;;
+        --builder-image)
+            WARPDRIVE_BUILDER_IMAGE=$2
+            shift
+            ;;
         --build-target=*)
             WARPDRIVE_BUILD_TARGET=`echo $1 | sed -e 's/--build-target=//'`
             ;;
@@ -66,7 +77,7 @@ if [ "$WARPDRIVE_BUILD_TARGET" = "wheelhouse" ]; then
         WARPDRIVE_IMAGE_NAME=warpdrive-$WARPDRIVE_ENV_NAME-wheelhouse
     fi
 
-    s2i build $WARPDRIVE_TMP_FILES $WARPDRIVE_S2I_BUILDER $WARPDRIVE_IMAGE_NAME \
+    s2i build $WARPDRIVE_TMP_FILES $WARPDRIVE_BUILDER_IMAGE $WARPDRIVE_IMAGE_NAME \
         --env WARPDRIVE_DEBUG=$WARPDRIVE_DEBUG,WARPDRIVE_BUILD_TARGET=wheelhouse,WARPDRIVE_PIP_NO_INDEX=$WARPDRIVE_PIP_NO_INDEX \
         --incremental --loglevel=$WARPDRIVE_S2I_LOGLEVEL
 
@@ -76,7 +87,7 @@ else
         WARPDRIVE_IMAGE_NAME=warpdrive-$WARPDRIVE_ENV_NAME-application
     fi
 
-    s2i build $WARPDRIVE_TMP_FILES $WARPDRIVE_S2I_BUILDER \
+    s2i build $WARPDRIVE_TMP_FILES $WARPDRIVE_BUILDER_IMAGE \
         $WARPDRIVE_IMAGE_NAME --env WARPDRIVE_DEBUG=$WARPDRIVE_DEBUG \
         --loglevel=$WARPDRIVE_S2I_LOGLEVEL
 
