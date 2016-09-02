@@ -13,7 +13,9 @@ fi
 # arguments from the environment. We also allow extra server arguments
 # in the file '.warpdrive/server_args'.
 
-WARPDRIVE_SERVER_ARGS="--log-to-terminal --startup-log --port $WARPDRIVE_HTTP_PORT"
+WARPDRIVE_SERVER_ARGS="--server-root $WARPDRIVE_APP_ROOT/mod_wsgi"
+WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --log-to-terminal --startup-log"
+WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --port $WARPDRIVE_HTTP_PORT"
 
 if [ x"$MOD_WSGI_ACCESS_LOG" != x"" ]; then
     WARPDRIVE_SERVER_ARGS="$WARPDRIVE_SERVER_ARGS --access-log"
