@@ -173,6 +173,8 @@ EOF
     rm -f $WARPDRIVE_TMP_FILE
 fi
 
-echo " -----> Executing server command 'mod_wsgi-express start-server $WARPDRIVE_SERVER_ARGS $@'" 
+rm -f $WARPDRIVE_APP_ROOT/bin/apachectl
+ln -s $WARPDRIVE_APP_ROOT/mod_wsgi/apachectl $WARPDRIVE_APP_ROOT/bin/apachectl
 
+echo " -----> Executing server command 'mod_wsgi-express start-server $WARPDRIVE_SERVER_ARGS $@'" 
 exec warpdrive exec mod_wsgi-express start-server $WARPDRIVE_SERVER_ARGS "$@"
