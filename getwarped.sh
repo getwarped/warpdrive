@@ -68,7 +68,10 @@ virtualenv $APP_ROOT
 
 PATH=$APP_ROOT/bin:$PATH
 
-pip install --no-cache-dir -U pip
+PIP_NO_CACHE_DIR=off
+export PIP_NO_CACHE_DIR
+
+pip install -U pip
 
 find $APP_ROOT -type d -exec chmod g+ws {} \;
 
