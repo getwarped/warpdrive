@@ -1,0 +1,51 @@
+#!/bin/bash
+
+if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
+    set -x
+fi
+
+# Ensure that any failure within this script or a user provided script
+# causes this script to fail immediately. This eliminates the need to
+# check individual statuses for anything which is run and prematurely
+# exit. Note that the feature of bash to exit in this way isn't
+# foolproof. Ensure that you heed any advice in:
+#
+#   http://mywiki.wooledge.org/BashFAQ/105
+#   http://fvue.nl/wiki/Bash:_Error_handling
+#
+# and use best practices to ensure that failures are always detected.
+# Any user supplied scripts should also use this failure mode.
+
+set -eo pipefail
+
+# Setup the environment if not already done.
+
+if [ x"$WARPDRIVE_ACTION" = x"" ]; then
+    eval "$(warpdrive env)"
+fi
+
+WARPDRIVE_ACTION=alive
+export WARPDRIVE_ACTION
+
+# Make sure we are in the correct working directory for the application.
+
+cd $WARPDRIVE_SRC_ROOT
+
+# Run any user supplied script to be run prior to starting the
+# application in the actual container. The script must be executable in
+# order to be run. It is not possible for this script to change the
+# permissions so it is executable and then run it, due to some docker
+# bug which results in the text file being busy. For more details see:
+#
+#   https://github.com/docker/docker/issues/9547
+
+if [ -f .warpdrive/action_hooks/alive ]; then
+    if [ ! -x .warpdrive/action_hooks/alive ]; then
+        echo "WARNING: Script .warpdrive/action_hooks/alive not executable."
+    fi
+fi
+
+if [ -x .warpdrive/action_hooks/alive ]; then
+    echo " -----> Running .warpdrive/action_hooks/alive"
+    .warpdrive/action_hooks/alive
+fi
