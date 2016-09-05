@@ -111,13 +111,19 @@ if [ -x ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/pre-build ]; then
     ${WARPDRIVE_SRC_ROOT}/.warpdrive/action_hooks/pre-build
 fi
 
-# Now source '.warpdrive/environment' if it exists. And variables set in
-# the script will be automatically exported. It is possible to use
-# script logic as well but temporary variables would need to be cleaned
-# up manually due to variables set being automatically exported.
+# Now source environment variables. First evaluate common environment
+# variables from '.warpdrive/environment' if it exists. Then source
+# variables from '.warpdrive/action_hooks/build-env' if it exists. Any
+# variables set in either script will be automatically exported. It is
+# possible to use script logic, but temporary variables would need to be
+# cleaned up manually due to variables set being automatically exported.
 
 if [ -f $WARPDRIVE_SRC_ROOT/.warpdrive/environment ]; then
     set -a; . $WARPDRIVE_SRC_ROOT/.warpdrive/environment; set +a
+fi
+
+if [ -f $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/build-env ]; then
+    set -a; . $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/build-env; set +a
 fi
 
 # Now run 'pip' to install any required Python packages based on the
