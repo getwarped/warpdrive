@@ -43,7 +43,7 @@ esac
 
 PACKAGE=https://codeload.github.com/GrahamDumpleton/warpdrive/tar.gz/$VERSION
 
-curl -SL -o /tmp/warpdrive.tar.gz $PACKAGE \
+curl -SL --fail -o /tmp/warpdrive.tar.gz $PACKAGE \
   && tar -xC $APP_ROOT  --strip-components=1 -f /tmp/warpdrive.tar.gz \
     warpdrive-$VERSION/warpdrive warpdrive-$VERSION/s2i \
   && rm -f /tmp/warpdrive.tar.gz
