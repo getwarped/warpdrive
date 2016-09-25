@@ -21,26 +21,26 @@ export WARPDRIVE_SRC_ROOT
 
 echo "export WARPDRIVE_SRC_ROOT=$WARPDRIVE_SRC_ROOT"
 
-# Home directory of the project within the source code.
+# Home directory of the application within the source code.
 
-if [ -f ${WARPDRIVE_SRC_ROOT}/.warpdrive/project_root ]; then
-    WARPDRIVE_PRJ_ROOT="`cat ${WARPDRIVE_SRC_ROOT}/.warpdrive/project_root`"
+if [ -f ${WARPDRIVE_SRC_ROOT}/.warpdrive/home ]; then
+    WARPDRIVE_APP_HOME="`cat ${WARPDRIVE_SRC_ROOT}/.warpdrive/home`"
 fi
 
-case "$WARPDRIVE_PRJ_ROOT" in
+case "$WARPDRIVE_APP_HOME" in
     /*)
         ;;
     "")
-        WARPDRIVE_PRJ_ROOT=$WARPDRIVE_SRC_ROOT
+        WARPDRIVE_APP_HOME=$WARPDRIVE_SRC_ROOT
         ;;
     *)
-        WARPDRIVE_PRJ_ROOT=$WARPDRIVE_SRC_ROOT/$WARPDRIVE_PRJ_ROOT
+        WARPDRIVE_APP_HOME=$WARPDRIVE_SRC_ROOT/$WARPDRIVE_APP_HOME
         ;;
 esac
 
-export WARPDRIVE_PRJ_ROOT
+export WARPDRIVE_APP_HOME
 
-echo "export WARPDRIVE_PRJ_ROOT=$WARPDRIVE_PRJ_ROOT"
+echo "export WARPDRIVE_APP_HOME=$WARPDRIVE_APP_HOME"
 
 # Set the default listener port for the web application server.
 
@@ -86,13 +86,13 @@ if [ "$NSS_WRAPPER_LIBRARY" != "" ]; then
     fi
 fi
 
-# Ensure that the source directory and project home directory are in
-# the Python module search path and that they are searched first.
+# Ensure that the source directory and application home directory are
+# in the Python module search path and that they are searched first.
 
 PYTHONPATH=$WARPDRIVE_SRC_ROOT:$PYTHONPATH
 
-if [ "$WARPDRIVE_PRJ_ROOT" != "$WARPDRIVE_SRC_ROOT" ]; then
-    PYTHONPATH=$WARPDRIVE_PRJ_ROOT:$PYTHONPATH
+if [ "$WARPDRIVE_APP_HOME" != "$WARPDRIVE_SRC_ROOT" ]; then
+    PYTHONPATH=$WARPDRIVE_APP_HOME:$PYTHONPATH
 fi
 
 echo "export PYTHONPATH=$PYTHONPATH"

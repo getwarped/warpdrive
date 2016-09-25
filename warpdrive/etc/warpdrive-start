@@ -61,10 +61,10 @@ if [ -x $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy ]; then
     $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy
 fi
 
-# Now change directory to the project directory for the application
-# itself. All checks are from this point done relative to this directory.
+# Now change directory to the application home directory. All checks are
+# from this point done relative to this directory.
 
-cd $WARPDRIVE_PRJ_ROOT
+cd $WARPDRIVE_APP_HOME
 
 # Determine the type of deployment, falling back to 'auto' if none is
 # defined. If 'auto', we will try and automatically determine how the

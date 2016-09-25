@@ -53,25 +53,25 @@ WARPDRIVE_SRC_ROOT=${WARPDRIVE_SRC_ROOT:-$WARPDRIVE_APP_ROOT/src}
 
 export WARPDRIVE_SRC_ROOT
 
-# Home directory of the project within the source code.
+# Home directory of the application within the source code.
 
-if [ -f ${WARPDRIVE_SRC_ROOT}/.warpdrive/project_root ]; then
-    WARPDRIVE_PRJ_ROOT="`cat ${WARPDRIVE_SRC_ROOT}/.warpdrive/project_root`"
+if [ -f ${WARPDRIVE_SRC_ROOT}/.warpdrive/home ]; then
+    WARPDRIVE_APP_HOME="`cat ${WARPDRIVE_SRC_ROOT}/.warpdrive/home`"
 fi
 
-case "$WARPDRIVE_PRJ_ROOT" in
+case "$WARPDRIVE_APP_HOME" in
     /*)
         ;;
     "")
-        WARPDRIVE_PRJ_ROOT=$WARPDRIVE_SRC_ROOT
+        WARPDRIVE_APP_HOME=$WARPDRIVE_SRC_ROOT
         ;;
     *)
-        WARPDRIVE_PRJ_ROOT=$WARPDRIVE_SRC_ROOT/$WARPDRIVE_PRJ_ROOT
-        echo " -----> Using project home directory $WARPDRIVE_PRJ_ROOT."
+        WARPDRIVE_APP_HOME=$WARPDRIVE_SRC_ROOT/$WARPDRIVE_APP_HOME
+        echo " -----> Using application home directory $WARPDRIVE_APP_HOME."
         ;;
 esac
 
-export WARPDRIVE_PRJ_ROOT
+export WARPDRIVE_APP_HOME
 
 # Create directories for temporary files and persistent data.
 
@@ -240,13 +240,13 @@ if [ "$WARPDRIVE_SERVER_TYPE" = "waitress" ]; then
     fi
 fi
 
-# Ensure that the source directory and project home directory are in
-# the Python module search path and that they are searched first.
+# Ensure that the source directory and application home directory are
+# in the Python module search path and that they are searched first.
 
 PYTHONPATH=$WARPDRIVE_SRC_ROOT:$PYTHONPATH
 
-if [ "$WARPDRIVE_PRJ_ROOT" != "$WARPDRIVE_SRC_ROOT" ]; then
-    PYTHONPATH=$WARPDRIVE_PRJ_ROOT:$PYTHONPATH
+if [ "$WARPDRIVE_APP_HOME" != "$WARPDRIVE_SRC_ROOT" ]; then
+    PYTHONPATH=$WARPDRIVE_APP_HOME:$PYTHONPATH
 fi
 
 export PYTHONPATH
@@ -277,7 +277,7 @@ with open('$WARPDRIVE_TMP_VALUES', 'w') as fp:
     fp.write('WARPDRIVE_DJANGO_SETTINGS="%s"' % settings.SETTINGS_MODULE)
 !
 
-    (cat - | python $WARPDRIVE_PRJ_ROOT/manage.py shell --plain > /dev/null) << !
+    (cat - | python $WARPDRIVE_APP_HOME/manage.py shell --plain > /dev/null) << !
 import runpy
 _ = runpy.run_path('$WARPDRIVE_TMP_SCRIPT')
 !
@@ -303,14 +303,14 @@ if 'STATIC_ROOT' not in globals():
 
     PYTHONPATH=$WARPDRIVE_APP_ROOT/tmp:$PYTHONPATH \
       DJANGO_SETTINGS_MODULE=$WARPDRIVE_TMP_MODULE \
-      python $WARPDRIVE_PRJ_ROOT/manage.py collectstatic --noinput
+      python $WARPDRIVE_APP_HOME/manage.py collectstatic --noinput
 
     rm $WARPDRIVE_APP_ROOT/tmp/$WARPDRIVE_TMP_MODULE.py*
 }
 
 if [ "$WARPDRIVE_DEPLOY_MODE" = "auto" -o "$WARPDRIVE_DEPLOY_MODE" = "django" ]; then
-    if [ -f $WARPDRIVE_PRJ_ROOT/manage.py ]; then
-        if grep -q DJANGO_SETTINGS_MODULE $WARPDRIVE_PRJ_ROOT/manage.py; then
+    if [ -f $WARPDRIVE_APP_HOME/manage.py ]; then
+        if grep -q DJANGO_SETTINGS_MODULE $WARPDRIVE_APP_HOME/manage.py; then
             echo " -----> Collecting static files for Django"
             django_collectstatic
         fi
