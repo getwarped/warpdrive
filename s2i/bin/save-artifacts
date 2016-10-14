@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# Root directory for the runtime environment of the application.
+
+WARPDRIVE_APP_ROOT=/opt/app-root
+
+# Check for any 'save-artifacts' script which may have been added into
+# the image by an initial S2I build with the resulting image being used
+# as a new S2I builder. When one exists we execute it, with it
+# overriding this script.
+
+if [ -x $WARPDRIVE_APP_ROOT/.s2i/bin/save-artifacts ]; then
+    exec $WARPDRIVE_APP_ROOT/.s2i/bin/save-artifacts
+fi
+
 # If there was a wheelhouse directory then output it as saved artifacts.
 
 if [ -d /opt/app-root/src/.warpdrive/wheelhouse ]; then

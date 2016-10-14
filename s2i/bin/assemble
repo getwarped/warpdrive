@@ -10,6 +10,15 @@ set -eo pipefail
 
 WARPDRIVE_APP_ROOT=/opt/app-root
 
+# Check for any 'assemble' script which may have been added into the
+# image by an initial S2I build with the resulting image being used as a
+# new S2I builder. When one exists we execute it, with it overriding
+# this script.
+
+if [ -x $WARPDRIVE_APP_ROOT/.s2i/bin/assemble ]; then
+    exec $WARPDRIVE_APP_ROOT/.s2i/bin/assemble
+fi
+
 # Root directory for the source code of the application.
 
 WARPDRIVE_SRC_ROOT=$WARPDRIVE_APP_ROOT/src

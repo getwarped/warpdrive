@@ -6,6 +6,19 @@ fi
 
 set -eo pipefail
 
+# Root directory for the runtime environment of the application.
+
+WARPDRIVE_APP_ROOT=/opt/app-root
+
+# Check for any 'run' script which may have been added into the image by
+# an initial S2I build with the resulting image being used as a new S2I
+# builder. When one exists we execute it, with it overriding this
+# script.
+
+if [ -x $WARPDRIVE_APP_ROOT/.s2i/bin/run ]; then
+    exec $WARPDRIVE_APP_ROOT/.s2i/bin/run
+fi
+
 # Trigger warpdrive to start the application. We need to make sure we do
 # this using exec so that process ID '1' is inherited if we were started
 # up as process ID '1' in the Docker container.
