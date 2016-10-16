@@ -9,8 +9,13 @@ WARPDRIVE_APP_ROOT=/opt/app-root
 # as a new S2I builder. When one exists we execute it, with it
 # overriding this script.
 
-if [ -x $WARPDRIVE_APP_ROOT/.s2i/bin/save-artifacts ]; then
-    exec $WARPDRIVE_APP_ROOT/.s2i/bin/save-artifacts
+if [ x"$WARPDRIVE_S2I_PHASE" = x"" ]; then
+    WARPDRIVE_S2I_PHASE=save-artifacts
+    export WARPDRIVE_S2I_PHASE
+
+    if [ -x $WARPDRIVE_APP_ROOT/.s2i/bin/save-artifacts ]; then
+        exec $WARPDRIVE_APP_ROOT/.s2i/bin/save-artifacts
+    fi
 fi
 
 # If there was a wheelhouse directory then output it as saved artifacts.

@@ -15,8 +15,13 @@ WARPDRIVE_APP_ROOT=/opt/app-root
 # builder. When one exists we execute it, with it overriding this
 # script.
 
-if [ -x $WARPDRIVE_APP_ROOT/.s2i/bin/run ]; then
-    exec $WARPDRIVE_APP_ROOT/.s2i/bin/run
+if [ x"$WARPDRIVE_S2I_PHASE" = x"" ]; then
+    WARPDRIVE_S2I_PHASE=run
+    export WARPDRIVE_S2I_PHASE
+
+    if [ -x $WARPDRIVE_APP_ROOT/.s2i/bin/run ]; then
+        exec $WARPDRIVE_APP_ROOT/.s2i/bin/run
+    fi
 fi
 
 # Trigger warpdrive to start the application. We need to make sure we do

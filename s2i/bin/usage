@@ -11,8 +11,13 @@ WARPDRIVE_APP_ROOT=/opt/app-root
 # S2I builder. When one exists we execute it, with it overriding this
 # script.
 
-if [ -x $WARPDRIVE_APP_ROOT/.s2i/bin/usage ]; then
-    exec $WARPDRIVE_APP_ROOT/.s2i/bin/usage
+if [ x"$WARPDRIVE_S2I_PHASE" = x"" ]; then
+    WARPDRIVE_S2I_PHASE=usage
+    export WARPDRIVE_S2I_PHASE
+
+    if [ -x $WARPDRIVE_APP_ROOT/.s2i/bin/usage ]; then
+        exec $WARPDRIVE_APP_ROOT/.s2i/bin/usage
+    fi
 fi
 
 # Output usage.
