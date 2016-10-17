@@ -5,7 +5,13 @@ if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
 fi
 
 if [ -x /usr/local/s2i/bin/save-artifacts ]; then
+    WARPDRIVE_S2I_ROOT=/usr/local/s2i
+    export WARPDRIVE_S2I_ROOT
+
     exec /usr/local/s2i/bin/save-artifacts
 fi
+
+WARPDRIVE_S2I_ROOT=/opt/app-root/s2i
+export WARPDRIVE_S2I_ROOT
 
 exec /opt/app-root/s2i/bin/save-artifacts

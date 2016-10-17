@@ -6,10 +6,16 @@ if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
 fi
 
 if [ -x /usr/local/s2i/bin/assemble ]; then
+    WARPDRIVE_S2I_ROOT=/usr/local/s2i
+    export WARPDRIVE_S2I_ROOT
+
     exec /usr/local/s2i/bin/assemble
 fi
 
 if [ -x /opt/app-root/s2i/bin/assemble ]; then
+    WARPDRIVE_S2I_ROOT=/opt/app-root/s2i
+    export WARPDRIVE_S2I_ROOT
+
     exec /opt/app-root/s2i/bin/assemble
 fi
 
@@ -23,5 +29,8 @@ if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
 else
     sh /opt/app-root/getwarped.sh --version $WARPDRIVE_VERSION
 fi
+
+WARPDRIVE_S2I_ROOT=/opt/app-root/s2i
+export WARPDRIVE_S2I_ROOT
 
 exec /opt/app-root/s2i/bin/assemble
