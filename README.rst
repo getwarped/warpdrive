@@ -34,6 +34,13 @@ will be overridden. To load these templates use the command::
 
     oc create -f https://raw.githubusercontent.com/GrahamDumpleton/warpdrive/master/openshift/warpdrive-python.json
 
+This will create the following templates in OpenShift::
+
+    warpdrive-python27
+    warpdrive-python33
+    warpdrive-python34
+    warpdrive-python35
+
 .. _`Source-to-Image`: https://github.com/openshift/source-to-image
 .. _`warp0-debian8-python`: https://github.com/GrahamDumpleton/warp0-debian8-python
 .. _`warp0-centos7-python`: https://github.com/GrahamDumpleton/warp0-centos7-python
