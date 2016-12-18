@@ -27,6 +27,13 @@ see:
   * `warp0-debian8-python`_
   * `warp0-centos7-python`_
 
+If you would like to try ``warpdrive`` with OpenShift, but would like to
+use the default OpenShift Python images as a base, templates are provided
+which use the standard Python images, but where the existing S2I scripts
+will be overridden. To load these templates use the command::
+
+    oc create -f https://raw.githubusercontent.com/GrahamDumpleton/warpdrive/master/openshift/warpdrive-python.json
+
 .. _`Source-to-Image`: https://github.com/openshift/source-to-image
 .. _`warp0-debian8-python`: https://github.com/GrahamDumpleton/warp0-debian8-python
 .. _`warp0-centos7-python`: https://github.com/GrahamDumpleton/warp0-centos7-python
