@@ -88,4 +88,4 @@ fi
 
 echo "---> Fix permissions on application source"
 
-chmod -Rf g+w $WARPDRIVE_SRC_ROOT || true
+chmod -Rf g+w $WARPDRIVE_APP_ROOT || true
