@@ -81,8 +81,8 @@ fi
 
 if [ $WARPDRIVE_USER_ID != 0 -a $WARPDRIVE_USER_ID != $WARPDRIVE_BUILDER_ID ]; then
     if [ ! -f $NSS_WRAPPER_PASSWD ]; then
-        cat /etc/passwd | sed -e 's/^default:/builder:/' > $NSS_WRAPPER_PASSWD
-        echo "default:x:$WARPDRIVE_USER_ID:0:Warp Drive,,,:$HOME:/bin/bash" >> $NSS_WRAPPER_PASSWD
+        cat /etc/passwd | sed -e 's/^.*:x:$WARPDRIVE_BUILDER_ID:0:/warpfield:x:$WARPDRIVE_BUILDER_ID:0:/' > $NSS_WRAPPER_PASSWD
+        echo "warpdrive:x:$WARPDRIVE_USER_ID:0:Warp Drive,,,:$HOME:/bin/bash" >> $NSS_WRAPPER_PASSWD
         NSS_WRAPPER_PASSWD_UPDATE=1
     fi
 fi
