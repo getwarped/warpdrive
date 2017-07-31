@@ -73,10 +73,20 @@ esac
 
 export WARPDRIVE_APP_HOME
 
-# Create directories for temporary files and persistent data.
+# Create directories for temporary files and persistent data. If we
+# are running as non root user but in root group, assume we also need
+# to make the directories writable to group.
 
 mkdir -p $WARPDRIVE_APP_ROOT/tmp
 mkdir -p $WARPDRIVE_APP_ROOT/data
+
+WARPDRIVE_USER_ID=$(id -u)
+WARPDRIVE_GROUP_ID=$(id -g)
+
+if [ "$WARPDRIVE_USER_ID" != "0" -a "$WARPDRIVE_GROUP_ID" = "0" ]; then
+    chmod g+w $WARPDRIVE_APP_ROOT/tmp
+    chmod g+w $WARPDRIVE_APP_ROOT/data
+fi
 
 # Make sure we are in the top level directory of the source code for
 # when performing the build steps. When later starting the application
