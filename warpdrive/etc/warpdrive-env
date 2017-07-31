@@ -52,16 +52,24 @@ echo "export WARPDRIVE_HTTP_PORT=$WARPDRIVE_HTTP_PORT"
 # Override uid and gid lookup to cope with being randomly assigned IDs
 # using the -u option to 'docker run'.
 #
-# For now we base whether we can run this or not on the existence of
-# libnss_wrapper.so file. This really needs to simple be gated on whether
-# running inside of Docker which is where it needs to be done.
+# For now we base whether we can run this on whether /etc/passwd is writable
+# as non root user, or on the existence of the libnss_wrapper.so file.
+# This really should be gated on whether running inside of Docker which
+# is where it needs to be done.
+
+running_in_docker() {
+    awk -F/ '$2 == "docker"' /proc/self/cgroup | read
+}
 
 WARPDRIVE_USER_ID=$(id -u)
+WARPDRIVE_BUILDER_ID=${WARPDRIVE_BUILDER_ID:-1001}
 
 NSS_WRAPPER_PASSWD=$WARPDRIVE_APP_ROOT/tmp/passwd
 NSS_WRAPPER_GROUP=/etc/group
 
 NSS_WRAPPER_LIBRARY=
+
+NSS_WRAPPER_PASSWD_UPDATE=
 
 if [ -f /usr/local/nss_wrapper/lib64/libnss_wrapper.so ]; then
     NSS_WRAPPER_LIBRARY=/usr/local/nss_wrapper/lib64/libnss_wrapper.so
@@ -71,14 +79,18 @@ else
     fi
 fi
 
-if [ "$NSS_WRAPPER_LIBRARY" != "" ]; then
-    if [ x"$WARPDRIVE_USER_ID" != x"0" -a x"$WARPDRIVE_USER_ID" != x"1001" ]; then
-        if [ ! -f $NSS_WRAPPER_PASSWD ]; then
-            cat /etc/passwd | sed -e 's/^default:/builder:/' > $NSS_WRAPPER_PASSWD
+if [ $WARPDRIVE_USER_ID != 0 -a $WARPDRIVE_USER_ID != $WARPDRIVE_BUILDER_ID ]; then
+    if [ ! -f $NSS_WRAPPER_PASSWD ]; then
+        cat /etc/passwd | sed -e 's/^default:/builder:/' > $NSS_WRAPPER_PASSWD
+        echo "default:x:$WARPDRIVE_USER_ID:0:Warp Drive,,,:$HOME:/bin/bash" >> $NSS_WRAPPER_PASSWD
+        NSS_WRAPPER_PASSWD_UPDATE=1
+    fi
+fi
 
-            echo "default:x:$WARPDRIVE_USER_ID:0:Warp Drive,,,:$HOME:/bin/bash" >> $NSS_WRAPPER_PASSWD
-        fi
-
+if [ x"$NSS_WRAPPER_PASSWD_UPDATE" != x"" -a -w /etc/passwd ]; then
+    cat $NSS_WRAPPER_PASSWD > /etc/passwd
+else
+    if [ "$NSS_WRAPPER_LIBRARY" != "" ]; then
         echo "export NSS_WRAPPER_PASSWD=$NSS_WRAPPER_PASSWD"
         echo "export NSS_WRAPPER_GROUP=$NSS_WRAPPER_GROUP"
 
