@@ -1,13 +1,33 @@
 function warpdrive() {
     case $1 in
         project)
+            shift
+
+            WARPDRIVE_ACTIVATE_ARGS=""
+
             WARPDRIVE_VIRTUALENVS=${WARPDRIVE_VIRTUALENVS:-$HOME/.warpdrive}
 
-            if [ "$#" = "1" ]; then
-                WARPDRIVE_ENV_NAME="default"
-            else
-                WARPDRIVE_ENV_NAME="$2"
-            fi
+            WARPDRIVE_ENV_NAME="default"
+
+            while [ "$#" != "0" ]; do
+                case "$1" in
+                    --python=*)
+                        WARPDRIVE_PYTHON_BINARY=`echo $1 | sed -e 's/--python=//'`
+                        WARPDRIVE_ACTIVATE_ARGS="$WARPDRIVE_ACTIVATE_ARGS --python=$WARPDRIVE_PYTHON_BINARY"
+                        ;;
+                    --python)
+                        WARPDRIVE_PYTHON_BINARY=$2
+                        WARPDRIVE_ACTIVATE_ARGS="$WARPDRIVE_ACTIVATE_ARGS --python=$WARPDRIVE_PYTHON_BINARY"
+                        shift
+                        ;;
+
+                    *)
+                        WARPDRIVE_ENV_NAME=$1
+                        ;;
+                esac
+
+                shift
+            done
 
             WARPDRIVE_VENV_DIR="$WARPDRIVE_VIRTUALENVS/warpdrive+$WARPDRIVE_ENV_NAME"
 
@@ -17,7 +37,7 @@ function warpdrive() {
                 echo "Initializing warpdrive project '$WARPDRIVE_ENV_NAME'."
             fi
 
-            eval "$($WARPDRIVE activate $2)"
+            eval "$($WARPDRIVE activate $WARPDRIVE_ENV_NAME $WARPDRIVE_ACTIVATE_ARGS)"
 
             ;;
 

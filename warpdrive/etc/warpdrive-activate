@@ -11,16 +11,34 @@ test ! -d $WARPDRIVE_VIRTUALENVS && mkdir $WARPDRIVE_VIRTUALENVS
 # be activated. Does it already exist? If it doesn't exist then we
 # need to create it and initialise it with base packages.
 
-if [ "$#" = "0" ]; then
-    WARPDRIVE_ENV_NAME="default"
-else
-    WARPDRIVE_ENV_NAME="$1"
-fi
+WARPDRIVE_VIRTUALENV_ARGS=""
+
+WARPDRIVE_ENV_NAME="default"
+
+while [ "$#" != "0" ]; do
+    case "$1" in
+        --python=*)
+            WARPDRIVE_PYTHON_BINARY=`echo $1 | sed -e 's/--python=//'`
+            WARPDRIVE_VIRTUALENV_ARGS="$WARPDRIVE_VIRTUALENV_ARGS --python=$WARPDRIVE_PYTHON_BINARY"
+            ;;
+        --python)
+            WARPDRIVE_PYTHON_BINARY=$2
+            WARPDRIVE_VIRTUALENV_ARGS="$WARPDRIVE_VIRTUALENV_ARGS --python=$WARPDRIVE_PYTHON_BINARY"
+            shift
+            ;;
+
+        *)
+            WARPDRIVE_ENV_NAME=$1
+            ;;
+    esac
+
+    shift
+done
 
 WARPDRIVE_VENV_DIR="$WARPDRIVE_VIRTUALENVS/warpdrive+$WARPDRIVE_ENV_NAME"
 
 create_environment() {
-    virtualenv $WARPDRIVE_VENV_DIR
+    virtualenv $WARPDRIVE_VIRTUALENV_ARGS $WARPDRIVE_VENV_DIR
 
     source $WARPDRIVE_VENV_DIR/bin/activate
 
