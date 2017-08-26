@@ -64,12 +64,12 @@ chmod +x $APP_ROOT/bin/warpdrive
 PIP_DISABLE_PIP_VERSION_CHECK=1
 export PIP_DISABLE_PIP_VERSION_CHECK
 
+PIP_NO_CACHE_DIR=off
+export PIP_NO_CACHE_DIR
+
 virtualenv $APP_ROOT
 
 PATH=$APP_ROOT/bin:$PATH
-
-PIP_NO_CACHE_DIR=off
-export PIP_NO_CACHE_DIR
 
 pip install -U pip
 
