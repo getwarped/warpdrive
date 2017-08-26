@@ -73,10 +73,7 @@ PATH=$APP_ROOT/bin:$PATH
 
 pip install -U pip
 
-find $APP_ROOT -type d -exec chmod g+ws {} \;
-
-find $APP_ROOT -perm 2755 -exec chmod g+w {} \;
-find $APP_ROOT -perm 0644 -exec chmod g+w {} \;
+warpdrive fixup .
 
 if [ -f $APP_ROOT/etc/scl_enable ]; then
     echo ". $APP_ROOT/warpdrive/etc/shell-init" >> $APP_ROOT/etc/scl_enable
