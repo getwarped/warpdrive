@@ -51,8 +51,8 @@ curl -SL --fail -o /tmp/warpdrive.tar.gz $PACKAGE \
 mkdir -p $APP_ROOT/bin
 mkdir -p $APP_ROOT/tmp
 
-chmod g+ws $APP_ROOT/bin
-chmod g+ws $APP_ROOT/tmp
+chmod g+w $APP_ROOT/bin
+chmod g+w $APP_ROOT/tmp
 
 cat >> $APP_ROOT/bin/warpdrive << !
 #!/bin/sh
