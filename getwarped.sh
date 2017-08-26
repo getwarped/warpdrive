@@ -73,7 +73,7 @@ PATH=$APP_ROOT/bin:$PATH
 
 pip install -U pip
 
-warpdrive fixup .
+warpdrive fixup $APP_ROOT
 
 if [ -f $APP_ROOT/etc/scl_enable ]; then
     echo ". $APP_ROOT/warpdrive/etc/shell-init" >> $APP_ROOT/etc/scl_enable
