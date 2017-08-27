@@ -87,7 +87,7 @@ if [ $WARPDRIVE_USER_ID != 0 -a $WARPDRIVE_USER_ID != $WARPDRIVE_BUILDER_ID ]; t
     fi
 fi
 
-if [ x"$NSS_WRAPPER_PASSWD_UPDATE" != x"" ]
+if [ x"$NSS_WRAPPER_PASSWD_UPDATE" != x"" ]; then
     if [ -w /etc/passwd ]; then
         cat $NSS_WRAPPER_PASSWD > /etc/passwd
     else
