@@ -87,14 +87,16 @@ if [ $WARPDRIVE_USER_ID != 0 -a $WARPDRIVE_USER_ID != $WARPDRIVE_BUILDER_ID ]; t
     fi
 fi
 
-if [ x"$NSS_WRAPPER_PASSWD_UPDATE" != x"" -a -w /etc/passwd ]; then
-    cat $NSS_WRAPPER_PASSWD > /etc/passwd
-else
-    if [ "$NSS_WRAPPER_LIBRARY" != "" ]; then
-        echo "export NSS_WRAPPER_PASSWD=$NSS_WRAPPER_PASSWD"
-        echo "export NSS_WRAPPER_GROUP=$NSS_WRAPPER_GROUP"
+if [ x"$NSS_WRAPPER_PASSWD_UPDATE" != x"" ]
+    if [ -w /etc/passwd ]; then
+        cat $NSS_WRAPPER_PASSWD > /etc/passwd
+    else
+        if [ "$NSS_WRAPPER_LIBRARY" != "" ]; then
+            echo "export NSS_WRAPPER_PASSWD=$NSS_WRAPPER_PASSWD"
+            echo "export NSS_WRAPPER_GROUP=$NSS_WRAPPER_GROUP"
 
-        echo "export LD_PRELOAD=$NSS_WRAPPER_LIBRARY"
+            echo "export LD_PRELOAD=$NSS_WRAPPER_LIBRARY"
+        fi
     fi
 fi
 
