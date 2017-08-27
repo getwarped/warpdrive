@@ -82,4 +82,4 @@ fi
 
 echo "---> Fix permissions on application source"
 
-warpdrive fix-permissions
+warpdrive fixup $WARPDRIVE_APP_ROOT
