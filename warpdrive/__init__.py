@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-version = '0.30.2'
+version = '0.30.3'
 
 import os
 import sys
