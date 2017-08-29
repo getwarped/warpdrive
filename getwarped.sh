@@ -32,9 +32,6 @@ while [ "$#" != "0" ]; do
     shift
 done
 
-BINDIR=${BINDIR:-$APP_ROOT/bin}
-TMPDIR=${TMPDIR:-$APP_ROOT/tmp}
-
 case "$VERSION" in
     0)
         VERSION=0.30.4
@@ -50,6 +47,7 @@ curl -SL --fail -o /tmp/warpdrive.tar.gz $PACKAGE \
 
 mkdir -p $APP_ROOT/bin
 mkdir -p $APP_ROOT/tmp
+mkdir -p $APP_ROOT/data
 
 cat >> $APP_ROOT/bin/warpdrive << !
 #!/bin/sh
