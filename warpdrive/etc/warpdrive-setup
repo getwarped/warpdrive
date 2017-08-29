@@ -52,11 +52,11 @@ if [ ! -f $WARPDRIVE_APP_ROOT/markers/deploy-cfg ]; then
     fi
 fi
 
-# Run any user supplied script to be run prior to starting the
-# application in the actual container. The script must be executable in
-# order to be run. It is not possible for this script to change the
-# permissions so it is executable and then run it, due to some docker
-# bug which results in the text file being busy. For more details see:
+# Run any user supplied script to perform any initial database setup or
+# application setup. The script must be executable in order to be run.
+# It is not possible for this script to change the permissions so it is
+# executable and then run it, due to some docker bug which results in
+# the text file being busy. For more details see:
 #
 #   https://github.com/docker/docker/issues/9547
 
