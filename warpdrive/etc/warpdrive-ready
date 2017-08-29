@@ -47,5 +47,5 @@ fi
 
 if [ -x .warpdrive/action_hooks/ready ]; then
     echo " -----> Running .warpdrive/action_hooks/ready"
-    .warpdrive/action_hooks/ready
+    exec .warpdrive/action_hooks/ready
 fi

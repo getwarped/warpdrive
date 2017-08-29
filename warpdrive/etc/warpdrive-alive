@@ -47,5 +47,5 @@ fi
 
 if [ -x .warpdrive/action_hooks/alive ]; then
     echo " -----> Running .warpdrive/action_hooks/alive"
-    .warpdrive/action_hooks/alive
+    exec .warpdrive/action_hooks/alive
 fi

@@ -68,5 +68,5 @@ fi
 
 if [ -x .warpdrive/action_hooks/setup ]; then
     echo " -----> Running .warpdrive/action_hooks/setup"
-    .warpdrive/action_hooks/setup
+    exec .warpdrive/action_hooks/setup
 fi

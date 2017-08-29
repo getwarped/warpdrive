@@ -68,5 +68,5 @@ fi
 
 if [ -x .warpdrive/action_hooks/migrate ]; then
     echo " -----> Running .warpdrive/action_hooks/migrate"
-    .warpdrive/action_hooks/migrate
+    exec .warpdrive/action_hooks/migrate
 fi

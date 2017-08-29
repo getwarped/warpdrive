@@ -47,5 +47,5 @@ fi
 
 if [ -x .warpdrive/action_hooks/verify ]; then
     echo " -----> Running .warpdrive/action_hooks/verify"
-    .warpdrive/action_hooks/verify
+    exec .warpdrive/action_hooks/verify
 fi
