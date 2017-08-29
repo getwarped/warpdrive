@@ -37,7 +37,7 @@ TMPDIR=${TMPDIR:-$APP_ROOT/tmp}
 
 case "$VERSION" in
     0)
-        VERSION=0.30.3
+        VERSION=0.30.4
         ;;
 esac
 
