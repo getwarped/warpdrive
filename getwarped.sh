@@ -34,7 +34,7 @@ done
 
 case "$VERSION" in
     0)
-        VERSION=0.30.4
+        VERSION=0.31.0
         ;;
 esac
 
