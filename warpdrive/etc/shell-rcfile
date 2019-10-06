@@ -7,10 +7,16 @@ function warpdrive() {
 
             WARPDRIVE_VIRTUALENVS=${WARPDRIVE_VIRTUALENVS:-$HOME/.warpdrive}
 
+            WARPDRIVE_CREATE_PROJECT=false
+
             WARPDRIVE_ENV_NAME="default"
 
             while [ "$#" != "0" ]; do
                 case "$1" in
+                    --create)
+                        WARPDRIVE_CREATE_PROJECT=true
+                        ;;
+
                     --python=*)
                         WARPDRIVE_PYTHON_BINARY=`echo $1 | sed -e 's/--python=//'`
                         WARPDRIVE_ACTIVATE_ARGS="$WARPDRIVE_ACTIVATE_ARGS --python=$WARPDRIVE_PYTHON_BINARY"
@@ -34,7 +40,13 @@ function warpdrive() {
             if [ -d "$WARPDRIVE_VENV_DIR" ]; then
                 echo "Switching to warpdrive project '$WARPDRIVE_ENV_NAME'."
             else
-                echo "Initializing warpdrive project '$WARPDRIVE_ENV_NAME'."
+                if [ x"$WARPDRIVE_CREATE_PROJECT" == x"true" ]; then
+                    echo "Initializing warpdrive project '$WARPDRIVE_ENV_NAME'."
+                else
+                    echo "Project '$WARPDRIVE_ENV_NAME' does not exist. Use the --create option to create it."
+
+                    return
+                fi
             fi
 
             eval "$($WARPDRIVE activate $WARPDRIVE_ENV_NAME $WARPDRIVE_ACTIVATE_ARGS)"
