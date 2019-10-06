@@ -1,0 +1,24 @@
+#!/bin/bash
+
+if [ x"$WARPDRIVE_DEBUG" != x"" ]; then
+    set -x
+fi
+
+# This script will output shell commands to be added to the shell login
+# profile scripts to enable full access to warpdrive commands, including
+# those for managing Python virtual environments.
+
+if [ x"$WARPDRIVE_MASTER" != x"" ]; then
+    WARPDRIVE=$WARPDRIVE_MASTER
+fi
+
+if [ x"$WARPDRIVE" = x"" ]; then
+    WARPDRIVE=`which warpdrive`
+fi
+
+cat << EOF
+WARPDRIVE=$WARPDRIVE
+export WARPDRIVE
+
+. \`\$WARPDRIVE rcfile\`
+EOF
