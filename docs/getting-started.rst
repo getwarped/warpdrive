@@ -164,18 +164,27 @@ This can be into your main Python installation, or you can create a
 dedicated Python virtual environment which contains only ``warpdrive``.
 
 Next we are going to add some extra lines to your login shell profile. If
-using ``bash`` you should add this to the end of ``~/.bash_profile``::
+using ``bash``, run:
+
+::
+
+    warpdrive profile
+
+and take the output and add it to the end of your ``~/.bash_profile`` file.
+It should look something like:
+
+::
 
     WARPDRIVE=$HOME/Python/warpdrive/bin/warpdrive
     export WARPDRIVE
 
-    source `$WARPDRIVE rcfile`
+    . `$WARPDRIVE rcfile`
 
 The ``WARPDRIVE`` variable should be set to where the ``warpdrive`` command
 was installed. In the case of using a Python virtual environment, there is
 no need to activate the Python virtual environment you installed
 ``warpdrive`` into. What you are adding to the login shell profile will
-ensure that ``waprdrive`` always works without you needing to do that.
+ensure that ``warpdrive`` always works without you needing to do that.
 
 That completes the once off initial installation of ``warpdrive``. Create
 a new shell so the updated login shell profile is picked up and you are
