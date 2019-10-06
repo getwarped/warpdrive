@@ -195,7 +195,10 @@ your application. While in the Django project directory, now run:
 
 ::
 
-    warpdrive project mydjangosite
+    warpdrive project --create mydjangosite
+
+The ``--create`` option is only needed the first time when the project has
+not already been setup.
 
 This should update your command prompt to include
 ``(warpdrive+mydjangosite)``. This is done so you know what environment
