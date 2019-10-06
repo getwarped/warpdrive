@@ -8,4 +8,8 @@ WARPDRIVE_START=`which $0`
 WARPDRIVE_SCRIPTS=`dirname $WARPDRIVE_START`/../etc
 WARPDRIVE_SCRIPTS=`realpath $WARPDRIVE_SCRIPTS`
 
-exec $WARPDRIVE_SCRIPTS/warpdrive-$ACTION "$@"
+if [ -x $WARPDRIVE_SCRIPTS/warpdrive-$ACTION ]; then
+    exec $WARPDRIVE_SCRIPTS/warpdrive-$ACTION "$@"
+fi
+
+exec $WARPDRIVE_SCRIPTS/warpdrive-help

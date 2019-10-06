@@ -1,0 +1,38 @@
+#!/bin/bash
+
+cat << EOF
+Warpdrive Client
+
+This client helps you build and deploy Python web applications, including
+the ability to create container images which bundle your application for
+deployment in container platforms such as Docker, Kubernetes and OpenShift.
+It also includes the capability to manage the Python virtual environment
+for holding packages required by your Python application.
+
+Virtual Environment Commands:
+  activate      Create and/or configure the Python virtual environment.
+  deactivate    Deactivate the current Python virtual environment.
+  destroy       Deletes the specified Python virtual environment.
+  project       Activate the specified Python virtual environment.
+
+Application Build Commands:
+  build         Run build steps to ready the application for deployment.
+  fixup         Fixup filesystem permissions when building a container image.
+  image         Create a container image which bundles the application.
+  verify        Run verification steps to check a build was successful.
+  wheels        Create a container image containing required Python wheels.
+
+Application Runtime Commands:
+  alive         Run liveness checks to verify the application is running.
+  env           Output environment settings for the application and/or shell.
+  exec          Execute a command after applying the environment settings.
+  migrate       Run any required steps to perform database migrations.
+  ready         Run readiness checks to verify application can accept requests.
+  setup         Run any required initial steps to setup the application.
+  shell         Execute a shell after applying the environment settings.
+  start         Start the application after applying the environment settings.
+
+Miscellaneous Commands:
+  profile       Output shell commands to include in login script files.
+  rcfile        Output path to shell script to be source'd in login scripts.
+EOF

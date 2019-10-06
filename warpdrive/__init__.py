@@ -13,8 +13,12 @@ def main(*args):
 
     # Skip program name.
 
-    action = args[1]
-    args = args[2:]
+    if len(args) >= 2:
+        action = args[1]
+        args = args[2:]
+    else:
+        action = 'help'
+        args = []
 
     program = 'warpdrive-%s' % action
     executable = os.path.join(scripts, program)
