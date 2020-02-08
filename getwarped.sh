@@ -64,7 +64,7 @@ export PIP_NO_CACHE_DIR
 
 virtualenv $APP_ROOT
 
-PATH=$APP_ROOT/bin:$PATH
+PATH="$APP_ROOT/bin:$PATH"
 
 pip install -U pip
 

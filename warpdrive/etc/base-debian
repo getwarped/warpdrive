@@ -99,7 +99,7 @@ esac
 
 # Set PATH to include bin directories for Python and Apache.
 
-PATH=$WARPDRIVE_ROOT_DIR/python/bin:$PATH
+PATH="$WARPDRIVE_ROOT_DIR/python/bin:$PATH"
 export PATH
 
 # Install additional common Python packages we want installed. This
