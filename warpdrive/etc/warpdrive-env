@@ -114,24 +114,25 @@ echo "export PYTHONPATH=$PYTHONPATH"
 # Add the bin directory for the Python virtual environment if it exists.
 
 if [ -f $WARPDRIVE_APP_ROOT/bin/activate ]; then
-    PATH=$WARPDRIVE_APP_ROOT/bin:$PATH
+    PATH="$WARPDRIVE_APP_ROOT/bin:$PATH"
 fi
 
-echo "export PATH=$PATH"
+echo "export PATH=\"$PATH\""
 
-# Now source environment variables. First evaluate common environment
-# variables from '.warpdrive/environment' if it exists. Then source
-# variables from '.warpdrive/action_hooks/deploy-env' if it exists. Any
-# variables set in either script will be automatically exported. It is
-# possible to use script logic, but temporary variables would need to be
-# cleaned up manually due to variables set being automatically exported.
+# Also need to source environment variables. First evaluate common
+# environment variables from '.warpdrive/environment' if it exists. Then
+# source variables from '.warpdrive/action_hooks/deploy-env' if it
+# exists. Any variables set in either script will be automatically
+# exported. It is possible to use script logic, but temporary variables
+# would need to be cleaned up manually due to variables set being
+# automatically exported.
 
 if [ -f $WARPDRIVE_SRC_ROOT/.warpdrive/environment ]; then
-    set -a; . $WARPDRIVE_SRC_ROOT/.warpdrive/environment; set +a
+    cat $WARPDRIVE_SRC_ROOT/.warpdrive/environment
 fi
 
 if [ -f $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-env ]; then
-    set -a; . $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-env; set +a
+    cat $WARPDRIVE_SRC_ROOT/.warpdrive/action_hooks/deploy-env
 fi
 
 # Output how environment variables should be incorporated.
