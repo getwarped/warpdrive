@@ -7,6 +7,11 @@ if [ "$#" = "0" ]; then
     exit 1
 fi
 
+if [ x"$WARPDRIVE_ENV_NAME" = x"$1" ]; then
+    echo "Cannot delete active project, deactivate it first."
+    exit 1
+fi
+
 WARPDRIVE_ENV_NAME="$1"
 
 WARPDRIVE_VENV_DIR="$WARPDRIVE_VIRTUALENVS/warpdrive+$WARPDRIVE_ENV_NAME"
