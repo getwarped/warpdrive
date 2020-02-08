@@ -287,7 +287,7 @@ with open('$WARPDRIVE_TMP_VALUES', 'w') as fp:
     fp.write('WARPDRIVE_DJANGO_SETTINGS="%s"' % settings.SETTINGS_MODULE)
 !
 
-    (cat - | python $WARPDRIVE_APP_HOME/manage.py shell --plain > /dev/null) << !
+    (cat - | python $WARPDRIVE_APP_HOME/manage.py shell -i python > /dev/null) << !
 import runpy
 _ = runpy.run_path('$WARPDRIVE_TMP_SCRIPT')
 !

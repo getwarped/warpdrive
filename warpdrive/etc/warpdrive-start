@@ -168,7 +168,7 @@ with open('$WARPDRIVE_TMP_VALUES', 'w') as fp:
     fp.write('\n'.join(variables))
 !
 
-    (cat - | python manage.py shell --plain > /dev/null) << !
+    (cat - | python manage.py shell -i python > /dev/null) << !
 import runpy
 _ = runpy.run_path('$WARPDRIVE_TMP_SCRIPT')
 !
