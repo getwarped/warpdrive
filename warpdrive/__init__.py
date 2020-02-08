@@ -23,6 +23,11 @@ def main(*args):
     program = 'warpdrive-%s' % action
     executable = os.path.join(scripts, program)
 
+    if not os.path.exists(executable):
+        print('Error: unknown command "%s" for "warpdrive"' % action, file=sys.stderr)
+        print('Run "warpdrive help for usage.', file=sys.stderr)
+        sys.exit(1)
+
     os.environ['WARPDRIVE_VERSION'] = version
 
     os.execl(executable, program, *args)
