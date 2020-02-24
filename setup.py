@@ -26,7 +26,7 @@ classifiers = [
 ]
 
 setup(name = 'warpdrive',
-      version = '0.33.0',
+      version = '0.34.0',
       description = 'Launcher for Python web applications.',
       long_description=long_description,
       url = 'https://github.com/getwarped/warpdrive',
